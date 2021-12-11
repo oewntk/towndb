@@ -9,8 +9,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>io.github.x-englishwordnet</groupId>
-	<artifactId>wndb</artifactId>
+	<artifactId>towndb</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
+	<name>to_wndb</name>
+	<description>Export Wordnet model to WNDB files.</description>
+	<url>https://github.com/x-englishwordnet/towndb</url>
 
 	<properties>
 		<maven.compiler.source>11</maven.compiler.source>
@@ -34,8 +37,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.1</version>
 				<configuration>
-					<source>8</source>
-					<target>8</target>
+					<source>11</source>
+					<target>11</target>
 				</configuration>
 			</plugin>
 
@@ -148,14 +151,14 @@
 	</distributionManagement>
 
 	<scm>
-		<url>https://github.com/x-englishwordnet/grind_yaml</url>
-		<connection>scm:git:git://github.com/x-englishwordnet/grind_yaml.git</connection>
-		<developerConnection>scm:git:ssh://git@github.com:x-englishwordnet/grind_yaml.git</developerConnection>
+		<url>https://github.com/x-englishwordnet/towndb</url>
+		<connection>scm:git:git://github.com/x-englishwordnet/towndb.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com:x-englishwordnet/towndb.git</developerConnection>
 	</scm>
 
 	<issueManagement>
 		<system>GitHub</system>
-		<url>https://github.com/x-englishwordnet/grind_yaml/issues</url>
+		<url>https://github.com/x-englishwordnet/towndb/issues</url>
 	</issueManagement>
 
 	<licenses>
