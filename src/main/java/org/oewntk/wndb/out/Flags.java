@@ -25,14 +25,4 @@ public class Flags
 	 * Compat mode switch that does not allow verbframes beyond those used in PWN.
 	 */
 	public static int verbFrameCompat = 0x4;
-
-	/**
-	 * Trace time
-	 */
-	public static int traceTime = 0x10000000;
-
-	/**
-	 * Trace heap
-	 */
-	public static int traceHeap = 0x20000000;
 }

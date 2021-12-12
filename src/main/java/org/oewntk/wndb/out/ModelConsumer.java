@@ -75,9 +75,6 @@ public class ModelConsumer implements Consumer<Model>
 			outDir.mkdirs();
 		}
 
-		// Timing
-		final long startTime = System.currentTimeMillis();
-
 		// Compute synset offsets
 		Map<String, Long> offsets = new OffsetFactory(model.lexesByLemma, model.synsetsById, model.sensesById, flags).compute();
 
@@ -89,15 +86,6 @@ public class ModelConsumer implements Consumer<Model>
 		indexTemplates(outDir, model.sensesById);
 		templates(outDir, model.verbTemplatesById);
 		tagcounts(outDir, model.sensesById);
-
-		// Timing
-		boolean traceTime = (flags & Flags.traceTime) != 0;
-
-		if (traceTime)
-		{
-			final long endTime = System.currentTimeMillis();
-			ps.println("Total execution time: " + (endTime - startTime) / 1000 + "s");
-		}
 	}
 
 	/**
