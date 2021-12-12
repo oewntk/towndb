@@ -4,9 +4,6 @@
 
 package org.oewntk.wndb.out;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-
 /**
  * This class groups settings flags that affect the grinder's behaviour.
  *
@@ -17,24 +14,25 @@ public class Flags
 	/**
 	 * Compat mode switch that does not allow lexid to be greater than 16. See PWN grinder source in wnparse.y
 	 */
-	public static boolean LEXID_COMPAT = false;
+	public static final int lexIdCompat = 0x1;
 
 	/**
 	 * Compat mode switch that does not allow pointers beyond those used in PWN.
 	 */
-	public static boolean POINTER_COMPAT = false;
+	public static int pointerCompat = 0x2;
 
 	/**
 	 * Compat mode switch that does not allow verbframes beyond those used in PWN.
 	 */
-	public static boolean VERBFRAME_COMPAT = false;
+	public static int verbFrameCompat = 0x4;
 
 	/**
-	 * Character set for output files.
+	 * Trace time
 	 */
-	public static final Charset charSet = StandardCharsets.UTF_8;
+	public static int traceTime = 0x10000000;
 
-	private Flags()
-	{
-	}
+	/**
+	 * Trace heap
+	 */
+	public static int traceHeap = 0x20000000;
 }

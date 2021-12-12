@@ -48,6 +48,11 @@ public abstract class SynsetProcessor
 	protected final Map<String, Sense> sensesById;
 
 	/**
+	 * Flags
+	 */
+	protected final int flags;
+
+	/**
 	 * Function that, when applied to a synsetId, yields the synset offset in the data files. May be dummy constant function.
 	 */
 	protected final ToLongFunction<String> offsetFunction;
@@ -68,17 +73,19 @@ public abstract class SynsetProcessor
 	/**
 	 * Constructor
 	 *
-	 * @param lexesByLemma      lexes mapped by lemma
+	 * @param lexesByLemma   lexes mapped by lemma
 	 * @param synsetsById    synsets mapped by id
 	 * @param sensesById     senses mapped by id
 	 * @param offsetFunction function that, when applied to a synsetId, yields the synset offset in the data files. May be dummy constant function.
+	 * @param flags          flags
 	 */
-	protected SynsetProcessor(Map<String, List<Lex>> lexesByLemma, Map<String, Synset> synsetsById, Map<String, Sense> sensesById, ToLongFunction<String> offsetFunction)
+	protected SynsetProcessor(Map<String, List<Lex>> lexesByLemma, Map<String, Synset> synsetsById, Map<String, Sense> sensesById, ToLongFunction<String> offsetFunction, int flags)
 	{
 		this.lexesByLemma = lexesByLemma;
 		this.synsetsById = synsetsById;
 		this.sensesById = sensesById;
 		this.offsetFunction = offsetFunction;
+		this.flags = flags;
 		this.incompats = new HashMap<>();
 	}
 
@@ -165,7 +172,8 @@ public abstract class SynsetProcessor
 		String lemma = lex.getLemma();
 
 		String escaped = Formatter.escape(lemma);
-		return adjPosition == null || adjPosition.isEmpty() ? new Member(escaped, lexid) : new AdjMember(escaped, lexid, adjPosition);
+		boolean lexIdCompat = (flags & Flags.lexIdCompat) != 0;
+		return adjPosition == null || adjPosition.isEmpty() ? new Member(escaped, lexid, lexIdCompat) : new AdjMember(escaped, lexid, adjPosition, lexIdCompat);
 	}
 
 	/**
@@ -221,6 +229,7 @@ public abstract class SynsetProcessor
 					}
 				}
 			}
+			boolean pointerCompat = (flags & Flags.pointerCompat) != 0;
 			for (RelationData relationData : relationDataSet)
 			{
 				Synset targetSynset = synsetsById.get(relationData.target);
@@ -230,7 +239,7 @@ public abstract class SynsetProcessor
 				Relation relation;
 				try
 				{
-					relation = new Relation(relationData.relType, type, targetType, targetOffset, 0, 0);
+					relation = new Relation(relationData.relType, type, targetType, targetOffset, 0, 0, pointerCompat);
 				}
 				catch (CompatException e)
 				{
@@ -259,6 +268,8 @@ public abstract class SynsetProcessor
 		// iterate senses
 		for (Sense sense : senses)
 		{
+			boolean verbFrameCompat = (flags & Flags.verbFrameCompat) != 0;
+
 			// verb frames attribute
 			String[] verbFrameIds = sense.getVerbFrames();
 			if (verbFrameIds != null && verbFrameIds.length > 0)
@@ -267,7 +278,7 @@ public abstract class SynsetProcessor
 				{
 					try
 					{
-						Frame frame = new Frame(Coder.codeFrameId(verbframeId), sense.findSynsetIndex(synsetsById));
+						Frame frame = new Frame(Coder.codeFrameId(verbframeId, verbFrameCompat), sense.findSynsetIndex(synsetsById));
 						frames.add(frame);
 					}
 					catch (CompatException e)
@@ -334,7 +345,8 @@ public abstract class SynsetProcessor
 		}
 
 		// assemble
-		String membersData = Formatter.joinNum(members, "%02x", Member::toWndbString);
+		boolean lexIdCompat = (flags & Flags.lexIdCompat) != 0;
+		String membersData = Formatter.joinNum(members, "%02x", m -> m.toWndbString(lexIdCompat));
 		String relatedData = Formatter.joinNum(relations, "%03d", Relation::toWndbString);
 		String verbframesData = frames.toWndbString(type, members.size());
 		if (!verbframesData.isEmpty())
@@ -368,7 +380,8 @@ public abstract class SynsetProcessor
 		int targetMemberNum = targetSynset.findIndexOfMember(targetLemma);
 		char targetType = targetSynset.getType();
 		long targetOffset = this.offsetFunction.applyAsLong(targetSynsetId);
-		return new Relation(type, pos, targetType, targetOffset, lemmaIndex + 1, targetMemberNum + 1);
+		boolean pointerCompat = (flags & Flags.pointerCompat) != 0;
+		return new Relation(type, pos, targetType, targetOffset, lemmaIndex + 1, targetMemberNum + 1, pointerCompat);
 	}
 
 	/**

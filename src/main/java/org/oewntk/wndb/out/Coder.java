@@ -82,11 +82,12 @@ public class Coder
 	/**
 	 * Code relation
 	 *
-	 * @param type relation type
-	 * @param pos  part-of-speech
+	 * @param type          relation type
+	 * @param pos           part-of-speech
+	 * @param pointerCompat pointer compatibility
 	 * @return code
 	 */
-	static String codeRelation(String type, char pos) throws CompatException
+	static String codeRelation(String type, char pos, boolean pointerCompat) throws CompatException
 	{
 		switch (pos)
 		{
@@ -212,11 +213,11 @@ public class Coder
                     case DOMAIN_USAGE:
                         return ";u";
                     case IS_ENTAILED:
-                        if (Flags.POINTER_COMPAT)
+                        if (pointerCompat)
                             throw new CompatException(new IllegalArgumentException(type)); // NOT DEFINED IN PWN
                         return IS_ENTAILED_PTR;
                     case IS_CAUSED:
-                        if (Flags.POINTER_COMPAT)
+                        if (pointerCompat)
                             throw new CompatException(new IllegalArgumentException(type)); // NOT DEFINED IN PWN
                         return IS_CAUSED_PTR;
                     default:
@@ -376,10 +377,11 @@ public class Coder
 	/**
 	 * Code verb frame
 	 *
-	 * @param frameid0 frame id
+	 * @param frameid0        frame id
+	 * @param verbFrameCompat verbFrame compatibility
 	 * @return code
 	 */
-	static int codeFrameId(String frameid0) throws CompatException
+	static int codeFrameId(String frameid0, boolean verbFrameCompat) throws CompatException
 	{
 		String frameid = frameid0.trim();
 		Integer n = FRAMEID_TO_NUM.get(frameid);
@@ -387,7 +389,7 @@ public class Coder
 		{
 			throw new IllegalArgumentException(frameid0);
 		}
-		if (Flags.VERBFRAME_COMPAT && n > LAST_COMPAT_VERBFRAME)
+		if (verbFrameCompat && n > LAST_COMPAT_VERBFRAME)
 		{
 			throw new CompatException(new IllegalArgumentException(frameid0)); // NOT DEFINED IN PWN
 		}
@@ -462,7 +464,7 @@ public class Coder
 
 	public static void main(String[] args)
 	{
-		Flags.POINTER_COMPAT = args.length > 0 && "-compat,pointer".equals(args[0]);
+		boolean pointerCompat = args.length > 0 && "-compat,pointer".equals(args[0]);
 
 		final Map<Character, Set<String>> allRelations = new HashMap<>();
 		final Set<String> nSet = allRelations.computeIfAbsent('n', (k) -> new HashSet<>());
@@ -483,7 +485,7 @@ public class Coder
 				String pointer;
 				try
 				{
-					pointer = codeRelation(relation, pos);
+					pointer = codeRelation(relation, pos, pointerCompat);
 				}
 				catch (CompatException e)
 				{

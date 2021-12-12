@@ -9,6 +9,7 @@ import org.oewntk.model.Sense;
 import org.oewntk.model.Synset;
 import org.oewntk.wndb.out.Data.Relation;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,13 +26,14 @@ public class OffsetFactory extends SynsetProcessor
 	/**
 	 * Constructor
 	 *
-	 * @param lexesByLemma   lexes mapped by lemma
-	 * @param synsetsById synsets mapped by id
-	 * @param sensesById  senses mapped by id
+	 * @param lexesByLemma lexes mapped by lemma
+	 * @param synsetsById  synsets mapped by id
+	 * @param sensesById   senses mapped by id
+	 * @param flags        flags
 	 */
-	public OffsetFactory(Map<String, List<Lex>> lexesByLemma, Map<String, Synset> synsetsById, Map<String, Sense> sensesById)
+	public OffsetFactory(Map<String, List<Lex>> lexesByLemma, Map<String, Synset> synsetsById, Map<String, Sense> sensesById, int flags)
 	{
-		super(lexesByLemma, synsetsById, sensesById, s -> 0L /* dummy synset */);
+		super(lexesByLemma, synsetsById, sensesById, s -> 0L /* dummy synset */, flags);
 	}
 
 	/**
@@ -46,12 +48,12 @@ public class OffsetFactory extends SynsetProcessor
 	/**
 	 * Compute synset offsets
 	 *
-	 * @param posFilter selection of synsets
-	 * @param offsets   result map
+	 * @param posFilter     selection of synsets
+	 * @param offsets       result map
 	 */
 	public void compute(char posFilter, Map<String, Long> offsets)
 	{
-		long offset = Formatter.OEWN_HEADER.getBytes(Flags.charSet).length;
+		long offset = Formatter.OEWN_HEADER.getBytes(StandardCharsets.UTF_8).length;
 
 		// iterate synsets
 		for (Map.Entry<String, Synset> entry : synsetsById.entrySet())
@@ -66,7 +68,7 @@ public class OffsetFactory extends SynsetProcessor
 			String data = getData(synset, dummyOfs);
 			offsets.put(id, offset);
 
-			offset += data.getBytes(Flags.charSet).length;
+			offset += data.getBytes(StandardCharsets.UTF_8).length;
 		}
 		System.err.println("Computed offsets for " + posFilter);
 	}
@@ -96,7 +98,8 @@ public class OffsetFactory extends SynsetProcessor
 	protected Relation buildSenseRelation(String type, char pos, int lemmaIndex, Sense targetSense, Synset targetSynset, String targetSynsetId) throws CompatException
 	{
 		char targetType = targetSynset.getType();
-		return new Relation(type, pos, targetType, dummyOfs, DUMMY_NUM, DUMMY_NUM);
+		boolean pointerCompat = (flags & Flags.pointerCompat) != 0;
+		return new Relation(type, pos, targetType, dummyOfs, DUMMY_NUM, DUMMY_NUM, pointerCompat);
 	}
 
 	@Override

@@ -36,13 +36,20 @@ public class WordIndexer
 	private final Map<String, Long> offsets;
 
 	/**
+	 * Flags
+	 */
+	private final int flags;
+
+	/**
 	 * Constructor
 	 *
 	 * @param offsets offsets indexed by synset id key
+	 * @param flags   flags
 	 */
-	public WordIndexer(Map<String, Long> offsets)
+	public WordIndexer(Map<String, Long> offsets, int flags)
 	{
 		this.offsets = offsets;
+		this.flags = flags;
 	}
 
 	private static class IndexData
@@ -124,6 +131,7 @@ public class WordIndexer
 						Synset synset = synsetsById.get(synsetId);
 
 						// synset relations
+						boolean pointerCompat = (flags & Flags.pointerCompat) != 0;
 						Map<String, List<String>> synsetRelations = synset.getRelations();
 						if (synsetRelations != null && synsetRelations.size() > 0)
 						{
@@ -133,7 +141,7 @@ public class WordIndexer
 								String pointer;
 								try
 								{
-									pointer = Coder.codeRelation(relationType, pos);
+									pointer = Coder.codeRelation(relationType, pos, pointerCompat);
 								}
 								catch (CompatException e)
 								{
@@ -155,6 +163,7 @@ public class WordIndexer
 				}
 
 				// sense relations
+				boolean pointerCompat = (flags & Flags.pointerCompat) != 0;
 				List<Sense> lexSenses = lex.getSenses();
 				for (Sense lexSense : lexSenses)
 				{
@@ -167,7 +176,7 @@ public class WordIndexer
 							String pointer;
 							try
 							{
-								pointer = Coder.codeRelation(relationType, pos);
+								pointer = Coder.codeRelation(relationType, pos, pointerCompat);
 							}
 							catch (CompatException e)
 							{

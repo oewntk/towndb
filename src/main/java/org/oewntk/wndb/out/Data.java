@@ -48,11 +48,11 @@ public class Data
 
 		protected final int lexid;
 
-		public Member(String lemma, int lexid)
+		public Member(String lemma, int lexid, boolean lexIdCompat)
 		{
 			super();
 			this.lemma = lemma;
-			if (Flags.LEXID_COMPAT)
+			if (lexIdCompat)
 			{
 				this.lexid = lexid % 16; // 16 -> 0
 				if (lexid > 16)
@@ -67,9 +67,9 @@ public class Data
 			}
 		}
 
-		public String toWndbString()
+		public String toWndbString(boolean lexIdCompat)
 		{
-			return String.format(Flags.LEXID_COMPAT ? "%s %1X" : "%s %X", lemma, lexid);
+			return String.format(lexIdCompat ? "%s %1X" : "%s %X", lemma, lexid);
 		}
 
 		@Override
@@ -86,16 +86,16 @@ public class Data
 	{
 		private final String position;
 
-		public AdjMember(String lemma, int lexid, String position)
+		public AdjMember(String lemma, int lexid, String position, boolean lexIdCompat)
 		{
-			super(lemma, lexid);
+			super(lemma, lexid, lexIdCompat);
 			this.position = position;
 		}
 
 		@Override
-		public String toWndbString()
+		public String toWndbString(boolean lexIdCompat)
 		{
-			return String.format(Flags.LEXID_COMPAT ? "%s(%s) %1X" : "%s(%s) %X", lemma, position, lexid);
+			return String.format(lexIdCompat ? "%s(%s) %1X" : "%s(%s) %X", lemma, position, lexid);
 		}
 
 		@Override
@@ -145,11 +145,12 @@ public class Data
 		 * @param targetOffset  relation target offset
 		 * @param sourceWordNum word number in source synset
 		 * @param targetWordNum word number in target synset
+		 * @param pointerCompat pointer compatibility
 		 */
-		public Relation(String type, char pos, char targetPos, long targetOffset, int sourceWordNum, int targetWordNum) throws CompatException
+		public Relation(String type, char pos, char targetPos, long targetOffset, int sourceWordNum, int targetWordNum, final boolean pointerCompat) throws CompatException
 		{
 			super();
-			this.ptrSymbol = Coder.codeRelation(type, pos);
+			this.ptrSymbol = Coder.codeRelation(type, pos, pointerCompat);
 			this.pos = pos;
 			this.targetPos = targetPos;
 			this.targetOffset = targetOffset;

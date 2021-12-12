@@ -9,6 +9,7 @@ import org.oewntk.model.Sense;
 import org.oewntk.model.Synset;
 
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -26,10 +27,11 @@ public class DataGrinder extends SynsetProcessor
 	 * @param synsetsById  synsets mapped by id
 	 * @param sensesById   senses mapped by id
 	 * @param offsetMap    offsets by synset id
+	 * @param flags        flags
 	 */
-	public DataGrinder(Map<String, List<Lex>> lexesByLemma, Map<String, Synset> synsetsById, Map<String, Sense> sensesById, Map<String, Long> offsetMap)
+	public DataGrinder(Map<String, List<Lex>> lexesByLemma, Map<String, Synset> synsetsById, Map<String, Sense> sensesById, Map<String, Long> offsetMap, int flags)
 	{
-		super(lexesByLemma, synsetsById, sensesById, offsetMap::get);
+		super(lexesByLemma, synsetsById, sensesById, offsetMap::get, flags);
 	}
 
 	/**
@@ -44,14 +46,16 @@ public class DataGrinder extends SynsetProcessor
 	/**
 	 * Make data
 	 *
-	 * @param ps          print stream
-	 * @param synsetsById synsets mapped by id
-	 * @param posFilter   part-of-speech  filter
+	 * @param ps            print stream
+	 * @param synsetsById   synsets mapped by id
+	 * @param posFilter     part-of-speech  filter
+	 * @param lexIdCompat   lexId compatibility
+	 * @param pointerCompat pointer compatibility
 	 */
 	public void makeData(PrintStream ps, Map<String, Synset> synsetsById, char posFilter)
 	{
 		ps.print(Formatter.OEWN_HEADER);
-		long offset = Formatter.OEWN_HEADER.getBytes(Flags.charSet).length;
+		long offset = Formatter.OEWN_HEADER.getBytes(StandardCharsets.UTF_8).length;
 		Synset previous = null;
 
 		// iterate synsets
@@ -70,14 +74,14 @@ public class DataGrinder extends SynsetProcessor
 			{
 				assert previous != null;
 				String line = getData(previous, 0);
-				String line0 = new OffsetFactory(lexesByLemma, synsetsById, sensesById).getData(previous, 0);
+				String line0 = new OffsetFactory(lexesByLemma, synsetsById, sensesById, flags).getData(previous, 0);
 				throw new RuntimeException("miscomputed offset for " + id + "\n[then]=" + line0 + "[now ]=" + line);
 			}
 
 			String line = getData(synset, offset);
 			ps.print(line);
 
-			offset += line.getBytes(Flags.charSet).length;
+			offset += line.getBytes(StandardCharsets.UTF_8).length;
 			previous = synset;
 		}
 		System.err.println("Synsets: " + n + " for " + posFilter);
