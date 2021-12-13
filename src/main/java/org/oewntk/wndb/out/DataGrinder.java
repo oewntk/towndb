@@ -49,8 +49,6 @@ public class DataGrinder extends SynsetProcessor
 	 * @param ps            print stream
 	 * @param synsetsById   synsets mapped by id
 	 * @param posFilter     part-of-speech  filter
-	 * @param lexIdCompat   lexId compatibility
-	 * @param pointerCompat pointer compatibility
 	 */
 	public void makeData(PrintStream ps, Map<String, Synset> synsetsById, char posFilter)
 	{

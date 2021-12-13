@@ -118,7 +118,6 @@ public class SenseIndexer
 			// sense num, tag count
 			TagCount tagCount = sense.getTagCount();
 			int count = tagCount == null ? 0 : tagCount.getCount();
-			// TODO int senseNum = tagCount == null ? 0 : tagCount.getSenseNum();
 			int senseNum = sense.getLexIndex() + 1;
 
 			String line = String.format(SENSE_FORMAT, sensekeyLower, offset, senseNum, count);
@@ -150,7 +149,6 @@ public class SenseIndexer
 			// sense num, tag count
 			TagCount tagCount = sense.getTagCount();
 			int count = tagCount == null ? 0 : tagCount.getCount();
-			// TODO int senseNum = tagCount == null ? 0 : tagCount.getSenseNum();
 			int senseNum = sense.getLexIndex() + 1;
 
 			// data
