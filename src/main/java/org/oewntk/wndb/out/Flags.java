@@ -19,10 +19,10 @@ public class Flags
 	/**
 	 * Compat mode switch that does not allow pointers beyond those used in PWN.
 	 */
-	public static int pointerCompat = 0x2;
+	public static final int pointerCompat = 0x2;
 
 	/**
 	 * Compat mode switch that does not allow verbframes beyond those used in PWN.
 	 */
-	public static int verbFrameCompat = 0x4;
+	public static final int verbFrameCompat = 0x4;
 }
