@@ -20,22 +20,25 @@ public class SenseIndexer
 	/**
 	 * This represents what is needed for a line in index.sense)
 	 */
-	private static class SenseEntry<K>
+	private static class SenseEntry
 	{
-		public final K groupKey;
-
 		public final long offset;
 
 		public int senseNum;
 
 		public final int tagCount;
 
-		public SenseEntry(K groupKey, long offset, int senseNum, int tagCount)
+		/**
+		 * Used for sorting
+		 */
+		public final Sense sense;
+
+		public SenseEntry(long offset, int senseNum, int tagCount, final Sense sense)
 		{
-			this.groupKey = groupKey;
 			this.offset = offset;
 			this.senseNum = senseNum;
 			this.tagCount = tagCount;
+			this.sense = sense;
 		}
 
 		@Override
@@ -49,7 +52,7 @@ public class SenseIndexer
 			{
 				return false;
 			}
-			SenseEntry<K> senseEntry = (SenseEntry<K>) o;
+			SenseEntry senseEntry = (SenseEntry) o;
 			return offset == senseEntry.offset && senseNum == senseEntry.senseNum && tagCount == senseEntry.tagCount;
 		}
 
@@ -130,7 +133,7 @@ public class SenseIndexer
 	void reindexSenseEntries(Map<String, SenseEntry> entries, Comparator<SenseEntry> comparator)
 	{
 		entries.values().stream() //
-				.collect(Collectors.groupingBy(e -> e.groupKey)).values().forEach(e2 -> {
+				.collect(Collectors.groupingBy(e -> e.sense.getLex().getLemma().toLowerCase(Locale.ENGLISH) + "#" + e.sense.getPartOfSpeech())).values().forEach(e2 -> {
 
 					var stream2 = e2.stream();
 					if (comparator != null)
@@ -173,7 +176,7 @@ public class SenseIndexer
 			int tagCountValue = tagCount == null ? 0 : tagCount.getCount();
 
 			// collect
-			entries.put(sensekey, new SenseEntry(sense.getLex().getLemma().toLowerCase(Locale.ENGLISH) + "#" + sense.getPartOfSpeech(), offset, senseNum, tagCountValue));
+			entries.put(sensekey, new SenseEntry(offset, senseNum, tagCountValue, sense));
 		}
 		return entries;
 	}
