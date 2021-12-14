@@ -146,19 +146,19 @@ public class ModelConsumer implements Consumer<Model>
 		WordIndexer indexer = new WordIndexer(offsets, flags);
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "index.noun")), true, StandardCharsets.UTF_8))
 		{
-			indexer.makeIndex(ps, lexesByLemma, synsetsById, Data.NOUN_POS_FILTER);
+			indexer.make(ps, lexesByLemma, synsetsById, Data.NOUN_POS_FILTER);
 		}
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "index.verb")), true, StandardCharsets.UTF_8))
 		{
-			indexer.makeIndex(ps, lexesByLemma, synsetsById, Data.VERB_POS_FILTER);
+			indexer.make(ps, lexesByLemma, synsetsById, Data.VERB_POS_FILTER);
 		}
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "index.adj")), true, StandardCharsets.UTF_8))
 		{
-			indexer.makeIndex(ps, lexesByLemma, synsetsById, Data.ADJ_POS_FILTER);
+			indexer.make(ps, lexesByLemma, synsetsById, Data.ADJ_POS_FILTER);
 		}
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "index.adv")), true, StandardCharsets.UTF_8))
 		{
-			indexer.makeIndex(ps, lexesByLemma, synsetsById, Data.ADV_POS_FILTER);
+			indexer.make(ps, lexesByLemma, synsetsById, Data.ADV_POS_FILTER);
 		}
 	}
 
@@ -174,7 +174,7 @@ public class ModelConsumer implements Consumer<Model>
 	{
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "index.sense")), true, StandardCharsets.UTF_8))
 		{
-			new SenseIndexer(offsets).makeIndexLowerMultiValue(ps, sensesById);
+			new SenseIndexer(offsets).make(ps, sensesById);
 		}
 	}
 

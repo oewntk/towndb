@@ -8,39 +8,20 @@ import org.oewntk.model.Sense;
 import org.oewntk.model.TagCount;
 
 import java.io.PrintStream;
-import java.util.*;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.TreeMap;
 
 /**
  * This class produces the 'index.sense' file
  */
 public class SenseIndexer
 {
-	// sense_key synset_offset sense_number tag_cnt
-
 	/**
-	 * Format in data file
+	 * This represents what is needed for a line in index.sense)
 	 */
-	private static final String SENSE_FORMAT = "%s %08d %d %d  ";
-
-	static final Comparator<String> lexicalComparatorLowerFirst = (s1, s2) -> {
-		int c = s1.compareToIgnoreCase(s2);
-		if (c != 0)
-		{
-			return c;
-		}
-		return -s1.compareTo(s2);
-	};
-
-	static final Comparator<String> lexicalComparatorUpperFirst = (s1, s2) -> {
-		int c = s1.compareToIgnoreCase(s2);
-		if (c != 0)
-		{
-			return c;
-		}
-		return s1.compareTo(s2);
-	};
-
-	private static class Data
+	private static class SenseEntry
 	{
 		public final long offset;
 
@@ -48,7 +29,7 @@ public class SenseIndexer
 
 		public final int tagCount;
 
-		public Data(long offset, int senseNum, int tagCount)
+		public SenseEntry(long offset, int senseNum, int tagCount)
 		{
 			this.offset = offset;
 			this.senseNum = senseNum;
@@ -66,8 +47,8 @@ public class SenseIndexer
 			{
 				return false;
 			}
-			Data data = (Data) o;
-			return offset == data.offset && senseNum == data.senseNum && tagCount == data.tagCount;
+			SenseEntry senseEntry = (SenseEntry) o;
+			return offset == senseEntry.offset && senseNum == senseEntry.senseNum && tagCount == senseEntry.tagCount;
 		}
 
 		@Override
@@ -76,6 +57,20 @@ public class SenseIndexer
 			return Objects.hash(offset, senseNum, tagCount);
 		}
 	}
+
+	/**
+	 * Log print stream
+	 */
+	private static final PrintStream log = System.err;
+
+	/**
+	 * Format in data file
+	 * sense_key
+	 * synset_offset
+	 * sense_number
+	 * tag_cnt
+	 */
+	private static final String SENSE_FORMAT = "%s %08d %d %d";
 
 	/**
 	 * Synset offsets map indexed by synsetid key
@@ -87,56 +82,41 @@ public class SenseIndexer
 	 *
 	 * @param offsets synset offsets map indexed by synsetid key
 	 */
-	public SenseIndexer(Map<String, Long> offsets)
+	public SenseIndexer(final Map<String, Long> offsets)
 	{
 		super();
 		this.offsets = offsets;
 	}
 
 	/**
-	 * Make 'index.sense'. Sensekeys are lower-cased. Multiple lines may have the same key, which makes binary search yield unpredictable (non-deterministic)
-	 * results.
+	 * Make senses
 	 *
 	 * @param ps         print stream
-	 * @param sensesById senses mapped by id
+	 * @param sensesById senses
 	 */
-	public void makeIndexLowerMultiKey(PrintStream ps, Map<String, Sense> sensesById)
+	public void make(final PrintStream ps, final Map<String, Sense> sensesById)
 	{
-		SortedSet<String> lines = new TreeSet<>(lexicalComparatorUpperFirst);
+		// collect
+		Map<String, SenseEntry> entries = collectSenseEntries(sensesById);
 
-		for (Map.Entry<String, Sense> entry : sensesById.entrySet())
-		{
-			// sense
-			String sensekey = entry.getKey();
-			String sensekeyLower = sensekey.toLowerCase();
-			Sense sense = entry.getValue();
+		// print
+		printSenseEntries(entries, ps);
 
-			// offset
-			String synsetId = sense.getSynsetId();
-			long offset = offsets.get(synsetId);
-
-			// sense num, tag count
-			TagCount tagCount = sense.getTagCount();
-			int count = tagCount == null ? 0 : tagCount.getCount();
-			int senseNum = sense.getLexIndex() + 1;
-
-			String line = String.format(SENSE_FORMAT, sensekeyLower, offset, senseNum, count);
-			lines.add(line);
-		}
-		int n = 0;
-		for (String line : lines)
-		{
-			ps.println(line);
-			n++;
-		}
-		System.err.printf("Senses (lower, multikey): %d, %d lines%n", n, lines.size());
+		// log
+		log.printf("Senses: %d%n", entries.size());
 	}
 
-	public void makeIndexLowerMultiValue(final PrintStream ps, final Map<String, Sense> sensesById)
+	/**
+	 * Collect sense entries
+	 *
+	 * @param sensesById senses
+	 * @return sense entries mapped by sensekey
+	 */
+	private Map<String, SenseEntry> collectSenseEntries(final Map<String, Sense> sensesById)
 	{
-		Map<String, LinkedHashSet<Data>> entries = new TreeMap<>(String::compareToIgnoreCase);
+		Map<String, SenseEntry> entries = new TreeMap<>(String::compareToIgnoreCase);
 
-		for (Map.Entry<String, Sense> entry : sensesById.entrySet())
+		for (Entry<String, Sense> entry : sensesById.entrySet())
 		{
 			// sense
 			String sensekey = entry.getKey();
@@ -146,31 +126,33 @@ public class SenseIndexer
 			String synsetId = sense.getSynsetId();
 			long offset = offsets.get(synsetId);
 
-			// sense num, tag count
-			TagCount tagCount = sense.getTagCount();
-			int count = tagCount == null ? 0 : tagCount.getCount();
+			// sense num
 			int senseNum = sense.getLexIndex() + 1;
 
-			// data
-			LinkedHashSet<Data> dataEntry = entries.computeIfAbsent(sensekey, s -> new LinkedHashSet<>());
-			Data data = new Data(offset, senseNum, count);
-			dataEntry.add(data);
+			// tag count
+			TagCount tagCount = sense.getTagCount();
+			int tagCountValue = tagCount == null ? 0 : tagCount.getCount();
+
+			// collect
+			entries.put(sensekey, new SenseEntry(offset, senseNum, tagCountValue));
 		}
-		int n = 0;
-		for (Map.Entry<String, LinkedHashSet<Data>> dataEntry : entries.entrySet())
+		return entries;
+	}
+
+	/**
+	 * Print sense entries
+	 *
+	 * @param entries sense entries
+	 * @param ps      print stream
+	 */
+	void printSenseEntries(Map<String, SenseEntry> entries, PrintStream ps)
+	{
+		for (Entry<String, SenseEntry> dataEntry : entries.entrySet())
 		{
-			StringBuilder sb = new StringBuilder();
-			sb.append(dataEntry.getKey().toLowerCase());
-			LinkedHashSet<Data> values = dataEntry.getValue();
-			List<Data> datas = new ArrayList<>(values);
-			datas.sort(Comparator.comparingInt(d -> d.senseNum));
-			for (Data data : datas)
-			{
-				sb.append(String.format(" %08d %d %d", data.offset, data.senseNum, data.tagCount));
-			}
-			ps.println(sb);
-			n++;
+			String key = dataEntry.getKey();
+			SenseEntry senseEntry = dataEntry.getValue();
+			String line = String.format(SENSE_FORMAT, key, senseEntry.offset, senseEntry.senseNum, senseEntry.tagCount);
+			ps.println(line);
 		}
-		System.err.printf("Senses (lower,multivalue): %d, %d lines %n", n, entries.size());
 	}
 }

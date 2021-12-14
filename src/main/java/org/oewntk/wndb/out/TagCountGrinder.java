@@ -24,7 +24,7 @@ public class TagCountGrinder
 			TagCount tagCount = sense.getTagCount();
 			if (tagCount != null)
 			{
-				String line = String.format("%s %d %d", sensekey, tagCount.getSenseNum(), tagCount.getCount());
+				String line = String.format("%s %d %d", sensekey, sense.getLexIndex(), tagCount.getCount());
 				ps.println(line);
 				n++;
 			}
@@ -42,7 +42,7 @@ public class TagCountGrinder
 			TagCount tagCount = sense.getTagCount();
 			if (tagCount != null)
 			{
-				String line = String.format("%d %s %d", tagCount.getCount(), sensekey, tagCount.getSenseNum());
+				String line = String.format("%d %s %d", tagCount.getCount(), sensekey, sense.getLexIndex());
 				lines.add(line);
 			}
 		}
