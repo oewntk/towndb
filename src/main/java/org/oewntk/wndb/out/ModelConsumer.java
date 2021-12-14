@@ -170,11 +170,11 @@ public class ModelConsumer implements Consumer<Model>
 	 * @param offsets    offsets mapped by synsetId
 	 * @throws IOException io
 	 */
-	public static void indexSenses(File dir, Map<String, Sense> sensesById, Map<String, Long> offsets) throws IOException
+	public void indexSenses(File dir, Map<String, Sense> sensesById, Map<String, Long> offsets) throws IOException
 	{
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "index.sense")), true, StandardCharsets.UTF_8))
 		{
-			new SenseIndexer(offsets).make(ps, sensesById);
+			new SenseIndexer(flags, offsets).make(ps, sensesById);
 		}
 	}
 

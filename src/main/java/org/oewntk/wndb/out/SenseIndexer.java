@@ -8,10 +8,9 @@ import org.oewntk.model.Sense;
 import org.oewntk.model.TagCount;
 
 import java.io.PrintStream;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * This class produces the 'index.sense' file
@@ -21,16 +20,19 @@ public class SenseIndexer
 	/**
 	 * This represents what is needed for a line in index.sense)
 	 */
-	private static class SenseEntry
+	private static class SenseEntry<K>
 	{
+		public final K groupKey;
+
 		public final long offset;
 
-		public final int senseNum;
+		public int senseNum;
 
 		public final int tagCount;
 
-		public SenseEntry(long offset, int senseNum, int tagCount)
+		public SenseEntry(K groupKey, long offset, int senseNum, int tagCount)
 		{
+			this.groupKey = groupKey;
 			this.offset = offset;
 			this.senseNum = senseNum;
 			this.tagCount = tagCount;
@@ -47,7 +49,7 @@ public class SenseIndexer
 			{
 				return false;
 			}
-			SenseEntry senseEntry = (SenseEntry) o;
+			SenseEntry<K> senseEntry = (SenseEntry<K>) o;
 			return offset == senseEntry.offset && senseNum == senseEntry.senseNum && tagCount == senseEntry.tagCount;
 		}
 
@@ -73,6 +75,11 @@ public class SenseIndexer
 	private static final String SENSE_FORMAT = "%s %08d %d %d";
 
 	/**
+	 * Flags
+	 */
+	private final int flags;
+
+	/**
 	 * Synset offsets map indexed by synsetid key
 	 */
 	private final Map<String, Long> offsets;
@@ -80,11 +87,13 @@ public class SenseIndexer
 	/**
 	 * Constructor
 	 *
+	 * @param flags   flags
 	 * @param offsets synset offsets map indexed by synsetid key
 	 */
-	public SenseIndexer(final Map<String, Long> offsets)
+	public SenseIndexer(final int flags, final Map<String, Long> offsets)
 	{
 		super();
+		this.flags = flags;
 		this.offsets = offsets;
 	}
 
@@ -99,11 +108,41 @@ public class SenseIndexer
 		// collect
 		Map<String, SenseEntry> entries = collectSenseEntries(sensesById);
 
+		// reindex
+		if ((flags & Flags.noReIndex) == 0)
+		{
+			reindexSenseEntries(entries, null);
+		}
+
 		// print
 		printSenseEntries(entries, ps);
 
 		// log
 		log.printf("Senses: %d%n", entries.size());
+	}
+
+	/**
+	 * Reindex sense entries (sensenum)
+	 *
+	 * @param entries    entries
+	 * @param comparator optional comparator for sorting, original order preserved otherwise
+	 */
+	void reindexSenseEntries(Map<String, SenseEntry> entries, Comparator<SenseEntry> comparator)
+	{
+		entries.values().stream() //
+				.collect(Collectors.groupingBy(e -> e.groupKey)).values().forEach(e2 -> {
+
+					var stream2 = e2.stream();
+					if (comparator != null)
+					{
+						stream2 = stream2.sorted(comparator);
+					}
+					final int[] i = {0};
+					stream2 //
+							.sequential() //
+							.peek(e -> i[0]++) //
+							.forEach(e -> e.senseNum = i[0]);
+				});
 	}
 
 	/**
@@ -134,7 +173,7 @@ public class SenseIndexer
 			int tagCountValue = tagCount == null ? 0 : tagCount.getCount();
 
 			// collect
-			entries.put(sensekey, new SenseEntry(offset, senseNum, tagCountValue));
+			entries.put(sensekey, new SenseEntry(sense.getLex().getLemma().toLowerCase(Locale.ENGLISH) + "#" + sense.getPartOfSpeech(), offset, senseNum, tagCountValue));
 		}
 		return entries;
 	}

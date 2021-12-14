@@ -25,4 +25,9 @@ public class Flags
 	 * Compat mode switch that does not allow verbframes beyond those used in PWN.
 	 */
 	public static final int verbFrameCompat = 0x4;
+
+	/**
+	 * Reindex indexes
+	 */
+	public static final int noReIndex = 0x10000000;
 }
