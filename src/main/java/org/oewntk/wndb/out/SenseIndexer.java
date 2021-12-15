@@ -71,8 +71,6 @@ public class SenseIndexer
 		groupedSenses //
 				.entrySet().stream().skip(1000).limit(100) //
 				.forEach(SenseIndexer::dumpSenses);
-		*/
-
 		var groupedSensesForAi = groupedSenses.get(KeyLCLemmaAndPos.of("ai", 'n'));
 		SenseGroupings.dumpSensesByDecreasingTagCount(groupedSensesForAi, System.out);
 
@@ -81,6 +79,7 @@ public class SenseIndexer
 
 		var groupedSensesForAbsolute = groupedSenses.get(KeyLCLemmaAndPos.of("absolute", 'a'));
 		SenseGroupings.dumpSensesByDecreasingTagCount(groupedSensesForAbsolute, System.out);
+		*/
 
 		// collect
 		for (Entry<String, Sense> entry : sensesById.entrySet())

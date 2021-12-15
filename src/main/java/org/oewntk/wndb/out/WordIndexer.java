@@ -4,10 +4,8 @@
 
 package org.oewntk.wndb.out;
 
-import org.oewntk.model.Lex;
-import org.oewntk.model.Sense;
-import org.oewntk.model.Synset;
-import org.oewntk.model.TagCount;
+import org.oewntk.model.*;
+import org.oewntk.model.SenseGroupings.KeyLCLemmaAndPos;
 
 import java.io.PrintStream;
 import java.util.*;
@@ -90,12 +88,12 @@ public class WordIndexer
 	/**
 	 * Make index
 	 *
-	 * @param ps           print stream
-	 * @param lexesByLemma lexes mapped by lemma
-	 * @param synsetsById  synsets mapped by id
-	 * @param posFilter    part-of-speech filter for lexes
+	 * @param ps          print stream
+	 * @param sensesById  senses mapped by id
+	 * @param synsetsById synsets mapped by id
+	 * @param posFilter   part-of-speech filter for lexes
 	 */
-	public void make(final PrintStream ps, final Map<String, List<Lex>> lexesByLemma, final Map<String, Synset> synsetsById, final char posFilter)
+	public void make(final PrintStream ps, final Map<String, Sense> sensesById, final Map<String, Synset> synsetsById, final char posFilter)
 	{
 		Map<String, Integer> incompats = new HashMap<>();
 
@@ -103,75 +101,47 @@ public class WordIndexer
 		ps.print(Formatter.OEWN_HEADER);
 
 		// collect entries
-		Map<String, IndexEntry> indexEntries = collectIndexEntries(lexesByLemma, synsetsById, posFilter, incompats);
+		boolean pointerCompat = (flags & Flags.pointerCompat) != 0;
+		Map<String, IndexEntry> indexEntries = new TreeMap<>();
 
-		// print entries
-		printIndexEntries(indexEntries, ps);
+		Collection<Sense> kSenses = sensesById.values();
+		Map<KeyLCLemmaAndPos, List<Sense>> groupedSenses = SenseGroupings.sensesByLCLemmaAndPos(kSenses);
+		groupedSenses.entrySet().stream() //
+
+				.filter(e -> e.getKey().pos == posFilter) //
+				.forEach(e -> {
+
+					var k = e.getKey();
+					var senses = e.getValue();
+					senses.sort(SenseGroupings.byDecreasingTagCount);
+
+					var lcLemma = k.lcLemma;
+					var pos = k.pos;
+					var ik = lcLemma.replace(' ', '_');
+					var eik = Formatter.escape(ik);
+
+					// init data mapped by lower-cased lemma
+					IndexEntry indexEntry = indexEntries.computeIfAbsent(eik, ke -> new IndexEntry(pos));
+
+					// synset ids
+					collectSynsetIds(senses, indexEntry.synsetIds);
+
+					// tag counts
+					collectTagCounts(senses, indexEntry);
+
+					// synset relations
+					collectSynsetRelations(senses, synsetsById, pos, indexEntry.relationPointers, pointerCompat, incompats);
+
+					// sense relations
+					collectSenseRelations(senses, pos, indexEntry.relationPointers, pointerCompat, incompats);
+
+					// print
+					printIndexEntry(eik, indexEntry, ps);
+				});
 
 		// log
 		reportIncompats(incompats);
 		log.printf("Words: %d for %s%n", indexEntries.size(), posFilter);
-	}
-
-	/**
-	 * Collect index entries
-	 *
-	 * @param lexesByLemma lexes
-	 * @param synsetsById  synsets
-	 * @param posFilter    pos
-	 * @param incompats    incompatibility log
-	 * @return index entries mapped by lower-cased lemmas
-	 */
-	private Map<String, IndexEntry> collectIndexEntries(final Map<String, List<Lex>> lexesByLemma, final Map<String, Synset> synsetsById, final char posFilter, final Map<String, Integer> incompats)
-	{
-		boolean pointerCompat = (flags & Flags.pointerCompat) != 0;
-		Map<String, IndexEntry> indexEntries = new TreeMap<>();
-
-		for (Map.Entry<String, List<Lex>> entry : lexesByLemma.entrySet())
-		{
-			// lemma
-			String lemma = entry.getKey();
-
-			// map key
-			String key = Formatter.escape(lemma.toLowerCase());
-
-			// stream of lexes
-			for (Lex lex : entry.getValue())
-			{
-				// filter by pos
-				char pos = lex.getPartOfSpeech();
-				if (pos != posFilter)
-				{
-					continue;
-				}
-
-				// init data mapped by lower-cased lemma
-				IndexEntry indexEntry = indexEntries.computeIfAbsent(key, k -> new IndexEntry(pos));
-
-				// senses
-				List<Sense> senses = lex.getSenses();
-				assert senses != null : String.format("Lex %s has no sense", lex);
-
-				// synset ids
-				collectSynsetIds(senses, indexEntry.synsetIds);
-
-				// reindex
-				if ((flags & Flags.noReIndex) == 0)
-				{
-					//TODO reindexSenseEntries(indexEntry.synsetIds, null);
-				}
-
-				// tag counts
-				collectTagCounts(senses, indexEntry);
-
-				// synset relations
-				collectSynsetRelations(senses, synsetsById, pos, indexEntry.relationPointers, pointerCompat, incompats);
-
-				// sense relations
-				collectSenseRelations(lex, pos, indexEntry.relationPointers, pointerCompat, incompats);
-			}
-		}
-		return indexEntries;
 	}
 
 	/**
@@ -185,6 +155,7 @@ public class WordIndexer
 		int previousRank = -1;
 		for (Sense sense : senses)
 		{
+			/*
 			// check ordering
 			int rank = sense.getLexIndex();
 			if (previousRank >= rank)
@@ -192,6 +163,7 @@ public class WordIndexer
 				throw new IllegalArgumentException("Lex " + sense.getLex().getLemma() + " " + " previous=" + previousRank + " current=" + rank);
 			}
 			previousRank = rank;
+			*/
 
 			// synsetid
 			String synsetId = sense.getSynsetId();
@@ -295,16 +267,15 @@ public class WordIndexer
 	/**
 	 * Collect sense relations
 	 *
-	 * @param lex           lex
+	 * @param senses        senses
 	 * @param pos           pos
 	 * @param pointers      set of pointers to collect to
 	 * @param pointerCompat pointer compatibility flag
 	 * @param incompats     incompatibility log
 	 */
-	private void collectSenseRelations(final Lex lex, final char pos, final Set<String> pointers, final boolean pointerCompat, final Map<String, Integer> incompats)
+	private void collectSenseRelations(final List<Sense> senses, final char pos, final Set<String> pointers, final boolean pointerCompat, final Map<String, Integer> incompats)
 	{
-		List<Sense> lexSenses = lex.getSenses();
-		for (Sense lexSense : lexSenses)
+		for (Sense lexSense : senses)
 		{
 			Map<String, List<String>> senseRelations = lexSense.getRelations();
 			if (senseRelations != null && senseRelations.size() > 0)
@@ -339,24 +310,19 @@ public class WordIndexer
 	}
 
 	/**
-	 * Print index entries
+	 * Print index entry
 	 *
-	 * @param indexEntries index entries
-	 * @param ps           print stream
+	 * @param key        index key
+	 * @param indexEntry index data
+	 * @param ps         print stream
 	 */
-	private void printIndexEntries(final Map<String, IndexEntry> indexEntries, final PrintStream ps)
+	private void printIndexEntry(final String key, final IndexEntry indexEntry, final PrintStream ps)
 	{
-		for (Map.Entry<String, IndexEntry> indexEntry : indexEntries.entrySet())
-		{
-			String key = indexEntry.getKey();
-			IndexEntry data = indexEntry.getValue();
-			int nSenses = data.synsetIds.size();
-
-			String ptrs = Formatter.joinNum(data.relationPointers, "%d", String::toString);
-			String ofs = Formatter.join(data.synsetIds, " ", false, s -> String.format("%08d", offsets.get(s)));
-			String line = String.format(WORD_FORMAT, key, data.pos, nSenses, ptrs, nSenses, data.getTaggedSensesCount(), ofs);
-			ps.println(line);
-		}
+		int nSenses = indexEntry.synsetIds.size();
+		String ptrs = Formatter.joinNum(indexEntry.relationPointers, "%d", String::toString);
+		String ofs = Formatter.join(indexEntry.synsetIds, " ", false, s -> String.format("%08d", offsets.get(s)));
+		String line = String.format(WORD_FORMAT, key, indexEntry.pos, nSenses, ptrs, nSenses, indexEntry.getTaggedSensesCount(), ofs);
+		ps.println(line);
 	}
 
 	/**

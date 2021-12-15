@@ -80,7 +80,7 @@ public class ModelConsumer implements Consumer<Model>
 
 		// Process
 		data(outDir, model.lexesByLemma, model.synsetsById, model.sensesById, offsets);
-		indexWords(outDir, model.lexesByLemma, model.synsetsById, offsets);
+		indexWords(outDir, model.sensesById, model.synsetsById, offsets);
 		indexSenses(outDir, model.sensesById, offsets);
 		morphs(outDir, model.lexesByLemma);
 		indexTemplates(outDir, model.sensesById);
@@ -131,14 +131,14 @@ public class ModelConsumer implements Consumer<Model>
 	/**
 	 * Make word index
 	 *
-	 * @param dir          output directory
-	 * @param lexesByLemma lexes mapped by lemma
-	 * @param synsetsById  synsets mapped by synset id
-	 * @param offsets      offsets mapped by synset id
+	 * @param dir         output directory
+	 * @param sensesById  senses mapped by sense id (sensekey)
+	 * @param synsetsById synsets mapped by synset id
+	 * @param offsets     offsets mapped by synset id
 	 * @throws IOException io
 	 */
 	public void indexWords(File dir, //
-			Map<String, List<Lex>> lexesByLemma, //
+			Map<String, Sense> sensesById, //
 			Map<String, Synset> synsetsById, //
 			Map<String, Long> offsets) throws IOException
 	{
@@ -146,19 +146,19 @@ public class ModelConsumer implements Consumer<Model>
 		WordIndexer indexer = new WordIndexer(offsets, flags);
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "index.noun")), true, StandardCharsets.UTF_8))
 		{
-			indexer.make(ps, lexesByLemma, synsetsById, Data.NOUN_POS_FILTER);
+			indexer.make(ps, sensesById, synsetsById, Data.NOUN_POS_FILTER);
 		}
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "index.verb")), true, StandardCharsets.UTF_8))
 		{
-			indexer.make(ps, lexesByLemma, synsetsById, Data.VERB_POS_FILTER);
+			indexer.make(ps, sensesById, synsetsById, Data.VERB_POS_FILTER);
 		}
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "index.adj")), true, StandardCharsets.UTF_8))
 		{
-			indexer.make(ps, lexesByLemma, synsetsById, Data.ADJ_POS_FILTER);
+			indexer.make(ps, sensesById, synsetsById, Data.ADJ_POS_FILTER);
 		}
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "index.adv")), true, StandardCharsets.UTF_8))
 		{
-			indexer.make(ps, lexesByLemma, synsetsById, Data.ADV_POS_FILTER);
+			indexer.make(ps, sensesById, synsetsById, Data.ADV_POS_FILTER);
 		}
 	}
 
