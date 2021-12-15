@@ -155,6 +155,12 @@ public class WordIndexer
 				// synset ids
 				collectSynsetIds(senses, indexEntry.synsetIds);
 
+				// reindex
+				if ((flags & Flags.noReIndex) == 0)
+				{
+					//TODO reindexSenseEntries(indexEntry.synsetIds, null);
+				}
+
 				// tag counts
 				collectTagCounts(senses, indexEntry);
 

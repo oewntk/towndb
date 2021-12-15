@@ -133,7 +133,10 @@ public class SenseIndexer
 	void reindexSenseEntries(Map<String, SenseEntry> entries, Comparator<SenseEntry> comparator)
 	{
 		entries.values().stream() //
-				.collect(Collectors.groupingBy(e -> e.sense.getLex().getLemma().toLowerCase(Locale.ENGLISH) + "#" + e.sense.getPartOfSpeech())).values().forEach(e2 -> {
+				
+				.collect(Collectors.groupingBy(e -> e.sense.getLex().getLemma().toLowerCase(Locale.ENGLISH) + "#" + e.sense.getPartOfSpeech())) //
+				.values() //
+				.forEach(e2 -> {
 
 					var stream2 = e2.stream();
 					if (comparator != null)
