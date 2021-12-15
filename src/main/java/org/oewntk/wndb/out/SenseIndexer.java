@@ -5,64 +5,20 @@
 package org.oewntk.wndb.out;
 
 import org.oewntk.model.Sense;
-import org.oewntk.model.TagCount;
+import org.oewntk.model.SenseGroupings;
+import org.oewntk.model.SenseGroupings.KeyLCLemmaAndPos;
 
 import java.io.PrintStream;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 /**
  * This class produces the 'index.sense' file
  */
 public class SenseIndexer
 {
-	/**
-	 * This represents what is needed for a line in index.sense)
-	 */
-	private static class SenseEntry
-	{
-		public final long offset;
-
-		public int senseNum;
-
-		public final int tagCount;
-
-		/**
-		 * Used for sorting
-		 */
-		public final Sense sense;
-
-		public SenseEntry(long offset, int senseNum, int tagCount, final Sense sense)
-		{
-			this.offset = offset;
-			this.senseNum = senseNum;
-			this.tagCount = tagCount;
-			this.sense = sense;
-		}
-
-		@Override
-		public boolean equals(Object o)
-		{
-			if (this == o)
-			{
-				return true;
-			}
-			if (o == null || getClass() != o.getClass())
-			{
-				return false;
-			}
-			SenseEntry senseEntry = (SenseEntry) o;
-			return offset == senseEntry.offset && senseNum == senseEntry.senseNum && tagCount == senseEntry.tagCount;
-		}
-
-		@Override
-		public int hashCode()
-		{
-			return Objects.hash(offset, senseNum, tagCount);
-		}
-	}
-
 	/**
 	 * Log print stream
 	 */
@@ -108,59 +64,25 @@ public class SenseIndexer
 	 */
 	public void make(final PrintStream ps, final Map<String, Sense> sensesById)
 	{
+		Collection<Sense> senses = sensesById.values();
+		Map<KeyLCLemmaAndPos, List<Sense>> groupedSenses = SenseGroupings.sensesByLCLemmaAndPos(senses);
+
+		/*
+		groupedSenses //
+				.entrySet().stream().skip(1000).limit(100) //
+				.forEach(SenseIndexer::dumpSenses);
+		*/
+
+		var groupedSensesForAi = groupedSenses.get(KeyLCLemmaAndPos.of("ai", 'n'));
+		SenseGroupings.dumpSensesByDecreasingTagCount(groupedSensesForAi, System.out);
+
+		var groupedSensesForCritical = groupedSenses.get(KeyLCLemmaAndPos.of("critical", 'a'));
+		SenseGroupings.dumpSensesByDecreasingTagCount(groupedSensesForCritical, System.out);
+
+		var groupedSensesForAbsolute = groupedSenses.get(KeyLCLemmaAndPos.of("absolute", 'a'));
+		SenseGroupings.dumpSensesByDecreasingTagCount(groupedSensesForAbsolute, System.out);
+
 		// collect
-		Map<String, SenseEntry> entries = collectSenseEntries(sensesById);
-
-		// reindex
-		if ((flags & Flags.noReIndex) == 0)
-		{
-			reindexSenseEntries(entries, null);
-		}
-
-		// print
-		printSenseEntries(entries, ps);
-
-		// log
-		log.printf("Senses: %d%n", entries.size());
-	}
-
-	/**
-	 * Reindex sense entries (sensenum)
-	 *
-	 * @param entries    entries
-	 * @param comparator optional comparator for sorting, original order preserved otherwise
-	 */
-	void reindexSenseEntries(Map<String, SenseEntry> entries, Comparator<SenseEntry> comparator)
-	{
-		entries.values().stream() //
-				
-				.collect(Collectors.groupingBy(e -> e.sense.getLex().getLemma().toLowerCase(Locale.ENGLISH) + "#" + e.sense.getPartOfSpeech())) //
-				.values() //
-				.forEach(e2 -> {
-
-					var stream2 = e2.stream();
-					if (comparator != null)
-					{
-						stream2 = stream2.sorted(comparator);
-					}
-					final int[] i = {0};
-					stream2 //
-							.sequential() //
-							.peek(e -> i[0]++) //
-							.forEach(e -> e.senseNum = i[0]);
-				});
-	}
-
-	/**
-	 * Collect sense entries
-	 *
-	 * @param sensesById senses
-	 * @return sense entries mapped by sensekey
-	 */
-	private Map<String, SenseEntry> collectSenseEntries(final Map<String, Sense> sensesById)
-	{
-		Map<String, SenseEntry> entries = new TreeMap<>(String::compareToIgnoreCase);
-
 		for (Entry<String, Sense> entry : sensesById.entrySet())
 		{
 			// sense
@@ -172,32 +94,42 @@ public class SenseIndexer
 			long offset = offsets.get(synsetId);
 
 			// sense num
-			int senseNum = sense.getLexIndex() + 1;
+			int senseNum;
+			if ((flags & Flags.noReIndex) == 0)
+			{
+				var k = KeyLCLemmaAndPos.of(sense);
+				var kSenses = groupedSenses.get(k);
+				kSenses.sort(SenseGroupings.byDecreasingTagCount);
+				senseNum = kSenses.indexOf(sense) + 1;
+			}
+			else
+			{
+				senseNum = sense.getLexIndex() + 1;
+			}
 
 			// tag count
-			TagCount tagCount = sense.getTagCount();
-			int tagCountValue = tagCount == null ? 0 : tagCount.getCount();
+			int tagCount = sense.getIntTagCount();
 
-			// collect
-			entries.put(sensekey, new SenseEntry(offset, senseNum, tagCountValue, sense));
+			// print
+			printSenseEntry(sensekey, offset, senseNum, tagCount, ps);
 		}
-		return entries;
+
+		// log
+		log.printf("Senses: %d%n", sensesById.size());
 	}
 
 	/**
-	 * Print sense entries
+	 * Print sense entry
 	 *
-	 * @param entries sense entries
-	 * @param ps      print stream
+	 * @param sensekey sensekey
+	 * @param offset   offset
+	 * @param senseNum sense number (index)
+	 * @param tagCount tag count
+	 * @param ps       print stream
 	 */
-	void printSenseEntries(Map<String, SenseEntry> entries, PrintStream ps)
+	void printSenseEntry(String sensekey, long offset, int senseNum, int tagCount, PrintStream ps)
 	{
-		for (Entry<String, SenseEntry> dataEntry : entries.entrySet())
-		{
-			String key = dataEntry.getKey();
-			SenseEntry senseEntry = dataEntry.getValue();
-			String line = String.format(SENSE_FORMAT, key, senseEntry.offset, senseEntry.senseNum, senseEntry.tagCount);
-			ps.println(line);
-		}
+		String line = String.format(SENSE_FORMAT, sensekey, offset, senseNum, tagCount);
+		ps.println(line);
 	}
 }
