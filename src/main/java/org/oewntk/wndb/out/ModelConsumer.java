@@ -76,16 +76,16 @@ public class ModelConsumer implements Consumer<Model>
 		}
 
 		// Compute synset offsets
-		Map<String, Long> offsets = new OffsetFactory(model.lexesByLemma, model.synsetsById, model.sensesById, flags).compute();
+		Map<String, Long> offsets = new OffsetFactory(model.getLexesByLemma(), model.getSynsetsById(), model.getSensesById(), flags).compute();
 
 		// Process
-		data(outDir, model.lexesByLemma, model.synsetsById, model.sensesById, offsets);
-		indexWords(outDir, model.sensesById, model.synsetsById, offsets);
-		indexSenses(outDir, model.sensesById, offsets);
-		morphs(outDir, model.lexesByLemma);
-		indexTemplates(outDir, model.sensesById);
-		templates(outDir, model.verbTemplatesById);
-		tagcounts(outDir, model.sensesById);
+		data(outDir, model.getLexesByLemma(), model.getSynsetsById(), model.getSensesById(), offsets);
+		indexWords(outDir, model.getSensesById(), model.getSynsetsById(), offsets);
+		indexSenses(outDir, model.getSensesById(), offsets);
+		morphs(outDir, model.getLexesByLemma());
+		indexTemplates(outDir, model.getSensesById());
+		templates(outDir, model.getVerbTemplatesById());
+		tagcounts(outDir, model.getSensesById());
 	}
 
 	/**

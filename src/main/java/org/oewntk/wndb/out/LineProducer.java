@@ -31,10 +31,10 @@ public class LineProducer implements BiFunction<CoreModel, String, String>
 	public String apply(final CoreModel model, final String synsetId)
 	{
 		// Compute synset offsets
-		Map<String, Long> offsets = new OffsetFactory(model.lexesByLemma, model.synsetsById, model.sensesById, flags).compute();
+		Map<String, Long> offsets = new OffsetFactory(model.getLexesByLemma(), model.getSynsetsById(), model.getSensesById(), flags).compute();
 
 		// Get synset
-		Synset synset = model.synsetsById.get(synsetId);
+		Synset synset = model.getSynsetsById().get(synsetId);
 		long offset = offsets.get(synsetId);
 		if (!offsets.containsValue(offset))
 		{
@@ -42,7 +42,7 @@ public class LineProducer implements BiFunction<CoreModel, String, String>
 		}
 
 		// Produce line
-		return data(synset, offset, model.lexesByLemma, model.synsetsById, model.sensesById, offsets, flags);
+		return data(synset, offset, model.getLexesByLemma(), model.getSynsetsById(), model.getSensesById(), offsets, flags);
 	}
 
 	/**
