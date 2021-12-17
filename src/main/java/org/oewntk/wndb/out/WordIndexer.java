@@ -233,10 +233,10 @@ public class WordIndexer
 	 */
 	private void collectSynsetRelations(final Synset synset, final char pos, final Set<String> pointers, final boolean pointerCompat, final Map<String, Integer> incompats)
 	{
-		Map<String, List<String>> synsetRelations = synset.getRelations();
+		Map<String, Set<String>> synsetRelations = synset.getRelations();
 		if (synsetRelations != null && synsetRelations.size() > 0)
 		{
-			for (Map.Entry<String, List<String>> relationEntry : synsetRelations.entrySet())
+			for (Map.Entry<String, Set<String>> relationEntry : synsetRelations.entrySet())
 			{
 				String relationType = relationEntry.getKey();
 				String pointer;

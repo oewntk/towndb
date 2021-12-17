@@ -197,7 +197,7 @@ public abstract class SynsetProcessor
 		for (String lemma : synset.getMembers())
 		{
 			Sense sense = synset.findSenseOf(lemma, lexesByLemma);
-			assert sense != null;
+			assert sense != null : String.format("find sense of '%s' in synset %s", lemma, synset);
 			Member member = buildMember(sense);
 			members.add(member);
 		}
@@ -211,14 +211,14 @@ public abstract class SynsetProcessor
 		int lexfileNum = buildLexfileNum(synset);
 
 		// synset relations
-		Map<String, List<String>> modelSynsetRelations = synset.getRelations();
+		Map<String, Set<String>> modelSynsetRelations = synset.getRelations();
 		if (modelSynsetRelations != null && modelSynsetRelations.size() > 0)
 		{
 			Set<RelationData> relationDataSet = new LinkedHashSet<>();
-			for (Map.Entry<String, List<String>> entry : modelSynsetRelations.entrySet())
+			for (Map.Entry<String, Set<String>> entry : modelSynsetRelations.entrySet())
 			{
 				String relationType = entry.getKey();
-				List<String> values = entry.getValue();
+				Set<String> values = entry.getValue();
 				for (String targetSynsetId : values)
 				{
 					RelationData relation = new RelationData(false, relationType, targetSynsetId);
@@ -395,14 +395,14 @@ public abstract class SynsetProcessor
 	 */
 	protected int buildLexfileNum(Synset synset)
 	{
-		String lexfile = synset.findLexfile();
+		String lexfile = synset.getLexfile();
 		try
 		{
 			return Coder.codeLexFile(lexfile);
 		}
 		catch (Exception e)
 		{
-			throw new IllegalArgumentException("Lexfile " + lexfile + " in " + synset.getSynsetId());
+			throw new IllegalArgumentException(String.format("Lexfile '%s' in %s", lexfile, synset.getSynsetId()));
 		}
 	}
 
