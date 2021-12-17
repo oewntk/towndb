@@ -21,7 +21,7 @@ import java.util.Map;
  *
  * @author Bernard Bou
  */
-public class OffsetFactory extends SynsetProcessor
+public class GrindOffsets extends SynsetProcessor
 {
 	/**
 	 * Constructor
@@ -31,13 +31,13 @@ public class OffsetFactory extends SynsetProcessor
 	 * @param sensesById   senses mapped by id
 	 * @param flags        flags
 	 */
-	public OffsetFactory(Map<String, List<Lex>> lexesByLemma, Map<String, Synset> synsetsById, Map<String, Sense> sensesById, int flags)
+	public GrindOffsets(Map<String, List<Lex>> lexesByLemma, Map<String, Synset> synsetsById, Map<String, Sense> sensesById, int flags)
 	{
 		super(lexesByLemma, synsetsById, sensesById, s -> 0L /* dummy synset */, flags);
 	}
 
 	/**
-	 * Log things as this is the first pass
+	 * Log things on the first pass
 	 */
 	@Override
 	protected boolean log()
@@ -70,7 +70,7 @@ public class OffsetFactory extends SynsetProcessor
 
 			offset += data.getBytes(StandardCharsets.UTF_8).length;
 		}
-		System.err.println("Computed offsets for " + posFilter);
+		Tracing.psInfo.println("Computed offsets for " + posFilter);
 	}
 
 	/**

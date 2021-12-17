@@ -53,7 +53,7 @@ public class ModelConsumer implements Consumer<Model>
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace(System.err);
+			e.printStackTrace(Tracing.psErr);
 		}
 	}
 
@@ -76,7 +76,7 @@ public class ModelConsumer implements Consumer<Model>
 		}
 
 		// Compute synset offsets
-		Map<String, Long> offsets = new OffsetFactory(model.getLexesByLemma(), model.getSynsetsById(), model.getSensesById(), flags).compute();
+		Map<String, Long> offsets = new GrindOffsets(model.getLexesByLemma(), model.getSynsetsById(), model.getSensesById(), flags).compute();
 
 		// Process
 		data(outDir, model.getLexesByLemma(), model.getSynsetsById(), model.getSensesById(), offsets);
@@ -105,7 +105,7 @@ public class ModelConsumer implements Consumer<Model>
 			Map<String, Long> offsets) throws IOException
 	{
 		// Data
-		DataGrinder grinder = new DataGrinder(lexesByLemma, synsetsById, sensesById, offsets, flags);
+		GrindSynsets grinder = new GrindSynsets(lexesByLemma, synsetsById, sensesById, offsets, flags);
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "data.noun")), true, StandardCharsets.UTF_8))
 		{
 			grinder.makeData(ps, synsetsById, Data.NOUN_POS_FILTER);
@@ -187,7 +187,7 @@ public class ModelConsumer implements Consumer<Model>
 	 */
 	public static void morphs(File dir, Map<String, List<Lex>> lexesByLemma) throws IOException
 	{
-		MorphGrinder grinder = new MorphGrinder();
+		GrindMorphs grinder = new GrindMorphs();
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "noun.exc")), true, StandardCharsets.UTF_8))
 		{
 			grinder.makeMorph(ps, lexesByLemma, Data.NOUN_POS_FILTER);
@@ -231,7 +231,7 @@ public class ModelConsumer implements Consumer<Model>
 	 */
 	public static void templates(File dir, Map<Integer, VerbTemplate> verbTemplatesById) throws IOException
 	{
-		TemplateGrinder grinder = new TemplateGrinder();
+		GrindVerbTemplates grinder = new GrindVerbTemplates();
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "sents.vrb")), true, StandardCharsets.UTF_8))
 		{
 			grinder.makeTemplates(ps, verbTemplatesById);
@@ -247,7 +247,7 @@ public class ModelConsumer implements Consumer<Model>
 	 */
 	public static void tagcounts(File dir, Map<String, Sense> sensesById) throws IOException
 	{
-		TagCountGrinder grinder = new TagCountGrinder();
+		GrindTagCounts grinder = new GrindTagCounts();
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "cntlist.rev")), true, StandardCharsets.UTF_8))
 		{
 			grinder.makeTagCountRev(ps, sensesById);

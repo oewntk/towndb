@@ -17,12 +17,12 @@ import java.util.TreeSet;
  *
  * @author Bernard Bou
  */
-public class MorphGrinder
+public class GrindMorphs
 {
 	/**
 	 * Constructor
 	 */
-	public MorphGrinder()
+	public GrindMorphs()
 	{
 	}
 
@@ -66,6 +66,6 @@ public class MorphGrinder
 		{
 			ps.println(line);
 		}
-		System.err.println("Morphs: " + n + " for " + posFilter);
+		Tracing.psInfo.println("Morphs: " + n + " for " + posFilter);
 	}
 }

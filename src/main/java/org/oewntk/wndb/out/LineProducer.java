@@ -31,7 +31,7 @@ public class LineProducer implements BiFunction<CoreModel, String, String>
 	public String apply(final CoreModel model, final String synsetId)
 	{
 		// Compute synset offsets
-		Map<String, Long> offsets = new OffsetFactory(model.getLexesByLemma(), model.getSynsetsById(), model.getSensesById(), flags).compute();
+		Map<String, Long> offsets = new GrindOffsets(model.getLexesByLemma(), model.getSynsetsById(), model.getSensesById(), flags).compute();
 
 		// Get synset
 		Synset synset = model.getSynsetsById().get(synsetId);
@@ -63,7 +63,7 @@ public class LineProducer implements BiFunction<CoreModel, String, String>
 			Map<String, Long> offsets, int flags)
 	{
 		// Data
-		DataGrinder factory = new DataGrinder(lexesByLemma, synsetsById, sensesById, offsets, flags);
+		GrindSynsets factory = new GrindSynsets(lexesByLemma, synsetsById, sensesById, offsets, flags);
 		return factory.getData(synset, offset);
 	}
 }

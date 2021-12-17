@@ -18,7 +18,7 @@ import java.util.Map;
  *
  * @author Bernard Bou
  */
-public class DataGrinder extends SynsetProcessor
+public class GrindSynsets extends SynsetProcessor
 {
 	/**
 	 * Constructor
@@ -29,18 +29,18 @@ public class DataGrinder extends SynsetProcessor
 	 * @param offsetMap    offsets by synset id
 	 * @param flags        flags
 	 */
-	public DataGrinder(Map<String, List<Lex>> lexesByLemma, Map<String, Synset> synsetsById, Map<String, Sense> sensesById, Map<String, Long> offsetMap, int flags)
+	public GrindSynsets(Map<String, List<Lex>> lexesByLemma, Map<String, Synset> synsetsById, Map<String, Sense> sensesById, Map<String, Long> offsetMap, int flags)
 	{
 		super(lexesByLemma, synsetsById, sensesById, offsetMap::get, flags);
 	}
 
 	/**
-	 * Do not log things as this is the second pass, and they must already have popped up.
+	 * Log things on the second pass
 	 */
 	@Override
 	protected boolean log()
 	{
-		return false;
+		return true;
 	}
 
 	/**
@@ -72,7 +72,7 @@ public class DataGrinder extends SynsetProcessor
 			{
 				assert previous != null;
 				String line = getData(previous, 0);
-				String line0 = new OffsetFactory(lexesByLemma, synsetsById, sensesById, flags).getData(previous, 0);
+				String line0 = new GrindOffsets(lexesByLemma, synsetsById, sensesById, flags).getData(previous, 0);
 				throw new RuntimeException("miscomputed offset for " + id + "\n[then]=" + line0 + "[now ]=" + line);
 			}
 
@@ -82,6 +82,6 @@ public class DataGrinder extends SynsetProcessor
 			offset += line.getBytes(StandardCharsets.UTF_8).length;
 			previous = synset;
 		}
-		System.err.println("Synsets: " + n + " for " + posFilter);
+		Tracing.psInfo.println("Synsets: " + n + " for " + posFilter);
 	}
 }

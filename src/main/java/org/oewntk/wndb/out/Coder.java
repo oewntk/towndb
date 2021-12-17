@@ -23,61 +23,61 @@ public class Coder
 
 	// R E L A T I O N
 
-	private static final String ANTONYM = "antonym";
+	static final String ANTONYM = "antonym";
 
-	private static final String HYPERNYM = "hypernym";
+	static final String HYPERNYM = "hypernym";
 
-	private static final String INSTANCE_HYPERNYM = "instance_hypernym";
+	static final String INSTANCE_HYPERNYM = "instance_hypernym";
 
-	private static final String HYPONYM = "hyponym";
+	static final String HYPONYM = "hyponym";
 
-	private static final String INSTANCE_HYPONYM = "instance_hyponym";
+	static final String INSTANCE_HYPONYM = "instance_hyponym";
 
-	private static final String HOLO_MEMBER = "holo_member";
+	static final String HOLO_MEMBER = "holo_member";
 
-	private static final String HOLO_SUBSTANCE = "holo_substance";
+	static final String HOLO_SUBSTANCE = "holo_substance";
 
-	private static final String HOLO_PART = "holo_part";
+	static final String HOLO_PART = "holo_part";
 
-	private static final String MERO_MEMBER = "mero_member";
+	static final String MERO_MEMBER = "mero_member";
 
-	private static final String MERO_SUBSTANCE = "mero_substance";
+	static final String MERO_SUBSTANCE = "mero_substance";
 
-	private static final String MERO_PART = "mero_part";
+	static final String MERO_PART = "mero_part";
 
-	private static final String ATTRIBUTE = "attribute";
+	static final String ATTRIBUTE = "attribute";
 
-	private static final String PERTAINYM = "pertainym";
+	static final String PERTAINYM = "pertainym";
 
-	private static final String DERIVATION = "derivation";
+	static final String DERIVATION = "derivation";
 
-	private static final String DOMAIN_TOPIC = "domain_topic";
+	static final String DOMAIN_TOPIC = "domain_topic";
 
-	private static final String HAS_DOMAIN_TOPIC = "has_domain_topic";
+	static final String HAS_DOMAIN_TOPIC = "has_domain_topic";
 
-	private static final String DOMAIN_REGION = "domain_region";
+	static final String DOMAIN_REGION = "domain_region";
 
-	private static final String HAS_DOMAIN_REGION = "has_domain_region";
+	static final String HAS_DOMAIN_REGION = "has_domain_region";
 
-	private static final String DOMAIN_USAGE = "exemplifies";
+	static final String DOMAIN_USAGE = "exemplifies";
 
-	private static final String HAS_DOMAIN_USAGE = "is_exemplified_by";
+	static final String HAS_DOMAIN_USAGE = "is_exemplified_by";
 
-	private static final String ALSO = "also";
+	static final String ALSO = "also";
 
-	private static final String ENTAILS = "entails";
+	static final String ENTAILS = "entails";
 
-	private static final String IS_ENTAILED = "is_entailed_by";
+	static final String IS_ENTAILED = "is_entailed_by";
 
-	private static final String SIMILAR = "similar";
+	static final String SIMILAR = "similar";
 
-	private static final String VERB_GROUP = "similar";
+	static final String VERB_GROUP = "similar";
 
-	private static final String PARTICIPLE = "participle";
+	static final String PARTICIPLE = "participle";
 
-	private static final String CAUSES = "causes";
+	static final String CAUSES = "causes";
 
-	private static final String IS_CAUSED = "is_caused_by";
+	static final String IS_CAUSED = "is_caused_by";
 
 	/**
 	 * Code relation
@@ -326,9 +326,9 @@ public class Coder
 
 	// V E R B F R A M E
 
-	private static final int LAST_COMPAT_VERBFRAME = 35;
+	static final int LAST_COMPAT_VERBFRAME = 35;
 
-	private static final Map<String, Integer> FRAMEID_TO_NUM = new HashMap<>();
+	static final Map<String, Integer> FRAMEID_TO_NUM = new HashMap<>();
 
 	static
 	{
@@ -398,7 +398,7 @@ public class Coder
 
 	// L E X F I L E
 
-	private static final Map<String, Integer> LEXFILE_TO_NUM = new HashMap<>();
+	static final Map<String, Integer> LEXFILE_TO_NUM = new HashMap<>();
 
 	static
 	{
@@ -460,61 +460,5 @@ public class Coder
 	static int codeLexFile(String name)
 	{
 		return LEXFILE_TO_NUM.get(name);
-	}
-
-	public static void main(String[] args)
-	{
-		boolean pointerCompat = args.length > 0 && "-compat,pointer".equals(args[0]);
-
-		final Map<Character, Set<String>> allRelations = new HashMap<>();
-		final Set<String> nSet = allRelations.computeIfAbsent('n', (k) -> new HashSet<>());
-		nSet.addAll(Arrays.asList(ANTONYM, HYPERNYM, INSTANCE_HYPERNYM, HYPONYM, INSTANCE_HYPONYM, HOLO_MEMBER, HOLO_SUBSTANCE, HOLO_PART, MERO_MEMBER, MERO_SUBSTANCE, MERO_PART, ATTRIBUTE, PERTAINYM, DERIVATION, DOMAIN_TOPIC, HAS_DOMAIN_TOPIC, DOMAIN_REGION, HAS_DOMAIN_REGION, DOMAIN_USAGE, HAS_DOMAIN_USAGE));
-		final Set<String> vSet = allRelations.computeIfAbsent('v', (k) -> new HashSet<>());
-		vSet.addAll(Arrays.asList(ANTONYM, HYPERNYM, HYPONYM, ENTAILS, IS_ENTAILED, CAUSES, IS_CAUSED, ALSO, VERB_GROUP, DERIVATION, DOMAIN_TOPIC, DOMAIN_REGION, DOMAIN_USAGE));
-		final Set<String> aSet = allRelations.computeIfAbsent('a', (k) -> new HashSet<>());
-		aSet.addAll(Arrays.asList(ANTONYM, SIMILAR, PARTICIPLE, PERTAINYM, ATTRIBUTE, ALSO, DERIVATION, DOMAIN_TOPIC, DOMAIN_REGION, DOMAIN_USAGE, HAS_DOMAIN_TOPIC, HAS_DOMAIN_REGION, HAS_DOMAIN_USAGE));
-		final Set<String> rSet = allRelations.computeIfAbsent('r', (k) -> new HashSet<>());
-		rSet.addAll(Arrays.asList(ANTONYM, PERTAINYM, DERIVATION, DOMAIN_TOPIC, DOMAIN_REGION, DOMAIN_USAGE, HAS_DOMAIN_TOPIC, HAS_DOMAIN_REGION, HAS_DOMAIN_USAGE));
-
-		final Set<String> allPointers = new TreeSet<>();
-		final Map<Character, Map<String, String>> toRelations = new HashMap<>();
-		for (Character pos : Arrays.asList('n', 'v', 'a', 'r'))
-		{
-			for (String relation : allRelations.get(pos))
-			{
-				String pointer;
-				try
-				{
-					pointer = codeRelation(relation, pos, pointerCompat);
-				}
-				catch (CompatException e)
-				{
-					System.err.println(e.getCause().getMessage());
-					continue;
-				}
-				catch (IllegalArgumentException e)
-				{
-					System.err.println(relation + " for " + pos + " " + e.getCause().getMessage());
-					continue;
-				}
-				allPointers.add(pointer);
-				Map<String, String> pointerToRelation = toRelations.computeIfAbsent(pos, (p) -> new HashMap<>());
-				pointerToRelation.put(pointer, relation);
-			}
-		}
-		for (String pointer : allPointers)
-		{
-			System.out.printf("%-2s\t", pointer);
-			for (Character pos : Arrays.asList('n', 'v', 'a', 'r'))
-			{
-				String relation = toRelations.get(pos).get(pointer);
-				if (relation != null)
-				{
-					System.out.printf("%s:%s  ", pos, relation);
-				}
-			}
-			System.out.println();
-		}
-		System.err.println("Done " + allPointers.size());
 	}
 }

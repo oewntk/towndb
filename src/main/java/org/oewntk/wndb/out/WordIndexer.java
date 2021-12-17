@@ -4,8 +4,11 @@
 
 package org.oewntk.wndb.out;
 
-import org.oewntk.model.*;
+import org.oewntk.model.Sense;
+import org.oewntk.model.SenseGroupings;
 import org.oewntk.model.SenseGroupings.KeyLCLemmaAndPos;
+import org.oewntk.model.Synset;
+import org.oewntk.model.TagCount;
 
 import java.io.PrintStream;
 import java.util.*;
@@ -17,6 +20,8 @@ import java.util.*;
  */
 public class WordIndexer
 {
+	private static final boolean LOG = false;
+
 	/**
 	 * This represents what is needed for a line in index.(noun|verb|adj|adv)
 	 */
@@ -45,11 +50,6 @@ public class WordIndexer
 			return taggedSensesCount;
 		}
 	}
-
-	/**
-	 * Log print stream
-	 */
-	private static final PrintStream log = System.err;
 
 	/**
 	 * Format in data file
@@ -141,7 +141,7 @@ public class WordIndexer
 
 		// log
 		reportIncompats(incompats);
-		log.printf("Words: %d for %s%n", indexEntries.size(), posFilter);
+		Tracing.psInfo.printf("Words: %d for %s%n", indexEntries.size(), posFilter);
 	}
 
 	/**
@@ -253,8 +253,11 @@ public class WordIndexer
 				}
 				catch (IllegalArgumentException e)
 				{
-					String cause = e.getClass().getName() + ' ' + e.getMessage();
-					log.printf("Illegal relation %s relid=%s%n", cause, relationType);
+					//String cause = e.getClass().getName() + ' ' + e.getMessage();
+					if (LOG)
+					{
+						Tracing.psErr.printf("[W] Illegal relation '%s'%n", relationType);
+					}
 					throw e;
 				}
 
@@ -297,8 +300,11 @@ public class WordIndexer
 					}
 					catch (IllegalArgumentException e)
 					{
-						String cause = e.getClass().getName() + ' ' + e.getMessage();
-						log.printf("Illegal relation %s relid=%s%n", cause, relationType);
+						//String cause = e.getClass().getName() + ' ' + e.getMessage();
+						if (LOG)
+						{
+							Tracing.psErr.printf("[W] Illegal relation '%s'%n", relationType);
+						}
 						continue;
 					}
 
@@ -336,7 +342,7 @@ public class WordIndexer
 		{
 			for (Map.Entry<String, Integer> entry : incompats.entrySet())
 			{
-				log.printf("Incompatibilities '%s': %d%n", entry.getKey(), entry.getValue());
+				Tracing.psErr.printf("[W] Incompatibilities '%s': %d%n", entry.getKey(), entry.getValue());
 			}
 		}
 	}

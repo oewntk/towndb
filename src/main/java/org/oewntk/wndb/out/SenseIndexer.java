@@ -20,11 +20,6 @@ import java.util.Map.Entry;
 public class SenseIndexer
 {
 	/**
-	 * Log print stream
-	 */
-	private static final PrintStream log = System.err;
-
-	/**
 	 * Format in data file
 	 * sense_key
 	 * synset_offset
@@ -67,20 +62,6 @@ public class SenseIndexer
 		Collection<Sense> senses = sensesById.values();
 		Map<KeyLCLemmaAndPos, List<Sense>> groupedSenses = SenseGroupings.sensesByLCLemmaAndPos(senses);
 
-		/*
-		groupedSenses //
-				.entrySet().stream().skip(1000).limit(100) //
-				.forEach(SenseIndexer::dumpSenses);
-		var groupedSensesForAi = groupedSenses.get(KeyLCLemmaAndPos.of("ai", 'n'));
-		SenseGroupings.dumpSensesByDecreasingTagCount(groupedSensesForAi, System.out);
-
-		var groupedSensesForCritical = groupedSenses.get(KeyLCLemmaAndPos.of("critical", 'a'));
-		SenseGroupings.dumpSensesByDecreasingTagCount(groupedSensesForCritical, System.out);
-
-		var groupedSensesForAbsolute = groupedSenses.get(KeyLCLemmaAndPos.of("absolute", 'a'));
-		SenseGroupings.dumpSensesByDecreasingTagCount(groupedSensesForAbsolute, System.out);
-		*/
-
 		// collect
 		for (Entry<String, Sense> entry : sensesById.entrySet())
 		{
@@ -114,7 +95,7 @@ public class SenseIndexer
 		}
 
 		// log
-		log.printf("Senses: %d%n", sensesById.size());
+		Tracing.psInfo.printf("Senses: %d%n", sensesById.size());
 	}
 
 	/**

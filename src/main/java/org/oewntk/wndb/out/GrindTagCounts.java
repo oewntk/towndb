@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class TagCountGrinder
+public class GrindTagCounts
 {
 	public void makeTagCountRev(final PrintStream ps, final Map<String, Sense> sensesById)
 	{
@@ -29,7 +29,7 @@ public class TagCountGrinder
 				n++;
 			}
 		}
-		System.err.printf("Tag counts reverse %d%n", n);
+		Tracing.psInfo.printf("Tag counts reverse %d%n", n);
 	}
 
 	public void makeTagCount(final PrintStream ps, final Map<String, Sense> sensesById)
@@ -59,6 +59,6 @@ public class TagCountGrinder
 			ps.println(line);
 			n++;
 		}
-		System.err.printf("Tag counts %d%n", n);
+		Tracing.psInfo.printf("Tag counts %d%n", n);
 	}
 }

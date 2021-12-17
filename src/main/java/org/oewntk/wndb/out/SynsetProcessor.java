@@ -225,7 +225,7 @@ public abstract class SynsetProcessor
 					boolean wasThere = !relationDataSet.add(relation);
 					if (wasThere && log())
 					{
-						System.err.printf("[W] Synset %s duplicate %s%n", synset.getSynsetId(), relation);
+						Tracing.psErr.printf("[W] Synset %s duplicate %s%n", synset.getSynsetId(), relation);
 					}
 				}
 			}
@@ -252,8 +252,8 @@ public abstract class SynsetProcessor
 				{
 					if (log())
 					{
-						String cause = e.getClass().getName() + ' ' + e.getMessage();
-						System.err.printf("Illegal relation %s id=%s offset=%d%n", cause, synset.getSynsetId(), offset);
+						// String cause = e.getClass().getName() + ' ' + e.getMessage();
+						Tracing.psErr.printf("[W] Illegal relation '%s' synset=%s offset=%d%n", relationData.relType, synset.getSynsetId(), offset);
 					}
 					throw e;
 				}
@@ -307,7 +307,7 @@ public abstract class SynsetProcessor
 						boolean wasThere = !senseRelationDataSet.add(relation);
 						if (wasThere && log())
 						{
-							System.err.printf("[W] Sense %s duplicate %s%n", sense.getSenseId(), relation);
+							Tracing.psErr.printf("[W] Sense %s duplicate %s%n", sense.getSenseId(), relation);
 						}
 					}
 				}
@@ -334,8 +334,11 @@ public abstract class SynsetProcessor
 					}
 					catch (IllegalArgumentException e)
 					{
-						String cause = e.getClass().getName() + ' ' + e.getMessage();
-						System.err.printf("Illegal relation %s id=%s offset=%d%n", cause, synset.getSynsetId(), offset);
+						if (log())
+						{
+							// String cause = e.getClass().getName() + ' ' + e.getMessage();
+							Tracing.psErr.printf("[W] Illegal relation '%s' synset=%s offset=%d%n", relationData.relType, synset.getSynsetId(), offset);
+						}
 						// throw e;
 						continue;
 					}
@@ -412,7 +415,7 @@ public abstract class SynsetProcessor
 		{
 			for (Map.Entry<String, Integer> entry : incompats.entrySet())
 			{
-				System.err.printf("Incompatibilities '%s': %d%n", entry.getKey(), entry.getValue());
+				Tracing.psErr.printf("[W] Incompatibilities '%s': %d%n", entry.getKey(), entry.getValue());
 			}
 			this.incompats.clear();
 		}

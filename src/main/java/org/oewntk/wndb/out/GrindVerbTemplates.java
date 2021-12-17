@@ -9,7 +9,7 @@ import org.oewntk.model.VerbTemplate;
 import java.io.PrintStream;
 import java.util.Map;
 
-public class TemplateGrinder
+public class GrindVerbTemplates
 {
 	public void makeTemplates(final PrintStream ps, final Map<Integer, VerbTemplate> verbTemplatesById)
 	{
@@ -25,6 +25,6 @@ public class TemplateGrinder
 				n++;
 			}
 		}
-		System.err.printf("Verb templates %d%n", n);
+		Tracing.psInfo.printf("Verb templates %d%n", n);
 	}
 }

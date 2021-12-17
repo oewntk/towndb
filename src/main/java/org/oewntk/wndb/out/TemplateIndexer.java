@@ -26,6 +26,6 @@ public class TemplateIndexer
 				n++;
 			}
 		}
-		System.err.printf("Verb template indexes for %d senses%n", n);
+		Tracing.psInfo.printf("Verb template indexes for %d senses%n", n);
 	}
 }

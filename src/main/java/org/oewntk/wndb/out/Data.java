@@ -58,7 +58,7 @@ public class Data
 				if (lexid > 16)
 				// throw new RuntimeException("Out of range lexid" + lemma + " " + lexid);
 				{
-					System.err.printf("Out of range lexid %s: %d tweaked to %d%n", lemma, lexid, this.lexid);
+					Tracing.psErr.printf("Out of range lexid %s: %d tweaked to %d%n", lemma, lexid, this.lexid);
 				}
 			}
 			else

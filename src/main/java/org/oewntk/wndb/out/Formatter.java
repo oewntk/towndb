@@ -311,10 +311,4 @@ public class Formatter
 					"  27 Princeton University and LICENSEE agrees to preserve same.  \n" + //
 					"  28 \n" + //
 					"  29 Ground by x-englishwordnet     \n";
-
-	static public void main(String[] args)
-	{
-		System.out.println(PRINCETON_HEADER.length());
-		System.out.println(OEWN_HEADER.length());
-	}
 }
