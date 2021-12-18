@@ -256,7 +256,7 @@ public class WordIndexer
 					//String cause = e.getClass().getName() + ' ' + e.getMessage();
 					if (LOG)
 					{
-						Tracing.psErr.printf("[W] Illegal relation '%s'%n", relationType);
+						Tracing.psErr.printf("[W] Discarded relation '%s'%n", relationType);
 					}
 					throw e;
 				}
@@ -303,7 +303,7 @@ public class WordIndexer
 						//String cause = e.getClass().getName() + ' ' + e.getMessage();
 						if (LOG)
 						{
-							Tracing.psErr.printf("[W] Illegal relation '%s'%n", relationType);
+							Tracing.psErr.printf("[W] Discarded relation '%s'%n", relationType);
 						}
 						continue;
 					}

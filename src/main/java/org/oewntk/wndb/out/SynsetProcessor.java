@@ -253,7 +253,7 @@ public abstract class SynsetProcessor
 					if (log())
 					{
 						// String cause = e.getClass().getName() + ' ' + e.getMessage();
-						Tracing.psErr.printf("[W] Illegal relation '%s' synset=%s offset=%d%n", relationData.relType, synset.getSynsetId(), offset);
+						Tracing.psErr.printf("[W] Discarded relation '%s' synset=%s offset=%d%n", relationData.relType, synset.getSynsetId(), offset);
 					}
 					throw e;
 				}
@@ -337,7 +337,7 @@ public abstract class SynsetProcessor
 						if (log())
 						{
 							// String cause = e.getClass().getName() + ' ' + e.getMessage();
-							Tracing.psErr.printf("[W] Illegal relation '%s' synset=%s offset=%d%n", relationData.relType, synset.getSynsetId(), offset);
+							Tracing.psErr.printf("[W] Discarded relation '%s' synset=%s offset=%d%n", relationData.relType, synset.getSynsetId(), offset);
 						}
 						// throw e;
 						continue;
