@@ -6,12 +6,10 @@ package org.oewntk.wndb.out;
 
 import org.oewntk.model.*;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -86,6 +84,7 @@ public class ModelConsumer implements Consumer<Model>
 		indexTemplates(outDir, model.getSensesById());
 		templates(outDir, model.getVerbTemplatesById());
 		tagcounts(outDir, model.getSensesById());
+		domains(outDir);
 	}
 
 	/**
@@ -256,5 +255,38 @@ public class ModelConsumer implements Consumer<Model>
 		{
 			grinder.makeTagCount(ps, sensesById);
 		}
+	}
+
+
+	/**
+	 * Grind lexdomains
+	 *
+	 * @param dir output directory
+	 */
+	private void domains(final File dir) throws FileNotFoundException
+	{
+		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "lexnames")), true, StandardCharsets.UTF_8))
+		{
+			Coder.LEXFILE_TO_NUM.entrySet().stream() //
+					.sorted(Comparator.comparingInt(Map.Entry::getValue)) //
+					.forEach(e -> ps.printf("%02d\t%s\t%d%n", e.getValue(), e.getKey(), posNameToInt(e.getKey().split("\\.")[0])));
+		}
+		Tracing.psInfo.printf("Lex names%n");
+	}
+
+	private static int posNameToInt(final String posName)
+	{
+		switch (posName)
+		{
+			case "noun":
+				return 1;
+			case "verb":
+				return 2;
+			case "adj":
+				return 3;
+			case "adv":
+				return 4;
+		}
+		return 0;
 	}
 }
