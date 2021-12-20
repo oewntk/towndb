@@ -133,19 +133,19 @@ public abstract class SynsetProcessor
 		// order
 
 		@Override
-		public int compareTo(RelationData other)
+		public int compareTo(RelationData that)
 		{
-			int c = Boolean.compare(this.isSenseRelation, other.isSenseRelation);
+			int c = Boolean.compare(this.isSenseRelation, that.isSenseRelation);
 			if (c != 0)
 			{
 				return c;
 			}
-			c = this.relType.compareTo(other.relType);
+			c = this.relType.compareTo(that.relType);
 			if (c != 0)
 			{
 				return c;
 			}
-			return this.relType.compareTo(other.relType);
+			return this.relType.compareTo(that.relType);
 		}
 
 		// string
