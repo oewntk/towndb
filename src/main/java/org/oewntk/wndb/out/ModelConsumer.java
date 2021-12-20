@@ -26,25 +26,23 @@ public class ModelConsumer implements Consumer<Model>
 
 	private final int flags;
 
-	private final PrintStream ps;
-
 	/**
 	 * Constructor
 	 *
 	 * @param outDir output directory
 	 * @param flags  flags
-	 * @param ps     log print stream
 	 */
-	public ModelConsumer(final File outDir, final int flags, final PrintStream ps)
+	public ModelConsumer(final File outDir, final int flags)
 	{
 		this.outDir = outDir;
 		this.flags = flags;
-		this.ps = ps;
 	}
 
 	@Override
 	public void accept(final Model model)
 	{
+		Tracing.psInfo.printf("[Model] %s%n", Arrays.toString(model.getSources()));
+
 		try
 		{
 			grind(model);
@@ -63,9 +61,6 @@ public class ModelConsumer implements Consumer<Model>
 	 */
 	public void grind(final Model model) throws IOException
 	{
-		// Model
-		ps.printf("[Model] %s%n", Arrays.toString(model.getSources()));
-
 		// Output
 		if (!outDir.exists())
 		{

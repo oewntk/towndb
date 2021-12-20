@@ -19,6 +19,10 @@ import java.util.function.ToLongFunction;
  */
 public abstract class SynsetProcessor
 {
+	private static final boolean LOG_DISCARDED = true;
+
+	private static final boolean LOG_DUPLICATED = true;
+
 	/**
 	 * Format in data file
 	 */
@@ -223,9 +227,9 @@ public abstract class SynsetProcessor
 				{
 					RelationData relation = new RelationData(false, relationType, targetSynsetId);
 					boolean wasThere = !relationDataSet.add(relation);
-					if (wasThere && log())
+					if (wasThere && LOG_DUPLICATED && log())
 					{
-						Tracing.psErr.printf("[W] Synset %s duplicate %s%n", synset.getSynsetId(), relation);
+						Tracing.psErr.printf("[W] Synset %s has duplicate %s%n", synset.getSynsetId(), relation);
 					}
 				}
 			}
@@ -250,7 +254,7 @@ public abstract class SynsetProcessor
 				}
 				catch (IllegalArgumentException e)
 				{
-					if (log())
+					if (LOG_DISCARDED && log())
 					{
 						// String cause = e.getClass().getName() + ' ' + e.getMessage();
 						Tracing.psErr.printf("[W] Discarded relation '%s' synset=%s offset=%d%n", relationData.relType, synset.getSynsetId(), offset);
@@ -260,6 +264,8 @@ public abstract class SynsetProcessor
 				relations.add(relation);
 			}
 		}
+
+
 
 		// senses that have this synset as target in "synset" attribute
 		Sense[] senses = synset.findSenses(lexesByLemma);
@@ -305,9 +311,9 @@ public abstract class SynsetProcessor
 					{
 						RelationData relation = new RelationData(true, relationType, targetSenseId);
 						boolean wasThere = !senseRelationDataSet.add(relation);
-						if (wasThere && log())
+						if (wasThere  && LOG_DUPLICATED && log())
 						{
-							Tracing.psErr.printf("[W] Sense %s duplicate %s%n", sense.getSenseId(), relation);
+							Tracing.psErr.printf("[W] Sense %s has duplicate %s%n", sense.getSenseId(), relation);
 						}
 					}
 				}
@@ -334,7 +340,7 @@ public abstract class SynsetProcessor
 					}
 					catch (IllegalArgumentException e)
 					{
-						if (log())
+						if (LOG_DISCARDED && log())
 						{
 							// String cause = e.getClass().getName() + ' ' + e.getMessage();
 							Tracing.psErr.printf("[W] Discarded relation '%s' synset=%s offset=%d%n", relationData.relType, synset.getSynsetId(), offset);
