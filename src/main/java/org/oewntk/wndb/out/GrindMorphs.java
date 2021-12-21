@@ -32,8 +32,9 @@ public class GrindMorphs
 	 * @param ps           print stream
 	 * @param lexesByLemma lexes mapped by lemma
 	 * @param posFilter    filter selecting lexes
+	 * @return morphs
 	 */
-	public void makeMorph(PrintStream ps, Map<String, List<Lex>> lexesByLemma, char posFilter)
+	public long makeMorph(PrintStream ps, Map<String, List<Lex>> lexesByLemma, char posFilter)
 	{
 		Set<String> lines = new TreeSet<>();
 
@@ -66,6 +67,7 @@ public class GrindMorphs
 		{
 			ps.println(line);
 		}
-		Tracing.psInfo.println("Morphs: " + n + " for " + posFilter);
+		//Tracing.psInfo.println("Morphs: " + n + " for " + posFilter);
+		return n;
 	}
 }

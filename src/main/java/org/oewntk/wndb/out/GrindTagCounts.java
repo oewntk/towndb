@@ -29,7 +29,7 @@ public class GrindTagCounts
 				n++;
 			}
 		}
-		Tracing.psInfo.printf("Tag counts reverse %d%n", n);
+		Tracing.psInfo.printf("Tag counts reverse: %d%n", n);
 	}
 
 	public void makeTagCount(final PrintStream ps, final Map<String, Sense> sensesById)
@@ -59,6 +59,6 @@ public class GrindTagCounts
 			ps.println(line);
 			n++;
 		}
-		Tracing.psInfo.printf("Tag counts %d%n", n);
+		Tracing.psInfo.printf("Tag counts: %d%n", n);
 	}
 }

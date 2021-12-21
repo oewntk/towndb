@@ -70,7 +70,7 @@ public class GrindOffsets extends SynsetProcessor
 
 			offset += data.getBytes(StandardCharsets.UTF_8).length;
 		}
-		Tracing.psInfo.println("Computed offsets for " + posFilter);
+		//Tracing.psInfo.println("Computed offsets for " + posFilter);
 	}
 
 	/**

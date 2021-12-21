@@ -76,8 +76,8 @@ public class ModelConsumer implements Consumer<Model>
 		indexWords(outDir, model.getSensesById(), model.getSynsetsById(), offsets);
 		indexSenses(outDir, model.getSensesById(), offsets);
 		morphs(outDir, model.getLexesByLemma());
-		indexTemplates(outDir, model.getSensesById());
 		templates(outDir, model.getVerbTemplatesById());
+		indexTemplates(outDir, model.getSensesById());
 		tagcounts(outDir, model.getSensesById());
 		domains(outDir);
 	}
@@ -98,28 +98,30 @@ public class ModelConsumer implements Consumer<Model>
 			Map<String, Sense> sensesById, //
 			Map<String, Long> offsets) throws IOException
 	{
-		// Data
+		long nCount, vCount, aCount, rCount;
 		GrindSynsets grinder = new GrindSynsets(lexesByLemma, synsetsById, sensesById, offsets, flags);
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "data.noun")), true, StandardCharsets.UTF_8))
 		{
-			grinder.makeData(ps, synsetsById, Data.NOUN_POS_FILTER);
+			nCount = grinder.makeData(ps, synsetsById, Data.NOUN_POS_FILTER);
 			grinder.report();
 		}
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "data.verb")), true, StandardCharsets.UTF_8))
 		{
-			grinder.makeData(ps, synsetsById, Data.VERB_POS_FILTER);
+			vCount = grinder.makeData(ps, synsetsById, Data.VERB_POS_FILTER);
 			grinder.report();
 		}
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "data.adj")), true, StandardCharsets.UTF_8))
 		{
-			grinder.makeData(ps, synsetsById, Data.ADJ_POS_FILTER);
+			aCount = grinder.makeData(ps, synsetsById, Data.ADJ_POS_FILTER);
 			grinder.report();
 		}
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "data.adv")), true, StandardCharsets.UTF_8))
 		{
-			grinder.makeData(ps, synsetsById, Data.ADV_POS_FILTER);
+			rCount = grinder.makeData(ps, synsetsById, Data.ADV_POS_FILTER);
 			grinder.report();
 		}
+		long sum = nCount + vCount + aCount + rCount;
+		Tracing.psInfo.printf("Synsets: %d [n:%d v:%d a:%d r:%d]%n", sum, nCount, vCount, aCount, rCount);
 	}
 
 	/**
@@ -136,24 +138,26 @@ public class ModelConsumer implements Consumer<Model>
 			Map<String, Synset> synsetsById, //
 			Map<String, Long> offsets) throws IOException
 	{
-		// Index
+		long nCount, vCount, aCount, rCount;
 		WordIndexer indexer = new WordIndexer(offsets, flags);
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "index.noun")), true, StandardCharsets.UTF_8))
 		{
-			indexer.make(ps, sensesById, synsetsById, Data.NOUN_POS_FILTER);
+			nCount = indexer.make(ps, sensesById, synsetsById, Data.NOUN_POS_FILTER);
 		}
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "index.verb")), true, StandardCharsets.UTF_8))
 		{
-			indexer.make(ps, sensesById, synsetsById, Data.VERB_POS_FILTER);
+			vCount = indexer.make(ps, sensesById, synsetsById, Data.VERB_POS_FILTER);
 		}
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "index.adj")), true, StandardCharsets.UTF_8))
 		{
-			indexer.make(ps, sensesById, synsetsById, Data.ADJ_POS_FILTER);
+			aCount = indexer.make(ps, sensesById, synsetsById, Data.ADJ_POS_FILTER);
 		}
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "index.adv")), true, StandardCharsets.UTF_8))
 		{
-			indexer.make(ps, sensesById, synsetsById, Data.ADV_POS_FILTER);
+			rCount = indexer.make(ps, sensesById, synsetsById, Data.ADV_POS_FILTER);
 		}
+		long sum = nCount + vCount + aCount + rCount;
+		Tracing.psInfo.printf("Indexes: %d [n:%d v:%d a:%d r:%d]%n", sum, nCount, vCount, aCount, rCount);
 	}
 
 	/**
@@ -181,23 +185,26 @@ public class ModelConsumer implements Consumer<Model>
 	 */
 	public static void morphs(File dir, Map<String, List<Lex>> lexesByLemma) throws IOException
 	{
+		long nCount, vCount, aCount, rCount;
 		GrindMorphs grinder = new GrindMorphs();
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "noun.exc")), true, StandardCharsets.UTF_8))
 		{
-			grinder.makeMorph(ps, lexesByLemma, Data.NOUN_POS_FILTER);
+			nCount = grinder.makeMorph(ps, lexesByLemma, Data.NOUN_POS_FILTER);
 		}
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "verb.exc")), true, StandardCharsets.UTF_8))
 		{
-			grinder.makeMorph(ps, lexesByLemma, Data.VERB_POS_FILTER);
+			vCount = grinder.makeMorph(ps, lexesByLemma, Data.VERB_POS_FILTER);
 		}
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "adj.exc")), true, StandardCharsets.UTF_8))
 		{
-			grinder.makeMorph(ps, lexesByLemma, Data.ADJ_POS_FILTER);
+			aCount = grinder.makeMorph(ps, lexesByLemma, Data.ADJ_POS_FILTER);
 		}
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "adv.exc")), true, StandardCharsets.UTF_8))
 		{
-			grinder.makeMorph(ps, lexesByLemma, Data.ADV_POS_FILTER);
+			rCount = grinder.makeMorph(ps, lexesByLemma, Data.ADV_POS_FILTER);
 		}
+		long sum = nCount + vCount + aCount + rCount;
+		Tracing.psInfo.printf("Morphs: %d [n:%d v:%d a:%d r:%d]%n", sum, nCount, vCount, aCount, rCount);
 	}
 
 	/**
@@ -242,16 +249,15 @@ public class ModelConsumer implements Consumer<Model>
 	public static void tagcounts(File dir, Map<String, Sense> sensesById) throws IOException
 	{
 		GrindTagCounts grinder = new GrindTagCounts();
-		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "cntlist.rev")), true, StandardCharsets.UTF_8))
-		{
-			grinder.makeTagCountRev(ps, sensesById);
-		}
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "cntlist")), true, StandardCharsets.UTF_8))
 		{
 			grinder.makeTagCount(ps, sensesById);
 		}
+		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "cntlist.rev")), true, StandardCharsets.UTF_8))
+		{
+			grinder.makeTagCountRev(ps, sensesById);
+		}
 	}
-
 
 	/**
 	 * Grind lexdomains
@@ -266,7 +272,7 @@ public class ModelConsumer implements Consumer<Model>
 					.sorted(Comparator.comparingInt(Map.Entry::getValue)) //
 					.forEach(e -> ps.printf("%02d\t%s\t%d%n", e.getValue(), e.getKey(), posNameToInt(e.getKey().split("\\.")[0])));
 		}
-		Tracing.psInfo.printf("Lex names%n");
+		Tracing.psInfo.printf("Lex names: %d%n", Coder.LEXFILE_TO_NUM.size());
 	}
 
 	private static int posNameToInt(final String posName)

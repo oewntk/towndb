@@ -25,6 +25,6 @@ public class GrindVerbTemplates
 				n++;
 			}
 		}
-		Tracing.psInfo.printf("Verb templates %d%n", n);
+		Tracing.psInfo.printf("Verb templates: %d%n", n);
 	}
 }

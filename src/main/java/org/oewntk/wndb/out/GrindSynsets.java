@@ -46,11 +46,12 @@ public class GrindSynsets extends SynsetProcessor
 	/**
 	 * Make data
 	 *
-	 * @param ps            print stream
-	 * @param synsetsById   synsets mapped by id
-	 * @param posFilter     part-of-speech  filter
+	 * @param ps          print stream
+	 * @param synsetsById synsets mapped by id
+	 * @param posFilter   part-of-speech  filter
+	 * @return number of synsets
 	 */
-	public void makeData(PrintStream ps, Map<String, Synset> synsetsById, char posFilter)
+	public long makeData(PrintStream ps, Map<String, Synset> synsetsById, char posFilter)
 	{
 		ps.print(Formatter.OEWN_HEADER);
 		long offset = Formatter.OEWN_HEADER.getBytes(StandardCharsets.UTF_8).length;
@@ -82,6 +83,7 @@ public class GrindSynsets extends SynsetProcessor
 			offset += line.getBytes(StandardCharsets.UTF_8).length;
 			previous = synset;
 		}
-		Tracing.psInfo.println("Synsets: " + n + " for " + posFilter);
+		//Tracing.psInfo.println("Synsets: " + n + " for " + posFilter);
+		return n;
 	}
 }

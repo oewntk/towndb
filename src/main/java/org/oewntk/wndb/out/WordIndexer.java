@@ -92,8 +92,9 @@ public class WordIndexer
 	 * @param sensesById  senses mapped by id
 	 * @param synsetsById synsets mapped by id
 	 * @param posFilter   part-of-speech filter for lexes
+	 * @return number of indexes
 	 */
-	public void make(final PrintStream ps, final Map<String, Sense> sensesById, final Map<String, Synset> synsetsById, final char posFilter)
+	public long make(final PrintStream ps, final Map<String, Sense> sensesById, final Map<String, Synset> synsetsById, final char posFilter)
 	{
 		Map<String, Integer> incompats = new HashMap<>();
 
@@ -141,7 +142,8 @@ public class WordIndexer
 
 		// log
 		reportIncompats(incompats);
-		Tracing.psInfo.printf("Words: %d for %s%n", indexEntries.size(), posFilter);
+		//Tracing.psInfo.printf("Words: %d for %s%n", indexEntries.size(), posFilter);
+		return indexEntries.size();
 	}
 
 	/**
