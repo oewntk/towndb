@@ -63,7 +63,7 @@ public class OffsetSerializer implements Consumer<Model>
 	public void grind(final CoreModel model) throws IOException
 	{
 		// Model
-		ps.printf("[Model] %s%n", model.getSource());
+		ps.printf("[CoreModel] %s%n", model.getSource());
 
 		// Output
 		if (!outDir.exists())

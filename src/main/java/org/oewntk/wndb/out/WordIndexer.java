@@ -12,6 +12,7 @@ import org.oewntk.model.TagCount;
 
 import java.io.PrintStream;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This class produces the 'index.{noun|verb|adj|adv}' files
@@ -106,15 +107,14 @@ public class WordIndexer
 		Map<String, IndexEntry> indexEntries = new TreeMap<>();
 
 		Collection<Sense> kSenses = sensesById.values();
-		Map<KeyLCLemmaAndPos, List<Sense>> groupedSenses = SenseGroupings.sensesByLCLemmaAndPos(kSenses);
+		var groupedSenses = SenseGroupings.sensesByLCLemmaAndPos(kSenses);
 		groupedSenses.entrySet().stream() //
 
 				.filter(e -> e.getKey().pos == posFilter) //
 				.forEach(e -> {
 
 					var k = e.getKey();
-					var senses = e.getValue();
-					senses.sort(SenseGroupings.byDecreasingTagCount);
+					var senses = e.getValue().stream().sorted(SenseGroupings.byDecreasingTagCount).collect(Collectors.toList());
 
 					var lcLemma = k.lcLemma;
 					var pos = k.pos;
@@ -154,7 +154,7 @@ public class WordIndexer
 	 */
 	private void collectSynsetIds(final List<Sense> senses, final Set<String> synsetIds)
 	{
-		int previousRank = -1;
+		// int previousRank = -1;
 		for (Sense sense : senses)
 		{
 			/*

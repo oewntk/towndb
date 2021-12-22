@@ -10,6 +10,7 @@ import org.oewntk.model.Synset;
 import org.oewntk.wndb.out.Data.Relation;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,7 @@ public class GrindOffsets extends SynsetProcessor
 	 * @param sensesById   senses mapped by id
 	 * @param flags        flags
 	 */
-	public GrindOffsets(Map<String, List<Lex>> lexesByLemma, Map<String, Synset> synsetsById, Map<String, Sense> sensesById, int flags)
+	public GrindOffsets(Map<String, Collection<Lex>> lexesByLemma, Map<String, Synset> synsetsById, Map<String, Sense> sensesById, int flags)
 	{
 		super(lexesByLemma, synsetsById, sensesById, s -> 0L /* dummy synset */, flags);
 	}

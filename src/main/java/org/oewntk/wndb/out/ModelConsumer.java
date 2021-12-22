@@ -8,10 +8,7 @@ import org.oewntk.model.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -93,7 +90,7 @@ public class ModelConsumer implements Consumer<Model>
 	 * @throws IOException io
 	 */
 	public void data(File dir, //
-			Map<String, List<Lex>> lexesByLemma, //
+			Map<String, Collection<Lex>> lexesByLemma, //
 			Map<String, Synset> synsetsById, //
 			Map<String, Sense> sensesById, //
 			Map<String, Long> offsets) throws IOException
@@ -183,7 +180,7 @@ public class ModelConsumer implements Consumer<Model>
 	 * @param dir          output directory
 	 * @throws IOException io
 	 */
-	public static void morphs(File dir, Map<String, List<Lex>> lexesByLemma) throws IOException
+	public static void morphs(File dir, Map<String, Collection<Lex>> lexesByLemma) throws IOException
 	{
 		long nCount, vCount, aCount, rCount;
 		GrindMorphs grinder = new GrindMorphs();

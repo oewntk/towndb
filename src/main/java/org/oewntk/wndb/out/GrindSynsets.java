@@ -10,6 +10,7 @@ import org.oewntk.model.Synset;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ public class GrindSynsets extends SynsetProcessor
 	 * @param offsetMap    offsets by synset id
 	 * @param flags        flags
 	 */
-	public GrindSynsets(Map<String, List<Lex>> lexesByLemma, Map<String, Synset> synsetsById, Map<String, Sense> sensesById, Map<String, Long> offsetMap, int flags)
+	public GrindSynsets(Map<String, Collection<Lex>> lexesByLemma, Map<String, Synset> synsetsById, Map<String, Sense> sensesById, Map<String, Long> offsetMap, int flags)
 	{
 		super(lexesByLemma, synsetsById, sensesById, offsetMap::get, flags);
 	}

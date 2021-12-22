@@ -9,6 +9,7 @@ import org.oewntk.model.Lex;
 import org.oewntk.model.Sense;
 import org.oewntk.model.Synset;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -57,7 +58,7 @@ public class LineProducer implements BiFunction<CoreModel, String, String>
 	 * @return line
 	 */
 	public static String data(Synset synset, long offset, //
-			Map<String, List<Lex>> lexesByLemma, //
+			Map<String, Collection<Lex>> lexesByLemma, //
 			Map<String, Synset> synsetsById, //
 			Map<String, Sense> sensesById, //
 			Map<String, Long> offsets, int flags)

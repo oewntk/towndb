@@ -39,7 +39,7 @@ public abstract class SynsetProcessor
 	/**
 	 * Lexes mapped by lemma
 	 */
-	protected final Map<String, List<Lex>> lexesByLemma;
+	protected final Map<String, Collection<Lex>> lexesByLemma;
 
 	/**
 	 * Synsets mapped by id
@@ -83,7 +83,7 @@ public abstract class SynsetProcessor
 	 * @param offsetFunction function that, when applied to a synsetId, yields the synset offset in the data files. May be dummy constant function.
 	 * @param flags          flags
 	 */
-	protected SynsetProcessor(Map<String, List<Lex>> lexesByLemma, Map<String, Synset> synsetsById, Map<String, Sense> sensesById, ToLongFunction<String> offsetFunction, int flags)
+	protected SynsetProcessor(Map<String, Collection<Lex>> lexesByLemma, Map<String, Synset> synsetsById, Map<String, Sense> sensesById, ToLongFunction<String> offsetFunction, int flags)
 	{
 		this.lexesByLemma = lexesByLemma;
 		this.synsetsById = synsetsById;

@@ -10,9 +10,9 @@ import org.oewntk.model.SenseGroupings.KeyLCLemmaAndPos;
 
 import java.io.PrintStream;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 /**
  * This class produces the 'index.sense' file
@@ -60,7 +60,7 @@ public class SenseIndexer
 	public void make(final PrintStream ps, final Map<String, Sense> sensesById)
 	{
 		Collection<Sense> senses = sensesById.values();
-		Map<KeyLCLemmaAndPos, List<Sense>> groupedSenses = SenseGroupings.sensesByLCLemmaAndPos(senses);
+		var groupedSenses = SenseGroupings.sensesByLCLemmaAndPos(senses);
 
 		// collect
 		for (Entry<String, Sense> entry : sensesById.entrySet())
@@ -78,8 +78,7 @@ public class SenseIndexer
 			if ((flags & Flags.noReIndex) == 0)
 			{
 				var k = KeyLCLemmaAndPos.of(sense);
-				var kSenses = groupedSenses.get(k);
-				kSenses.sort(SenseGroupings.byDecreasingTagCount);
+				var kSenses = groupedSenses.get(k).stream().sorted(SenseGroupings.byDecreasingTagCount).collect(Collectors.toList());
 				senseNum = kSenses.indexOf(sense) + 1;
 			}
 			else
