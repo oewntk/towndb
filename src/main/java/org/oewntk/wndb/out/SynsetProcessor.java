@@ -200,8 +200,6 @@ public abstract class SynsetProcessor
 		List<Member> members = new ArrayList<>();
 		for (String lemma : synset.getMembers())
 		{
-			if("Casanova".equalsIgnoreCase(lemma))
-				String.format("find sense of '%s' in synset %s", lemma, synset);
 			Sense sense = synset.findSenseOf(lemma, lexesByLemma);
 			assert sense != null : String.format("find sense of '%s' in synset %s", lemma, synset);
 			Member member = buildMember(sense);
@@ -266,8 +264,6 @@ public abstract class SynsetProcessor
 				relations.add(relation);
 			}
 		}
-
-
 
 		// senses that have this synset as target in "synset" attribute
 		Sense[] senses = synset.findSenses(lexesByLemma);
