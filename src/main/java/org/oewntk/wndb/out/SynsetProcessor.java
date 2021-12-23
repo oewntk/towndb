@@ -21,7 +21,7 @@ public abstract class SynsetProcessor
 {
 	private static final boolean LOG_DISCARDED = true;
 
-	private static final boolean LOG_DUPLICATED = true;
+	private static final boolean LOG_DUPLICATE_RELATION = false;
 
 	/**
 	 * Format in data file
@@ -229,7 +229,7 @@ public abstract class SynsetProcessor
 				{
 					RelationData relation = new RelationData(false, relationType, targetSynsetId);
 					boolean wasThere = !relationDataSet.add(relation);
-					if (wasThere && LOG_DUPLICATED && log())
+					if (wasThere && LOG_DUPLICATE_RELATION && log())
 					{
 						Tracing.psErr.printf("[W] Synset %s has duplicate %s%n", synset.getSynsetId(), relation);
 					}
@@ -313,7 +313,7 @@ public abstract class SynsetProcessor
 					{
 						RelationData relation = new RelationData(true, relationType, targetSenseId);
 						boolean wasThere = !senseRelationDataSet.add(relation);
-						if (wasThere  && LOG_DUPLICATED && log())
+						if (wasThere  && LOG_DUPLICATE_RELATION && log())
 						{
 							Tracing.psErr.printf("[W] Sense %s has duplicate %s%n", sense.getSenseId(), relation);
 						}
