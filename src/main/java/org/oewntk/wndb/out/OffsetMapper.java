@@ -97,7 +97,7 @@ public class OffsetMapper implements Consumer<Model>
 		}
 	}
 
-	public static Map<String, Long> readOffsets(File file) throws IOException, ClassNotFoundException
+	public static Map<String, Long> readOffsets(File file) throws IOException
 	{
 		try (Stream<String> stream = Files.lines(file.toPath()))
 		{

@@ -6,7 +6,6 @@ package org.oewntk.wndb.out;
 
 import org.oewntk.model.Sense;
 import org.oewntk.model.SenseGroupings;
-import org.oewntk.model.SenseGroupings.KeyLCLemmaAndPos;
 import org.oewntk.model.Synset;
 import org.oewntk.model.TagCount;
 
@@ -183,7 +182,6 @@ public class WordIndexer
 	 */
 	private void collectTagCounts(final List<Sense> senses, final IndexEntry indexEntry)
 	{
-		int previousRank = -1;
 		for (Sense sense : senses)
 		{
 			// synsetid

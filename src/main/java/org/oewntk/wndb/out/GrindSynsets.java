@@ -11,7 +11,6 @@ import org.oewntk.model.Synset;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 /**
