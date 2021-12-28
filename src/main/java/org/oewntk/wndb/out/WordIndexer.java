@@ -280,10 +280,10 @@ public class WordIndexer
 	{
 		for (Sense lexSense : senses)
 		{
-			Map<String, List<String>> senseRelations = lexSense.getRelations();
+			Map<String, Set<String>> senseRelations = lexSense.getRelations();
 			if (senseRelations != null && senseRelations.size() > 0)
 			{
-				for (Map.Entry<String, List<String>> relationEntry : senseRelations.entrySet())
+				for (Map.Entry<String, Set<String>> relationEntry : senseRelations.entrySet())
 				{
 					String relationType = relationEntry.getKey();
 					String pointer;

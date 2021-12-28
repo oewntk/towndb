@@ -295,16 +295,16 @@ public abstract class SynsetProcessor
 			}
 
 			// sense relations
-			Map<String, List<String>> modelSenseRelations = sense.getRelations();
+			Map<String, Set<String>> modelSenseRelations = sense.getRelations();
 			if (modelSenseRelations != null && modelSenseRelations.size() > 0)
 			{
 				String lemma = sense.getLemma();
 
 				Set<RelationData> senseRelationDataSet = new LinkedHashSet<>();
-				for (Map.Entry<String, List<String>> entry : modelSenseRelations.entrySet())
+				for (Map.Entry<String, Set<String>> entry : modelSenseRelations.entrySet())
 				{
 					String relationType = entry.getKey();
-					List<String> values = entry.getValue();
+					Set<String> values = entry.getValue();
 					for (String targetSenseId : values)
 					{
 						RelationData relation = new RelationData(true, relationType, targetSenseId);
