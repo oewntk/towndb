@@ -265,7 +265,7 @@ public abstract class SynsetProcessor
 			}
 		}
 
-		// senses that have this synset as target in "synset" attribute
+		// senses that have this synset as target in "synset" field
 		Sense[] senses = synset.findSenses(lexesByLemma);
 		assert senses.length > 0;
 
@@ -282,7 +282,7 @@ public abstract class SynsetProcessor
 				{
 					try
 					{
-						Frame frame = new Frame(Coder.codeFrameId(verbframeId, verbFrameCompat), sense.findSynsetIndex(synsetsById));
+						Frame frame = new Frame(Coder.codeFrameId(verbframeId, verbFrameCompat), sense.findSynsetIndex(synsetsById) + 1);
 						frames.add(frame);
 					}
 					catch (CompatException e)
@@ -309,7 +309,7 @@ public abstract class SynsetProcessor
 					{
 						RelationData relation = new RelationData(true, relationType, targetSenseId);
 						boolean wasThere = !senseRelationDataSet.add(relation);
-						if (wasThere  && LOG_DUPLICATE_RELATION && log())
+						if (wasThere && LOG_DUPLICATE_RELATION && log())
 						{
 							Tracing.psErr.printf("[W] Sense %s has duplicate %s%n", sense.getSensekey(), relation);
 						}
@@ -322,12 +322,12 @@ public abstract class SynsetProcessor
 					String targetSynsetId = targetSense.getSynsetId();
 					Synset targetSynset = synsetsById.get(targetSynsetId);
 
-					int memberIndex = synset.findIndexOfMember(lemma);
+					int memberNum = synset.findIndexOfMember(lemma) + 1;
 
 					Relation relation;
 					try
 					{
-						relation = buildSenseRelation(relationData.relType, type, memberIndex, targetSense, targetSynset, targetSynsetId);
+						relation = buildSenseRelation(relationData.relType, type, memberNum, targetSense, targetSynset, targetSynsetId);
 					}
 					catch (CompatException e)
 					{
@@ -369,26 +369,26 @@ public abstract class SynsetProcessor
 	/**
 	 * Build relation
 	 *
-	 * @param type           relation type
-	 * @param pos            part of speech
-	 * @param lemmaIndex     lemmaIndex
-	 * @param targetSense    target sense
-	 * @param targetSynset   target synset
-	 * @param targetSynsetId target synsetid
+	 * @param type            relation type
+	 * @param pos             part of speech
+	 * @param sourceMemberNum 1-based index of source member in source synset
+	 * @param targetSense     target sense
+	 * @param targetSynset    target synset
+	 * @param targetSynsetId  target synsetid
 	 * @return relation
 	 * @throws CompatException when relation is not legacy compatible
 	 */
-	protected Relation buildSenseRelation(String type, char pos, int lemmaIndex, Sense targetSense, Synset targetSynset, String targetSynsetId) throws CompatException
+	protected Relation buildSenseRelation(String type, char pos, int sourceMemberNum, Sense targetSense, Synset targetSynset, String targetSynsetId) throws CompatException
 	{
 		// target lemma
 		String targetLemma = targetSense.getLemma();
 
 		// which
-		int targetMemberNum = targetSynset.findIndexOfMember(targetLemma);
+		int targetMemberNum = targetSynset.findIndexOfMember(targetLemma) + 1;
 		char targetType = targetSynset.getType();
 		long targetOffset = this.offsetFunction.applyAsLong(targetSynsetId);
 		boolean pointerCompat = (flags & Flags.pointerCompat) != 0;
-		return new Relation(type, pos, targetType, targetOffset, lemmaIndex + 1, targetMemberNum + 1, pointerCompat);
+		return new Relation(type, pos, targetType, targetOffset, sourceMemberNum, targetMemberNum, pointerCompat);
 	}
 
 	/**
