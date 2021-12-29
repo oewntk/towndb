@@ -95,7 +95,7 @@ public class GrindOffsets extends SynsetProcessor
 	private static final int DUMMY_NUM = 0;
 
 	@Override
-	protected Relation buildSenseRelation(String type, char pos, int lemmaIndex, Sense targetSense, Synset targetSynset, String targetSynsetId) throws CompatException
+	protected Relation buildSenseRelation(String type, char pos, int sourceMemberNum, Sense targetSense, Synset targetSynset, String targetSynsetId) throws CompatException
 	{
 		char targetType = targetSynset.getType();
 		boolean pointerCompat = (flags & Flags.pointerCompat) != 0;
