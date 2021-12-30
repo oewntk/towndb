@@ -8,7 +8,10 @@ import org.oewntk.model.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -70,8 +73,8 @@ public class ModelConsumer implements Consumer<Model>
 
 		// Process
 		data(outDir, model.getLexesByLemma(), model.getSynsetsById(), model.getSensesById(), offsets);
-		indexWords(outDir, model.getSensesById(), model.getSynsetsById(), offsets);
-		indexSenses(outDir, model.getSensesById(), offsets);
+		indexWords(outDir, model.senses, model.getSynsetsById(), offsets);
+		indexSenses(outDir, model.senses, offsets);
 		morphs(outDir, model.getLexesByLemma());
 		templates(outDir, model.getVerbTemplatesById());
 		indexTemplates(outDir, model.getSensesById());
@@ -125,13 +128,13 @@ public class ModelConsumer implements Consumer<Model>
 	 * Make word index
 	 *
 	 * @param dir         output directory
-	 * @param sensesById  senses mapped by sense id (sensekey)
+	 * @param senses      senses
 	 * @param synsetsById synsets mapped by synset id
 	 * @param offsets     offsets mapped by synset id
 	 * @throws IOException io
 	 */
 	public void indexWords(File dir, //
-			Map<String, Sense> sensesById, //
+			Collection<Sense> senses, //
 			Map<String, Synset> synsetsById, //
 			Map<String, Long> offsets) throws IOException
 	{
@@ -139,19 +142,19 @@ public class ModelConsumer implements Consumer<Model>
 		WordIndexer indexer = new WordIndexer(offsets, flags);
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "index.noun")), true, StandardCharsets.UTF_8))
 		{
-			nCount = indexer.make(ps, sensesById, synsetsById, Data.NOUN_POS_FILTER);
+			nCount = indexer.make(ps, senses, synsetsById, Data.NOUN_POS_FILTER);
 		}
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "index.verb")), true, StandardCharsets.UTF_8))
 		{
-			vCount = indexer.make(ps, sensesById, synsetsById, Data.VERB_POS_FILTER);
+			vCount = indexer.make(ps, senses, synsetsById, Data.VERB_POS_FILTER);
 		}
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "index.adj")), true, StandardCharsets.UTF_8))
 		{
-			aCount = indexer.make(ps, sensesById, synsetsById, Data.ADJ_POS_FILTER);
+			aCount = indexer.make(ps, senses, synsetsById, Data.ADJ_POS_FILTER);
 		}
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "index.adv")), true, StandardCharsets.UTF_8))
 		{
-			rCount = indexer.make(ps, sensesById, synsetsById, Data.ADV_POS_FILTER);
+			rCount = indexer.make(ps, senses, synsetsById, Data.ADV_POS_FILTER);
 		}
 		long sum = nCount + vCount + aCount + rCount;
 		Tracing.psInfo.printf("Indexes: %d [n:%d v:%d a:%d r:%d]%n", sum, nCount, vCount, aCount, rCount);
@@ -160,16 +163,16 @@ public class ModelConsumer implements Consumer<Model>
 	/**
 	 * Grind index.sense
 	 *
-	 * @param dir        output directory
-	 * @param sensesById senses mapped by id
-	 * @param offsets    offsets mapped by synsetId
+	 * @param dir     output directory
+	 * @param senses  senses
+	 * @param offsets offsets mapped by synsetId
 	 * @throws IOException io
 	 */
-	public void indexSenses(File dir, Map<String, Sense> sensesById, Map<String, Long> offsets) throws IOException
+	public void indexSenses(File dir, Collection<Sense> senses, Map<String, Long> offsets) throws IOException
 	{
 		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "index.sense")), true, StandardCharsets.UTF_8))
 		{
-			new SenseIndexer(flags, offsets).make(ps, sensesById);
+			new SenseIndexer(flags, offsets).make(ps, senses);
 		}
 	}
 

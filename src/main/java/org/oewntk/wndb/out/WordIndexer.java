@@ -89,12 +89,12 @@ public class WordIndexer
 	 * Make index
 	 *
 	 * @param ps          print stream
-	 * @param sensesById  senses mapped by id
+	 * @param senses      senses
 	 * @param synsetsById synsets mapped by id
 	 * @param posFilter   part-of-speech filter for lexes
 	 * @return number of indexes
 	 */
-	public long make(final PrintStream ps, final Map<String, Sense> sensesById, final Map<String, Synset> synsetsById, final char posFilter)
+	public long make(final PrintStream ps, final Collection<Sense> senses, final Map<String, Synset> synsetsById, final char posFilter)
 	{
 		Map<String, Integer> incompats = new HashMap<>();
 
@@ -105,15 +105,14 @@ public class WordIndexer
 		boolean pointerCompat = (flags & Flags.pointerCompat) != 0;
 		Map<String, IndexEntry> indexEntries = new TreeMap<>();
 
-		Collection<Sense> kSenses = sensesById.values();
-		var groupedSenses = SenseGroupings.sensesByLCLemmaAndPos(kSenses);
+		var groupedSenses = SenseGroupings.sensesByLCLemmaAndPos(senses);
 		groupedSenses.entrySet().stream() //
-
 				.filter(e -> e.getKey().pos == posFilter) //
+				.sorted(Comparator.comparing(s->s.getKey().lcLemma))
 				.forEach(e -> {
 
 					var k = e.getKey();
-					var senses = e.getValue().stream().sorted(SenseGroupings.byDecreasingTagCount).collect(Collectors.toList());
+					var kSenses = e.getValue().stream().sorted(SenseGroupings.byDecreasingTagCount).collect(Collectors.toList());
 
 					var lcLemma = k.lcLemma;
 					var pos = k.pos;
@@ -124,16 +123,16 @@ public class WordIndexer
 					IndexEntry indexEntry = indexEntries.computeIfAbsent(eik, ke -> new IndexEntry(pos));
 
 					// synset ids
-					collectSynsetIds(senses, indexEntry.synsetIds);
+					collectSynsetIds(kSenses, indexEntry.synsetIds);
 
 					// tag counts
-					collectTagCounts(senses, indexEntry);
+					collectTagCounts(kSenses, indexEntry);
 
 					// synset relations
-					collectSynsetRelations(senses, synsetsById, pos, indexEntry.relationPointers, pointerCompat, incompats);
+					collectSynsetRelations(kSenses, synsetsById, pos, indexEntry.relationPointers, pointerCompat, incompats);
 
 					// sense relations
-					collectSenseRelations(senses, pos, indexEntry.relationPointers, pointerCompat, incompats);
+					collectSenseRelations(kSenses, pos, indexEntry.relationPointers, pointerCompat, incompats);
 
 					// print
 					printIndexEntry(eik, indexEntry, ps);

@@ -10,8 +10,8 @@ import org.oewntk.model.SenseGroupings.KeyLCLemmaAndPos;
 
 import java.io.PrintStream;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 /**
@@ -54,51 +54,51 @@ public class SenseIndexer
 	/**
 	 * Make senses
 	 *
-	 * @param ps         print stream
-	 * @param sensesById senses
+	 * @param ps     print stream
+	 * @param senses senses
 	 */
-	public void make(final PrintStream ps, final Map<String, Sense> sensesById)
+	public void make(final PrintStream ps, final Collection<Sense> senses)
 	{
-		Collection<Sense> senses = sensesById.values();
 		var groupedSenses = SenseGroupings.sensesByLCLemmaAndPos(senses);
 
 		// collect
-		for (Entry<String, Sense> entry : sensesById.entrySet())
-		{
-			// sense
-			String sensekey = entry.getKey();
-			Sense sense = entry.getValue();
+		senses.stream() //
+				.sorted(Comparator.comparing(Sense::getSensekey)) //
+				.forEach(sense -> {
 
-			// offset
-			String synsetId = sense.getSynsetId();
-			long offset = offsets.get(synsetId);
+					// sense
+					String sensekey = sense.getSensekey();
 
-			// sense num
-			int senseNum;
-			if ((flags & Flags.noReIndex) == 0)
-			{
-				var k = KeyLCLemmaAndPos.of(sense);
-				// this will yield diverging sensenums to senses varying only in lemma, not synsetid target, e.g. a%1:10:00:: and a%1:10:01::
-				// var kSenses = groupedSenses.get(k).stream().sorted(SenseGroupings.byDecreasingTagCount).collect(Collectors.toList());
-				// senseNum = kSenses.indexOf(sense) + 1;
-				// the following will yield the same sensenum to senses varying only in lemma, not synsetid target, e.g. a%1:10:00:: and a%1:10:01::
-				var kTargetSynsetIds = groupedSenses.get(k).stream().sorted(SenseGroupings.byDecreasingTagCount).map(Sense::getSynsetId).distinct().collect(Collectors.toList());
-				senseNum = kTargetSynsetIds.indexOf(sense.getSynsetId()) + 1;
-			}
-			else
-			{
-				senseNum = sense.getLexIndex() + 1;
-			}
+					// offset
+					String synsetId = sense.getSynsetId();
+					long offset = offsets.get(synsetId);
 
-			// tag count
-			int tagCount = sense.getIntTagCount();
+					// sense num
+					int senseNum;
+					if ((flags & Flags.noReIndex) == 0)
+					{
+						var k = KeyLCLemmaAndPos.of(sense);
+						// this will yield diverging sensenums to senses varying only in lemma, not synsetid target, e.g. a%1:10:00:: and a%1:10:01::
+						// var kSenses = groupedSenses.get(k).stream().sorted(SenseGroupings.byDecreasingTagCount).collect(Collectors.toList());
+						// senseNum = kSenses.indexOf(sense) + 1;
+						// the following will yield the same sensenum to senses varying only in lemma, not synsetid target, e.g. a%1:10:00:: and a%1:10:01::
+						var kTargetSynsetIds = groupedSenses.get(k).stream().sorted(SenseGroupings.byDecreasingTagCount).map(Sense::getSynsetId).distinct().collect(Collectors.toList());
+						senseNum = kTargetSynsetIds.indexOf(sense.getSynsetId()) + 1;
+					}
+					else
+					{
+						senseNum = sense.getLexIndex() + 1;
+					}
 
-			// print
-			printSenseEntry(sensekey, offset, senseNum, tagCount, ps);
-		}
+					// tag count
+					int tagCount = sense.getIntTagCount();
+
+					// print
+					printSenseEntry(sensekey, offset, senseNum, tagCount, ps);
+				});
 
 		// log
-		Tracing.psInfo.printf("Senses: %d%n", sensesById.size());
+		Tracing.psInfo.printf("Senses: %d%n", senses.size());
 	}
 
 	/**
