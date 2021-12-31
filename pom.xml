@@ -8,12 +8,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>io.github.x-englishwordnet</groupId>
+	<groupId>io.github.oewntk</groupId>
 	<artifactId>towndb</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<name>to_wndb</name>
 	<description>Export Wordnet model to WNDB files.</description>
-	<url>https://github.com/x-englishwordnet/towndb</url>
+	<url>https://github.com/oewntk/towndb</url>
 
 	<properties>
 		<maven.compiler.source>11</maven.compiler.source>
@@ -23,7 +23,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>io.github.x-englishwordnet</groupId>
+			<groupId>io.github.oewntk</groupId>
 			<artifactId>model</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
@@ -135,7 +135,7 @@
 				<extensions>true</extensions>
 				<configuration>
 					<serverId>ossrh</serverId>
-					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+					<nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
 					<autoReleaseAfterClose>true</autoReleaseAfterClose>
 				</configuration>
 			</plugin>
@@ -147,24 +147,24 @@
 		<repository>
 			<id>ossrh</id>
 			<name>Maven Central Staging Repository</name>
-			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+			<url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2</url>
 		</repository>
 		<snapshotRepository>
 			<id>ossrh</id>
 			<name>Maven Central Snapshot Repository</name>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+			<url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
 
 	<scm>
-		<url>https://github.com/x-englishwordnet/towndb</url>
-		<connection>scm:git:git://github.com/x-englishwordnet/towndb.git</connection>
-		<developerConnection>scm:git:ssh://git@github.com:x-englishwordnet/towndb.git</developerConnection>
+		<url>https://github.com/oewntk/towndb</url>
+		<connection>scm:git:git://github.com/oewntk/towndb.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com:oewntk/towndb.git</developerConnection>
 	</scm>
 
 	<issueManagement>
 		<system>GitHub</system>
-		<url>https://github.com/x-englishwordnet/towndb/issues</url>
+		<url>https://github.com/oewntk/towndb/issues</url>
 	</issueManagement>
 
 	<licenses>
@@ -176,8 +176,8 @@
 	</licenses>
 
 	<organization>
-		<name>com.github.x-englishwordnet</name>
-		<url>https://github.com/x-englishwordnet</url>
+		<name>com.github.oewntk</name>
+		<url>https://github.com/oewntk</url>
 	</organization>
 
 	<developers>
