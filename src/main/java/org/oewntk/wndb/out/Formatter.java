@@ -310,5 +310,5 @@ public class Formatter
 					"  26 any associated documentation shall at all times remain with  \n" + //
 					"  27 Princeton University and LICENSEE agrees to preserve same.  \n" + //
 					"  28 \n" + //
-					"  29 Ground by x-englishwordnet     \n";
+					"  29 Ground by oewntk@gmail.com     \n";
 }
