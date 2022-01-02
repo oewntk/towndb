@@ -9,7 +9,7 @@
 
 This writes a model to WNDB format.
 
-Project [towndb](https://github.com/x-englishwordnet/towndb)
+Project [towndb](https://github.com/oewntk/towndb)
 
 ## Dataflow
 
@@ -17,6 +17,6 @@ Project [towndb](https://github.com/x-englishwordnet/towndb)
 
 ## Maven Central
 
-		<groupId>io.github.x-englishwordnet</groupId>
+		<groupId>io.github.oewntk</groupId>
 		<artifactId>towndb</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
