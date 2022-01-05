@@ -112,7 +112,7 @@ public class WordIndexer
 				.forEach(e -> {
 
 					var k = e.getKey();
-					var kSenses = e.getValue().stream().sorted(SenseGroupings.byDecreasingTagCount).collect(Collectors.toList());
+					var kSenses = e.getValue().stream().sorted(SenseComparator.WNDB_SENSE_ORDER).collect(Collectors.toList());
 
 					var lcLemma = k.lcLemma;
 					var pos = k.pos;

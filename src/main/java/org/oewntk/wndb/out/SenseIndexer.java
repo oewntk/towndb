@@ -82,7 +82,7 @@ public class SenseIndexer
 						// var kSenses = groupedSenses.get(k).stream().sorted(SenseGroupings.byDecreasingTagCount).collect(Collectors.toList());
 						// senseNum = kSenses.indexOf(sense) + 1;
 						// the following will yield the same sensenum to senses varying only in lemma, not synsetid target, e.g. a%1:10:00:: and a%1:10:01::
-						var kTargetSynsetIds = groupedSenses.get(k).stream().sorted(SenseGroupings.byDecreasingTagCount).map(Sense::getSynsetId).distinct().collect(Collectors.toList());
+						var kTargetSynsetIds = groupedSenses.get(k).stream().sorted(SenseComparator.WNDB_SENSE_ORDER).map(Sense::getSynsetId).distinct().collect(Collectors.toList());
 						senseNum = kTargetSynsetIds.indexOf(sense.getSynsetId()) + 1;
 					}
 					else
