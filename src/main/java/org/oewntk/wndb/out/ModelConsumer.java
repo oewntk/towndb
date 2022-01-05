@@ -8,11 +8,15 @@ import org.oewntk.model.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toMap;
 
 /**
  * Main class that generates the WN database in the WNDB format as per wndb(5WN)
@@ -78,6 +82,7 @@ public class ModelConsumer implements Consumer<Model>
 		morphs(outDir, model.getLexesByLemma());
 		templates(outDir, model.getVerbTemplatesById());
 		indexTemplates(outDir, model.getSensesById());
+		verbFrames(outDir, model.verbFrames);
 		tagcounts(outDir, model.getSensesById());
 		domains(outDir);
 	}
@@ -289,5 +294,85 @@ public class ModelConsumer implements Consumer<Model>
 				return 4;
 		}
 		return 0;
+	}
+
+
+	/**
+	 * Grind verb frames
+	 *
+	 * @param dir        output directory
+	 * @param verbFrames verb frames
+	 */
+	private void verbFrames(final File dir, final Collection<VerbFrame> verbFrames) throws FileNotFoundException
+	{
+		try (PrintStream ps = new PrintStream(new FileOutputStream(new File(dir, "verb.Framestext")), true, StandardCharsets.UTF_8))
+		{
+			int[] i = {0};
+			verbFrames.stream() //
+					.peek(vf -> ++i[0]) //
+					.map(vf -> new SimpleEntry<>(getVerbFrameNID(vf, i[0]), vf)) //
+					.sorted(Comparator.comparingInt(Map.Entry::getKey)) //
+					.forEach(e -> ps.printf("%d %s%n", e.getKey(), e.getValue().getFrame()));
+		}
+		Tracing.psInfo.printf("Verb frames: %d%n", verbFrames.size());
+	}
+
+	// name, frameid
+	public static final Object[][] VERBFRAME_VALUES = new Object[][]{ //
+			{"vii", 1}, //
+			{"via", 2}, //
+			{"nonreferential", 3}, //
+			{"vii-pp", 4}, //
+			{"vtii-adj", 5}, //
+			{"vii-adj", 6}, //
+			{"via-adj", 7}, //
+			{"vtai", 8}, //
+			{"vtaa", 9}, //
+			{"vtia", 10}, //
+			{"vtii", 11}, //
+			{"vii-to", 12}, //
+			{"via-on-inanim", 13}, //
+			{"ditransitive", 14}, //
+			{"vtai-to", 15}, //
+			{"vtai-from", 16}, //
+			{"vtaa-with", 17}, //
+			{"vtaa-of", 18}, //
+			{"vtai-on", 19}, //
+			{"vtaa-pp", 20}, //
+			{"vtai-pp", 21}, //
+			{"via-pp", 22}, //
+			{"vibody", 23}, //
+			{"vtaa-to-inf", 24}, //
+			{"vtaa-inf", 25}, //
+			{"via-that", 26}, //
+			{"via-to", 27}, //
+			{"via-to-inf", 28}, //
+			{"via-whether-inf", 29}, //
+			{"vtaa-into-ger", 30}, //
+			{"vtai-with", 31}, //
+			{"via-inf", 32}, //
+			{"via-ger", 33}, //
+			{"nonreferential-sent", 34}, //
+			{"vii-inf", 35}, //
+			{"via-at", 36}, //
+			{"via-for", 37}, //
+			{"via-on-anim", 38}, //
+			{"via-out-of", 39}, //
+	};
+
+	/**
+	 * Map frame id (via, ...) to numeric id
+	 */
+	public static final Map<String, Integer> VERB_FRAME_ID_TO_NIDS = Stream.of(VERBFRAME_VALUES).collect(toMap(data -> (String) data[0], data -> (Integer) data[1]));
+
+	private static int getVerbFrameNID(VerbFrame vf, int index)
+	{
+		String id = vf.getId();
+		Integer nid = VERB_FRAME_ID_TO_NIDS.get(id);
+		if (nid != null)
+		{
+			return nid;
+		}
+		return 100 + index;
 	}
 }
