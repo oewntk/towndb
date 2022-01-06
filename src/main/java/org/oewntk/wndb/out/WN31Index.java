@@ -75,7 +75,7 @@ public class WN31Index
 		return map;
 	}
 
-	public static void main(String[] args) throws IOException
+	public static void main(String[] args)
 	{
 		var list = List.of("eight%1:06:00::", "eight%1:14:00::", "eight%1:23:00::");
 		list.stream().sorted(WN31_SK_COMPARATOR).forEach(System.out::println);

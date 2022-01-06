@@ -47,8 +47,8 @@ public class GrindTagCounts
 			}
 		}
 		lines.sort((l1, l2) -> {
-			String field1 = l1.split(" ")[0];
-			String field2 = l2.split(" ")[0];
+			String field1 = l1.split("\\s")[0];
+			String field2 = l2.split("\\s")[0];
 			int i1 = Integer.parseInt(field1);
 			int i2 = Integer.parseInt(field2);
 			return -Integer.compare(i1, i2);
