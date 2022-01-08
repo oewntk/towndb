@@ -59,6 +59,7 @@ public class LineProducer implements BiFunction<CoreModel, String, String>
 	 * @param synsetsById  synset elements mapped by id
 	 * @param sensesById   sense elements mapped by id
 	 * @param offsets      offsets mapped by synsetId
+	 * @param flags        flags
 	 * @return line
 	 */
 	public static String data(Synset synset, long offset, //
