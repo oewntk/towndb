@@ -277,7 +277,7 @@ public class ModelConsumer implements Consumer<Model>
 					.sorted(Comparator.comparingInt(Map.Entry::getValue)) //
 					.forEach(e -> ps.printf("%02d\t%s\t%d%n", e.getValue(), e.getKey(), posNameToInt(e.getKey().split("\\.")[0])));
 		}
-		Tracing.psInfo.printf("Lex names: %d%n", Coder.LEXFILE_TO_NUM.size());
+		Tracing.psInfo.printf("Lexfiles: %d%n", Coder.LEXFILE_TO_NUM.size());
 	}
 
 	/**
