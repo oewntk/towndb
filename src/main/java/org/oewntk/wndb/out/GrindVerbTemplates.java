@@ -9,8 +9,17 @@ import org.oewntk.model.VerbTemplate;
 import java.io.PrintStream;
 import java.util.Map;
 
+/**
+ * Grind verb templates (sents.vrb)
+ */
 public class GrindVerbTemplates
 {
+	/**
+	 * Grind verb templates
+	 *
+	 * @param ps                print stream
+	 * @param verbTemplatesById verb templates by id
+	 */
 	public void makeTemplates(final PrintStream ps, final Map<Integer, VerbTemplate> verbTemplatesById)
 	{
 		long n = 0;

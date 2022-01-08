@@ -35,7 +35,7 @@ public class GrindSynsets extends SynsetProcessor
 	}
 
 	/**
-	 * Log things on the second pass
+	 * Derived classes diverge here to log things on the second pass only
 	 */
 	@Override
 	protected boolean log()

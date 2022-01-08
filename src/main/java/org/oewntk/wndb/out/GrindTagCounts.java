@@ -12,8 +12,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Grind tag count files
+ */
 public class GrindTagCounts
 {
+	/**
+	 * Grind tag count backward
+	 *
+	 * @param ps         print stream
+	 * @param sensesById senses by id
+	 */
 	public void makeTagCountRev(final PrintStream ps, final Map<String, Sense> sensesById)
 	{
 		long n = 0;
@@ -32,6 +41,12 @@ public class GrindTagCounts
 		Tracing.psInfo.printf("Tag counts reverse: %d%n", n);
 	}
 
+	/**
+	 * Grind tag count forward
+	 *
+	 * @param ps         print stream
+	 * @param sensesById senses by id
+	 */
 	public void makeTagCount(final PrintStream ps, final Map<String, Sense> sensesById)
 	{
 		List<String> lines = new ArrayList<>();

@@ -161,6 +161,12 @@ public abstract class SynsetProcessor
 		}
 	}
 
+	/**
+	 * Build member (escaped lemma, lexid, adj position)
+	 *
+	 * @param sense sense
+	 * @return member
+	 */
 	private Member buildMember(Sense sense)
 	{
 		// lexid

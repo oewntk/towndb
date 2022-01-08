@@ -15,7 +15,6 @@ import java.util.function.Consumer;
  * Main class that generates the serialized synsetId to offset map
  *
  * @author Bernard Bou
- * @see "https://wordnet.princeton.edu/documentation/wndb5wn"
  */
 public class OffsetSerializer implements Consumer<Model>
 {
@@ -79,6 +78,13 @@ public class OffsetSerializer implements Consumer<Model>
 		serializeOffsets(offsets, new File(outDir, FILE_OFFSET_MAP));
 	}
 
+	/**
+	 * Serialize offsets
+	 *
+	 * @param offsets synset_id-to-offset map
+	 * @param file    out file
+	 * @throws IOException io exception
+	 */
 	public static void serializeOffsets(final Map<String, Long> offsets, final File file) throws IOException
 	{
 		try (OutputStream os = new FileOutputStream(file))
@@ -87,6 +93,13 @@ public class OffsetSerializer implements Consumer<Model>
 		}
 	}
 
+	/**
+	 * Serialize object
+	 *
+	 * @param os     output stream
+	 * @param object object
+	 * @throws IOException io exception
+	 */
 	private static void serialize(final OutputStream os, final Object object) throws IOException
 	{
 		try (ObjectOutputStream oos = new ObjectOutputStream(os))
@@ -95,6 +108,14 @@ public class OffsetSerializer implements Consumer<Model>
 		}
 	}
 
+	/**
+	 * Deserialize synset_id-to-offset map
+	 *
+	 * @param file in file
+	 * @return synset_id-to-offset map
+	 * @throws IOException            io exception
+	 * @throws ClassNotFoundException class not found exception
+	 */
 	public static Map<String, Long> deSerializedOffsets(File file) throws IOException, ClassNotFoundException
 	{
 		try (InputStream is = new FileInputStream(file))
@@ -103,6 +124,14 @@ public class OffsetSerializer implements Consumer<Model>
 		}
 	}
 
+	/**
+	 * Deserialize object
+	 *
+	 * @param is input stream
+	 * @return object
+	 * @throws IOException            io exception
+	 * @throws ClassNotFoundException class not found exception
+	 */
 	private static Object deSerialize(final InputStream is) throws IOException, ClassNotFoundException
 	{
 		try (ObjectInputStream ois = new ObjectInputStream(is))

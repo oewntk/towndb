@@ -9,8 +9,17 @@ import org.oewntk.model.Sense;
 import java.io.PrintStream;
 import java.util.Map;
 
+/**
+ * Template indexer (sentidx.vrb)
+ */
 public class TemplateIndexer
 {
+	/**
+	 * Make index
+	 *
+	 * @param ps         print stream
+	 * @param sensesById senses by id
+	 */
 	public void makeIndex(final PrintStream ps, final Map<String, Sense> sensesById)
 	{
 		long n = 0;

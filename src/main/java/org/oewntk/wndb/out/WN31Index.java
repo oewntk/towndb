@@ -18,14 +18,29 @@ import java.util.Map;
 
 public class WN31Index
 {
+	/**
+	 * Resource file
+	 */
 	private static final String RES = "/index.sense.31";
 
+	/**
+	 * Sensekey to index map
+	 */
 	private static final Map<String, Integer> SK2INDEX = readIndexes();
 
+	/**
+	 * Sensekey comparator based on the sensekey-to-index map
+	 */
 	public static final Comparator<String> WN31_SK_COMPARATOR = Comparator.comparing(SK2INDEX::get);
 
+	/**
+	 * Sense comparator based on the sensekey-to-index map
+	 */
 	public static final Comparator<Sense> WN31_SENSE_ORDER = Comparator.comparing(Sense::getSensekey, WN31_SK_COMPARATOR);
 
+	/**
+	 * Sense comparator based on the 3.1 sensekey-to-index map. This comparator does not define a total order. It returns 0 when the sensekeys are not defined in 3.1
+	 */
 	public static final Comparator<Sense> SENSE_ORDER = (s1, s2) -> {
 
 		Integer i1 = SK2INDEX.get(s1.getSensekey());
@@ -35,10 +50,16 @@ public class WN31Index
 			return 0; // fail, to be chained with thenCompare
 		}
 		int cmp = i1.compareTo(i2);
-		assert cmp != 0;
+		assert cmp != 0 : String.format("Senses have equal indexes %s %s", s1, s2);
 		return cmp;
 	};
 
+	/**
+	 * Read indexes from resource index.sense.31, a stripped-down version of index sense with three columns
+	 * sensekey index tagcount
+	 *
+	 * @return sensekey-to-index map
+	 */
 	public static Map<String, Integer> readIndexes()
 	{
 		Map<String, Integer> map = new HashMap<>();
@@ -75,6 +96,11 @@ public class WN31Index
 		return map;
 	}
 
+	/**
+	 * Main
+	 *
+	 * @param args command-line arguments
+	 */
 	public static void main(String[] args)
 	{
 		var list = List.of("eight%1:06:00::", "eight%1:14:00::", "eight%1:23:00::");

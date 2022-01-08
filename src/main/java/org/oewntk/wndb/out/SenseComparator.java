@@ -9,10 +9,14 @@ import org.oewntk.model.SenseGroupings;
 
 import java.util.Comparator;
 
+/**
+ * Sense comparators
+ */
 public class SenseComparator
 {
-	// C O M P A R A T O R
-
+	/**
+	 * Tail comparator, after head comparators fail
+	 */
 	public static final Comparator<Sense> WNDB_SENSE_ORDER_TAIL = (s1, s2) -> {
 
 		// sense are equal
@@ -62,6 +66,9 @@ public class SenseComparator
 		throw new IllegalArgumentException(s1 + "-" + s2);
 	};
 
+	/**
+	 * Define a total order of senses
+	 */
 	public static final Comparator<Sense> WNDB_SENSE_ORDER = SenseGroupings.BY_DECREASING_TAGCOUNT //
 			.thenComparing(WN31Index.SENSE_ORDER) //
 			.thenComparing(WNDB_SENSE_ORDER_TAIL);

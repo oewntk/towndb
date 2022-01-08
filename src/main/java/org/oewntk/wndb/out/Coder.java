@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This class maps information into a documented numerical code
+ * This class maps information to a documented code
  *
  * @author Bernard Bou
  */

@@ -22,6 +22,11 @@ public class LineProducer implements BiFunction<CoreModel, String, String>
 {
 	private final int flags;
 
+	/**
+	 * Constructor
+	 *
+	 * @param flags flags
+	 */
 	public LineProducer(final int flags)
 	{
 		this.flags = flags;

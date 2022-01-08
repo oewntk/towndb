@@ -23,7 +23,6 @@ import static java.util.stream.Collectors.toMap;
  * Main class that generates the serialized synsetId to offset map
  *
  * @author Bernard Bou
- * @see "https://wordnet.princeton.edu/documentation/wndb5wn"
  */
 public class OffsetMapper implements Consumer<Model>
 {
@@ -87,6 +86,13 @@ public class OffsetMapper implements Consumer<Model>
 		writeOffsets(offsets, new File(outDir, FILE_OFFSET_MAP));
 	}
 
+	/**
+	 * Write offsets to file
+	 *
+	 * @param offsets offsets by synset id
+	 * @param file    out file
+	 * @throws IOException io exception
+	 */
 	public static void writeOffsets(final Map<String, Long> offsets, final File file) throws IOException
 	{
 		try (PrintStream ps = new PrintStream(new FileOutputStream(file), true, StandardCharsets.UTF_8))
@@ -97,6 +103,13 @@ public class OffsetMapper implements Consumer<Model>
 		}
 	}
 
+	/**
+	 * Read offsets from file
+	 *
+	 * @param file in file
+	 * @return offsets by synset id
+	 * @throws IOException io exception
+	 */
 	public static Map<String, Long> readOffsets(File file) throws IOException
 	{
 		try (Stream<String> stream = Files.lines(file.toPath()))

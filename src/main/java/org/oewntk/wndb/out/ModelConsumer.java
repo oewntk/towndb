@@ -280,6 +280,12 @@ public class ModelConsumer implements Consumer<Model>
 		Tracing.psInfo.printf("Lex names: %d%n", Coder.LEXFILE_TO_NUM.size());
 	}
 
+	/**
+	 * Pos name to int
+	 *
+	 * @param posName pos name
+	 * @return integer code
+	 */
 	private static int posNameToInt(final String posName)
 	{
 		switch (posName)
@@ -295,7 +301,6 @@ public class ModelConsumer implements Consumer<Model>
 		}
 		return 0;
 	}
-
 
 	/**
 	 * Grind verb frames
@@ -365,6 +370,12 @@ public class ModelConsumer implements Consumer<Model>
 	 */
 	public static final Map<String, Integer> VERB_FRAME_ID_TO_NIDS = Stream.of(VERBFRAME_VALUES).collect(toMap(data -> (String) data[0], data -> (Integer) data[1]));
 
+	/**
+	 * Get verb frame nid
+	 * @param vf verb frame
+	 * @param index index if map lookup fails
+	 * @return map lookup, 100 + index if it fails
+	 */
 	private static int getVerbFrameNID(VerbFrame vf, int index)
 	{
 		String id = vf.getId();
