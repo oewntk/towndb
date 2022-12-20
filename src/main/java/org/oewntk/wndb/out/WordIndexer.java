@@ -108,7 +108,7 @@ public class WordIndexer
 		var groupedSenses = SenseGroupings.sensesByLCLemmaAndPos(senses);
 		groupedSenses.entrySet().stream() //
 				.filter(e -> e.getKey().pos == posFilter) //
-				.sorted(Comparator.comparing(s->s.getKey().lcLemma))
+				.sorted(Comparator.comparing(s -> s.getKey().lcLemma.replace(' ', '_'))) //
 				.forEach(e -> {
 
 					var k = e.getKey();
