@@ -10,7 +10,7 @@
 
 	<groupId>io.github.oewntk</groupId>
 	<artifactId>towndb</artifactId>
-	<version>1.0.2</version>
+	<version>1.0.3</version>
 	<name>to_wndb</name>
 	<description>Export Wordnet model to WNDB files.</description>
 	<url>https://github.com/oewntk/towndb</url>
@@ -25,7 +25,7 @@
 		<dependency>
 			<groupId>io.github.oewntk</groupId>
 			<artifactId>model</artifactId>
-			<version>1.0.2</version>
+			<version>1.0.3</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
