@@ -341,7 +341,7 @@ public class WordIndexer
 		{
 			for (Map.Entry<String, Integer> entry : incompats.entrySet())
 			{
-				Tracing.psErr.printf("[W] Incompatibilities '%s': %d%n", entry.getKey(), entry.getValue());
+				Tracing.psErr.printf("[W] Incompatibility '%s': %d%n", entry.getKey(), entry.getValue());
 			}
 		}
 	}
