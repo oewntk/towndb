@@ -9,5 +9,5 @@ import java.io.PrintStream;
 public class Tracing
 {
 	static final PrintStream psInfo = System.out;
-	static final PrintStream psErr = System.out;
+	static final PrintStream psErr = System.err;
 }
