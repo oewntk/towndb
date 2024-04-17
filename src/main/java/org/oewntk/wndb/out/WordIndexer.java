@@ -166,7 +166,7 @@ public class WordIndexer
 			*/
 
 			// synsetid
-			String synsetId = sense.getSynsetId();
+			String synsetId = sense.synsetId;
 
 			// collect
 			synsetIds.add(synsetId);
@@ -191,7 +191,7 @@ public class WordIndexer
 			}
 
 			// collect
-			if (tagCount.getCount() > 0)
+			if (tagCount.count > 0)
 			{
 				indexEntry.incTaggedCount();
 			}
@@ -213,7 +213,7 @@ public class WordIndexer
 		for (Sense sense : senses)
 		{
 			// synsetid
-			String synsetId = sense.getSynsetId();
+			String synsetId = sense.synsetId;
 
 			// synset relations
 			Synset synset = synsetsById.get(synsetId);

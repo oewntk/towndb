@@ -29,7 +29,7 @@ public class GrindVerbTemplates
 			VerbTemplate verbTemplate = entry.getValue();
 			if (verbTemplate != null)
 			{
-				String line = String.format("%s %s", id, verbTemplate.getTemplate());
+				String line = String.format("%s %s", id, verbTemplate.template);
 				ps.println(line);
 				n++;
 			}

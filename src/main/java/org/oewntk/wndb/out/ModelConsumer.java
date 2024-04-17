@@ -317,7 +317,7 @@ public class ModelConsumer implements Consumer<Model>
 					.peek(vf -> ++i[0]) //
 					.map(vf -> new SimpleEntry<>(getVerbFrameNID(vf, i[0]), vf)) //
 					.sorted(Comparator.comparingInt(Map.Entry::getKey)) //
-					.forEach(e -> ps.printf("%d %s%n", e.getKey(), e.getValue().getFrame()));
+					.forEach(e -> ps.printf("%d %s%n", e.getKey(), e.getValue().frame));
 		}
 		Tracing.psInfo.printf("Verb frames: %d%n", verbFrames.size());
 	}
@@ -378,7 +378,7 @@ public class ModelConsumer implements Consumer<Model>
 	 */
 	private static int getVerbFrameNID(VerbFrame vf, int index)
 	{
-		String id = vf.getId();
+		String id = vf.id;
 		Integer nid = VERB_FRAME_ID_TO_NIDS.get(id);
 		if (nid != null)
 		{

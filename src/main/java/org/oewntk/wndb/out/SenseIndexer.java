@@ -70,7 +70,7 @@ public class SenseIndexer
 					String sensekey = sense.getSensekey();
 
 					// offset
-					String synsetId = sense.getSynsetId();
+					String synsetId = sense.synsetId;
 					long offset = offsets.get(synsetId);
 
 					// sense num
@@ -83,7 +83,7 @@ public class SenseIndexer
 						// senseNum = kSenses.indexOf(sense) + 1;
 						// the following will yield the same sensenum to senses varying only in lemma, not synsetid target, e.g. a%1:10:00:: and a%1:10:01::
 						var kTargetSynsetIds = groupedSenses.get(k).stream().sorted(SenseComparator.WNDB_SENSE_ORDER).map(Sense::getSynsetId).distinct().collect(Collectors.toList());
-						senseNum = kTargetSynsetIds.indexOf(sense.getSynsetId()) + 1;
+						senseNum = kTargetSynsetIds.indexOf(sense.synsetId) + 1;
 					}
 					else
 					{

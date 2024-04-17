@@ -173,13 +173,13 @@ public abstract class SynsetProcessor
 		int lexid = sense.findLexid();
 
 		// adjPosition
-		String adjPosition = sense.getAdjPosition();
+		String adjPosition = sense.adjPosition;
 
 		// lex
-		Lex lex = sense.getLex();
+		Lex lex = sense.lex;
 
 		// lemma
-		String lemma = lex.getLemma();
+		String lemma = lex.lemma;
 
 		String escaped = Formatter.escape(lemma);
 		boolean lexIdCompat = (flags & Flags.lexIdCompat) != 0;
@@ -200,11 +200,11 @@ public abstract class SynsetProcessor
 		Frames frames = new Frames();
 
 		// attribute data
-		char type = synset.getType();
+		char type = synset.type;
 
 		// build members ordered set
 		List<Member> members = new ArrayList<>();
-		for (String lemma : synset.getMembers())
+		for (String lemma : synset.members)
 		{
 			Sense sense = synset.findSenseOf(lemma, lexesByLemma);
 			assert sense != null : String.format("find sense of '%s' in synset %s", lemma, synset);
@@ -214,8 +214,8 @@ public abstract class SynsetProcessor
 
 		// definition and examples
 		// allow multiple definitions and join them
-		String[] definitions = synset.getDefinitions();
-		String[] examples = synset.getExamples();
+		String[] definitions = synset.definitions;
+		String[] examples = synset.examples;
 
 		// lexfile num
 		int lexfileNum = buildLexfileNum(synset);
@@ -235,7 +235,7 @@ public abstract class SynsetProcessor
 					boolean wasThere = !relationDataSet.add(relation);
 					if (wasThere && LOG_DUPLICATE_RELATION && log())
 					{
-						Tracing.psErr.printf("[W] Synset %s has duplicate %s%n", synset.getSynsetId(), relation);
+						Tracing.psErr.printf("[W] Synset %s has duplicate %s%n", synset.synsetId, relation);
 					}
 				}
 			}
@@ -245,7 +245,7 @@ public abstract class SynsetProcessor
 				Synset targetSynset = synsetsById.get(relationData.target);
 
 				long targetOffset = offsetFunction.applyAsLong(relationData.target);
-				char targetType = targetSynset.getType();
+				char targetType = targetSynset.type;
 				Relation relation;
 				try
 				{
@@ -263,7 +263,7 @@ public abstract class SynsetProcessor
 					if (LOG_DISCARDED && log())
 					{
 						// String cause = e.getClass().getName() + ' ' + e.getMessage();
-						Tracing.psErr.printf("[W] Discarded relation '%s' synset=%s offset=%d%n", relationData.relType, synset.getSynsetId(), offset);
+						Tracing.psErr.printf("[W] Discarded relation '%s' synset=%s offset=%d%n", relationData.relType, synset.synsetId, offset);
 					}
 					throw e;
 				}
@@ -281,7 +281,7 @@ public abstract class SynsetProcessor
 			boolean verbFrameCompat = (flags & Flags.verbFrameCompat) != 0;
 
 			// verb frames attribute
-			String[] verbFrameIds = sense.getVerbFrames();
+			String[] verbFrameIds = sense.verbFrames;
 			if (verbFrameIds != null && verbFrameIds.length > 0)
 			{
 				for (String verbframeId : verbFrameIds)
@@ -325,7 +325,7 @@ public abstract class SynsetProcessor
 				for (RelationData relationData : senseRelationDataSet)
 				{
 					Sense targetSense = sensesById.get(relationData.target);
-					String targetSynsetId = targetSense.getSynsetId();
+					String targetSynsetId = targetSense.synsetId;
 					Synset targetSynset = synsetsById.get(targetSynsetId);
 
 					int memberNum = synset.findIndexOfMember(lemma) + 1;
@@ -347,7 +347,7 @@ public abstract class SynsetProcessor
 						if (LOG_DISCARDED && log())
 						{
 							// String cause = e.getClass().getName() + ' ' + e.getMessage();
-							Tracing.psErr.printf("[W] Discarded relation '%s' synset=%s offset=%d%n", relationData.relType, synset.getSynsetId(), offset);
+							Tracing.psErr.printf("[W] Discarded relation '%s' synset=%s offset=%d%n", relationData.relType, synset.synsetId, offset);
 						}
 						// throw e;
 						continue;
@@ -391,7 +391,7 @@ public abstract class SynsetProcessor
 
 		// which
 		int targetMemberNum = targetSynset.findIndexOfMember(targetLemma) + 1;
-		char targetType = targetSynset.getType();
+		char targetType = targetSynset.type;
 		long targetOffset = this.offsetFunction.applyAsLong(targetSynsetId);
 		boolean pointerCompat = (flags & Flags.pointerCompat) != 0;
 		return new Relation(type, pos, targetType, targetOffset, sourceMemberNum, targetMemberNum, pointerCompat);
@@ -412,7 +412,7 @@ public abstract class SynsetProcessor
 		}
 		catch (Exception e)
 		{
-			throw new IllegalArgumentException(String.format("Lexfile '%s' in %s", lexfile, synset.getSynsetId()));
+			throw new IllegalArgumentException(String.format("Lexfile '%s' in %s", lexfile, synset.synsetId));
 		}
 	}
 

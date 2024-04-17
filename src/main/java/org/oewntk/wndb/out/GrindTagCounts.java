@@ -33,7 +33,7 @@ public class GrindTagCounts
 			TagCount tagCount = sense.getTagCount();
 			if (tagCount != null)
 			{
-				String line = String.format("%s %d %d", sensekey, sense.getLexIndex(), tagCount.getCount());
+				String line = String.format("%s %d %d", sensekey, sense.getLexIndex(), tagCount.count);
 				ps.println(line);
 				n++;
 			}
@@ -57,7 +57,7 @@ public class GrindTagCounts
 			TagCount tagCount = sense.getTagCount();
 			if (tagCount != null)
 			{
-				String line = String.format("%d %s %d", tagCount.getCount(), sensekey, sense.getLexIndex());
+				String line = String.format("%d %s %d", tagCount.count, sensekey, sense.getLexIndex());
 				lines.add(line);
 			}
 		}

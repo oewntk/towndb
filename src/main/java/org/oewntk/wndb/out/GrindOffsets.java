@@ -97,7 +97,7 @@ public class GrindOffsets extends SynsetProcessor
 	@Override
 	protected Relation buildSenseRelation(String type, char pos, int sourceMemberNum, Sense targetSense, Synset targetSynset, String targetSynsetId) throws CompatException
 	{
-		char targetType = targetSynset.getType();
+		char targetType = targetSynset.type;
 		boolean pointerCompat = (flags & Flags.pointerCompat) != 0;
 		return new Relation(type, pos, targetType, dummyOfs, DUMMY_NUM, DUMMY_NUM, pointerCompat);
 	}

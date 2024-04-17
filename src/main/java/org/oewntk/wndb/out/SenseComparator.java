@@ -36,9 +36,9 @@ public class SenseComparator
 		*/
 
 		// type a before s
-		if (s1.getType() != s2.getType())
+		if (s1.type != s2.type)
 		{
-			return Character.compare(s1.getType(), s2.getType());
+			return Character.compare(s1.type, s2.type);
 		}
 
 		// index in lex
