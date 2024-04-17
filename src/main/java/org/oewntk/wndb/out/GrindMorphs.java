@@ -43,7 +43,7 @@ public class GrindMorphs
 			var lexes = entry.getValue();
 			for (Lex lex : lexes)
 			{
-				if (lex.partOfSpeech != posFilter)
+				if (lex.getPartOfSpeech() != posFilter)
 				{
 					continue;
 				}

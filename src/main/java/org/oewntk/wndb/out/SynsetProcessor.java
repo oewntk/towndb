@@ -317,7 +317,7 @@ public abstract class SynsetProcessor
 						boolean wasThere = !senseRelationDataSet.add(relation);
 						if (wasThere && LOG_DUPLICATE_RELATION && log())
 						{
-							Tracing.psErr.printf("[W] Sense %s has duplicate %s%n", sense.getSensekey(), relation);
+							Tracing.psErr.printf("[W] Sense %s has duplicate %s%n", sense.getSenseKey(), relation);
 						}
 					}
 				}

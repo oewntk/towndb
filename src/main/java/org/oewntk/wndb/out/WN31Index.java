@@ -36,15 +36,15 @@ public class WN31Index
 	/**
 	 * Sense comparator based on the sensekey-to-index map
 	 */
-	public static final Comparator<Sense> WN31_SENSE_ORDER = Comparator.comparing(Sense::getSensekey, WN31_SK_COMPARATOR);
+	public static final Comparator<Sense> WN31_SENSE_ORDER = Comparator.comparing(Sense::getSenseKey, WN31_SK_COMPARATOR);
 
 	/**
 	 * Sense comparator based on the 3.1 sensekey-to-index map. This comparator does not define a total order. It returns 0 when the sensekeys are not defined in 3.1
 	 */
 	public static final Comparator<Sense> SENSE_ORDER = (s1, s2) -> {
 
-		Integer i1 = SK2INDEX.get(s1.getSensekey());
-		Integer i2 = SK2INDEX.get(s2.getSensekey());
+		Integer i1 = SK2INDEX.get(s1.getSenseKey());
+		Integer i2 = SK2INDEX.get(s2.getSenseKey());
 		if (i1 == null || i2 == null)
 		{
 			return 0; // fail, to be chained with thenCompare

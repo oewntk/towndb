@@ -58,7 +58,7 @@ public class SenseComparator
 		}
 
 		// compare sensekey
-		int cmpSensekey = s1.getSensekey().compareTo(s2.getSensekey());
+		int cmpSensekey = s1.getSenseKey().compareTo(s2.getSenseKey());
 		if (cmpSensekey != 0)
 		{
 			return cmpSensekey;
