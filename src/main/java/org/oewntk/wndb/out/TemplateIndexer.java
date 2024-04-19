@@ -27,10 +27,10 @@ public class TemplateIndexer
 		{
 			String sensekey = entry.getKey();
 			Sense sense = entry.getValue();
-			int[] verbTemplateIds = sense.getVerbTemplates();
+			Integer[] verbTemplateIds = sense.getVerbTemplates();
 			if (verbTemplateIds != null && verbTemplateIds.length > 0)
 			{
-				String line = String.format("%s %s", sensekey, Formatter.join(verbTemplateIds, ",", "%d"));
+				String line = String.format("%s %s", sensekey, Formatter.join(verbTemplateIds, ","));
 				ps.println(line);
 				n++;
 			}
