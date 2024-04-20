@@ -77,7 +77,7 @@ class GrindOffsets(
 	@Throws(CompatException::class)
 	override fun buildSenseRelation(type: String?, pos: Char, sourceMemberNum: Int, targetSense: Sense?, targetSynset: Synset?, targetSynsetId: String): Data.Relation {
 		val targetType = targetSynset!!.type
-		val pointerCompat = (flags and Flags.pointerCompat) != 0
+		val pointerCompat = (flags and Flags.POINTER_COMPAT) != 0
 		return Data.Relation(type, pos, targetType, dummyOfs, DUMMY_NUM, DUMMY_NUM, pointerCompat)
 	}
 

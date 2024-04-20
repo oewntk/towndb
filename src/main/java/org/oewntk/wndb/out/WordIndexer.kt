@@ -54,7 +54,7 @@ class WordIndexer(
 		ps.print(Formatter.OEWN_HEADER)
 
 		// collect entries
-		val pointerCompat = (flags and Flags.pointerCompat) != 0
+		val pointerCompat = (flags and Flags.POINTER_COMPAT) != 0
 		val indexEntries: MutableMap<String, IndexEntry> = TreeMap()
 
 		val groupedSenses = sensesByLCLemmaAndPos(senses)

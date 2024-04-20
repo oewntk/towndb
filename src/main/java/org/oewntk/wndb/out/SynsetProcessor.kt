@@ -115,7 +115,7 @@ protected constructor(
 		val lemma = lex.lemma
 
 		val escaped = Formatter.escape(lemma)
-		val lexIdCompat = (flags and Flags.lexIdCompat) != 0
+		val lexIdCompat = (flags and Flags.LEXID_COMPAT) != 0
 		return if (adjPosition.isNullOrEmpty()) Data.Member(escaped, lexid, lexIdCompat) else AdjMember(escaped, lexid, adjPosition, lexIdCompat)
 	}
 
@@ -163,7 +163,7 @@ protected constructor(
 					}
 				}
 			}
-			val pointerCompat = (flags and Flags.pointerCompat) != 0
+			val pointerCompat = (flags and Flags.POINTER_COMPAT) != 0
 			for (relationData in relationDataSet) {
 				val targetSynset = synsetsById[relationData.target]
 
@@ -193,7 +193,7 @@ protected constructor(
 
 		// iterate senses
 		for (sense in senses) {
-			val verbFrameCompat = (flags and Flags.verbFrameCompat) != 0
+			val verbFrameCompat = (flags and Flags.VERBFRAME_COMPAT) != 0
 
 			// verb frames attribute
 			val verbFrameIds = sense.verbFrames
@@ -255,7 +255,7 @@ protected constructor(
 		}
 
 		// assemble
-		val lexIdCompat = (flags and Flags.lexIdCompat) != 0
+		val lexIdCompat = (flags and Flags.LEXID_COMPAT) != 0
 		val membersData = Formatter.joinNum(members, "%02x") { m: Data.Member -> m.toWndbString(lexIdCompat) }
 		val relatedData = Formatter.joinNum(relations, "%03d") { obj: Data.Relation -> obj.toWndbString() }
 		var verbframesData = frames.toWndbString(type, members.size)
@@ -288,7 +288,7 @@ protected constructor(
 		val targetMemberNum = targetSynset!!.findIndexOfMember(targetLemma) + 1
 		val targetType = targetSynset.type
 		val targetOffset = offsetFunction.invoke(targetSynsetId)
-		val pointerCompat = (flags and Flags.pointerCompat) != 0
+		val pointerCompat = (flags and Flags.POINTER_COMPAT) != 0
 		return Data.Relation(type, pos, targetType, targetOffset, sourceMemberNum, targetMemberNum, pointerCompat)
 	}
 

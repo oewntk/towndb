@@ -40,7 +40,7 @@ class SenseIndexer(
 
 				// sense num
 				val senseNum: Int
-				if ((flags and Flags.noReIndex) == 0) {
+				if ((flags and Flags.NO_REINDEX) == 0) {
 					val k = of(sense)
 					// this will yield diverging sensenums to senses varying only in lemma, not synsetid target, e.g. a%1:10:00:: and a%1:10:01::
 					// var kSenses = groupedSenses.get(k).stream().sorted(SenseGroupings.byDecreasingTagCount).collect(Collectors.toList());

@@ -81,10 +81,10 @@ object WN31Index {
 	/**
 	 * Main
 	 *
-	 * @param args command-line arguments
+	 * @param ignoredArgs command-line arguments
 	 */
 	@JvmStatic
-	fun main(args: Array<String>) {
+	fun main(ignoredArgs: Array<String>) {
 		val list = listOf("eight%1:06:00::", "eight%1:14:00::", "eight%1:23:00::")
 		list.stream().sorted(WN31_SK_COMPARATOR).forEach { x: String? -> println(x) }
 	}
