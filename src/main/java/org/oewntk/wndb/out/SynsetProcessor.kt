@@ -1,163 +1,97 @@
 /*
  * Copyright (c) $originalComment.match("Copyright \(c\) (\d+)", 1, "-")2021. Bernard Bou.
  */
+package org.oewntk.wndb.out
 
-package org.oewntk.wndb.out;
-
-import org.oewntk.model.Lex;
-import org.oewntk.model.Sense;
-import org.oewntk.model.Synset;
-import org.oewntk.wndb.out.Data.*;
-
-import java.util.*;
-import java.util.function.ToLongFunction;
+import org.oewntk.model.Lex
+import org.oewntk.model.Sense
+import org.oewntk.model.Synset
+import org.oewntk.wndb.out.Coder.codeFrameId
+import org.oewntk.wndb.out.Coder.codeLexFile
+import org.oewntk.wndb.out.Data.AdjMember
+import java.util.*
 
 /**
  * This abstract class iterates over the synsets to produce a line of data. The real classes implement some functions differently.
  *
  * @author Bernard Bou
  */
-public abstract class SynsetProcessor
-{
-	private static final boolean LOG_DISCARDED = true;
-
-	private static final boolean LOG_DUPLICATE_RELATION = false;
-
-	/**
-	 * Format in data file
-	 */
-	private static final String SYNSET_FORMAT = "%08d %02d %c %s %s%s | %s%s  \n";
-	// offset
-	// lexfile num
-	// pos
-	// members
-	// relations
-	// frames
-	// definition
-	// example
-
+abstract class SynsetProcessor
+protected constructor(
 	/**
 	 * Lexes mapped by lemma
 	 */
-	protected final Map<String, Collection<Lex>> lexesByLemma;
+	@JvmField protected val lexesByLemma: Map<String, Collection<Lex>>,
 
 	/**
 	 * Synsets mapped by id
 	 */
-	protected final Map<String, Synset> synsetsById;
+	@JvmField protected val synsetsById: Map<String, Synset>,
 
 	/**
 	 * Senses mapped by id
 	 */
-	protected final Map<String, Sense> sensesById;
-
-	/**
-	 * Flags
-	 */
-	protected final int flags;
+	@JvmField protected val sensesById: Map<String, Sense>,
 
 	/**
 	 * Function that, when applied to a synsetId, yields the synset offset in the data files. May be dummy constant function.
 	 */
-	protected final ToLongFunction<String> offsetFunction;
+	@JvmField protected val offsetFunction: (String) -> Long,
 
+	/**
+	 * Flags
+	 */
+	@JvmField protected val flags: Int
+) {
 	/**
 	 * Report incompatibility counts (indexed by cause)
 	 */
-	protected final Map<String, Integer> incompats;
+	private val incompats: MutableMap<String?, Int> = HashMap()
 
 	/**
 	 * Log error flag (avoid duplicate messages)
 	 *
 	 * @return whether to log errors
 	 */
-	@SuppressWarnings("SameReturnValue")
-	protected abstract boolean log();
-
-	/**
-	 * Constructor
-	 *
-	 * @param lexesByLemma   lexes mapped by lemma
-	 * @param synsetsById    synsets mapped by id
-	 * @param sensesById     senses mapped by id
-	 * @param offsetFunction function that, when applied to a synsetId, yields the synset offset in the data files. May be dummy constant function.
-	 * @param flags          flags
-	 */
-	protected SynsetProcessor(Map<String, Collection<Lex>> lexesByLemma, Map<String, Synset> synsetsById, Map<String, Sense> sensesById, ToLongFunction<String> offsetFunction, int flags)
-	{
-		this.lexesByLemma = lexesByLemma;
-		this.synsetsById = synsetsById;
-		this.sensesById = sensesById;
-		this.offsetFunction = offsetFunction;
-		this.flags = flags;
-		this.incompats = new HashMap<>();
-	}
+	protected abstract fun log(): Boolean
 
 	/**
 	 * Intermediate class to detect duplicates
 	 */
-	static class RelationData implements Comparable<RelationData>
-	{
-		public final boolean isSenseRelation;
-
-		public final String relType;
-
-		public final String target;
-
-		RelationData(boolean isSenseRelation, String relType, String target)
-		{
-			this.isSenseRelation = isSenseRelation;
-			this.relType = relType;
-			this.target = target;
-		}
+	internal class RelationData(private val isSenseRelation: Boolean, val relType: String, val target: String) : Comparable<RelationData> {
 
 		// identity
-
-		@Override
-		public boolean equals(Object other)
-		{
-			if (this == other)
-			{
-				return true;
+		override fun equals(other: Any?): Boolean {
+			if (this === other) {
+				return true
 			}
-			if (other == null || getClass() != other.getClass())
-			{
-				return false;
+			if (other == null || javaClass != other.javaClass) {
+				return false
 			}
-			RelationData that = (RelationData) other;
-			return isSenseRelation == that.isSenseRelation && Objects.equals(relType, that.relType) && Objects.equals(target, that.target);
+			val that = other as RelationData
+			return isSenseRelation == that.isSenseRelation && relType == that.relType && target == that.target
 		}
 
-		@Override
-		public int hashCode()
-		{
-			return Objects.hash(isSenseRelation, relType, target);
+		override fun hashCode(): Int {
+			return Objects.hash(isSenseRelation, relType, target)
 		}
 
 		// order
-
-		@Override
-		public int compareTo(RelationData that)
-		{
-			int c = Boolean.compare(this.isSenseRelation, that.isSenseRelation);
-			if (c != 0)
-			{
-				return c;
+		override fun compareTo(other: RelationData): Int {
+			var c = java.lang.Boolean.compare(this.isSenseRelation, other.isSenseRelation)
+			if (c != 0) {
+				return c
 			}
-			c = this.relType.compareTo(that.relType);
-			if (c != 0)
-			{
-				return c;
+			c = relType.compareTo(other.relType)
+			if (c != 0) {
+				return c
 			}
-			return this.relType.compareTo(that.relType);
+			return relType.compareTo(other.relType)
 		}
 
 		// string
-
-		@Override
-		public String toString()
-		{
-			return (this.isSenseRelation ? "SenseRelation" : "SynsetRelation") + " relType=" + this.relType + " target=" + this.target;
+		override fun toString(): String {
+			return (if (this.isSenseRelation) "SenseRelation" else "SynsetRelation") + " relType=" + this.relType + " target=" + this.target
 		}
 	}
 
@@ -167,23 +101,22 @@ public abstract class SynsetProcessor
 	 * @param sense sense
 	 * @return member
 	 */
-	private Member buildMember(Sense sense)
-	{
+	private fun buildMember(sense: Sense): Data.Member {
 		// lexid
-		int lexid = sense.findLexid();
+		val lexid = sense.findLexid()
 
 		// adjPosition
-		String adjPosition = sense.adjPosition;
+		val adjPosition = sense.adjPosition
 
 		// lex
-		Lex lex = sense.lex;
+		val lex = sense.lex
 
 		// lemma
-		String lemma = lex.lemma;
+		val lemma = lex.lemma
 
-		String escaped = Formatter.escape(lemma);
-		boolean lexIdCompat = (flags & Flags.lexIdCompat) != 0;
-		return adjPosition == null || adjPosition.isEmpty() ? new Member(escaped, lexid, lexIdCompat) : new AdjMember(escaped, lexid, adjPosition, lexIdCompat);
+		val escaped = Formatter.escape(lemma)
+		val lexIdCompat = (flags and Flags.lexIdCompat) != 0
+		return if (adjPosition.isNullOrEmpty()) Data.Member(escaped, lexid, lexIdCompat) else AdjMember(escaped, lexid, adjPosition, lexIdCompat)
 	}
 
 	/**
@@ -193,183 +126,145 @@ public abstract class SynsetProcessor
 	 * @param offset allocated offset for the synset
 	 * @return line
 	 */
-	public String getData(Synset synset, long offset)
-	{
+	fun getData(synset: Synset, offset: Long): String {
 		// init
-		List<Relation> relations = new ArrayList<>();
-		Frames frames = new Frames();
+		val relations: MutableList<Data.Relation> = ArrayList()
+		val frames = Data.Frames()
 
 		// attribute data
-		char type = synset.type;
+		val type = synset.type
 
 		// build members ordered set
-		List<Member> members = new ArrayList<>();
-		for (String lemma : synset.members)
-		{
-			Sense sense = synset.findSenseOf(lemma, lexesByLemma);
-			assert sense != null : String.format("find sense of '%s' in synset %s", lemma, synset);
-			Member member = buildMember(sense);
-			members.add(member);
+		val members: MutableList<Data.Member> = ArrayList()
+		for (lemma in synset.members) {
+			val sense = checkNotNull(synset.findSenseOf(lemma, lexesByLemma)) { String.format("find sense of '%s' in synset %s", lemma, synset) }
+			val member = buildMember(sense)
+			members.add(member)
 		}
 
 		// definition and examples
 		// allow multiple definitions and join them
-		String[] definitions = synset.definitions;
-		String[] examples = synset.examples;
+		val definitions = synset.definitions
+		val examples = synset.examples
 
 		// lexfile num
-		int lexfileNum = buildLexfileNum(synset);
+		val lexfileNum = buildLexfileNum(synset)
 
 		// synset relations
-		Map<String, Set<String>> modelSynsetRelations = synset.getRelations();
-		if (modelSynsetRelations != null && modelSynsetRelations.size() > 0)
-		{
-			Set<RelationData> relationDataSet = new LinkedHashSet<>();
-			for (Map.Entry<String, Set<String>> entry : modelSynsetRelations.entrySet())
-			{
-				String relationType = entry.getKey();
-				Set<String> values = entry.getValue();
-				for (String targetSynsetId : values)
-				{
-					RelationData relation = new RelationData(false, relationType, targetSynsetId);
-					boolean wasThere = !relationDataSet.add(relation);
-					if (wasThere && LOG_DUPLICATE_RELATION && log())
-					{
-						Tracing.psErr.printf("[W] Synset %s has duplicate %s%n", synset.synsetId, relation);
+		val modelSynsetRelations: Map<String, Set<String>>? = synset.relations
+		if (!modelSynsetRelations.isNullOrEmpty()) {
+			val relationDataSet: MutableSet<RelationData> = LinkedHashSet()
+			for ((relationType, values) in modelSynsetRelations) {
+				for (targetSynsetId in values) {
+					val relation = RelationData(false, relationType, targetSynsetId)
+					val wasThere = !relationDataSet.add(relation)
+					if (wasThere && LOG_DUPLICATE_RELATION && log()) {
+						Tracing.psErr.printf("[W] Synset %s has duplicate %s%n", synset.synsetId, relation)
 					}
 				}
 			}
-			boolean pointerCompat = (flags & Flags.pointerCompat) != 0;
-			for (RelationData relationData : relationDataSet)
-			{
-				Synset targetSynset = synsetsById.get(relationData.target);
+			val pointerCompat = (flags and Flags.pointerCompat) != 0
+			for (relationData in relationDataSet) {
+				val targetSynset = synsetsById[relationData.target]
 
-				long targetOffset = offsetFunction.applyAsLong(relationData.target);
-				char targetType = targetSynset.type;
-				Relation relation;
-				try
-				{
-					relation = new Relation(relationData.relType, type, targetType, targetOffset, 0, 0, pointerCompat);
-				}
-				catch (CompatException e)
-				{
-					String cause = e.getCause().getMessage();
-					int count = this.incompats.computeIfAbsent(cause, c -> 0) + 1;
-					this.incompats.put(cause, count);
-					continue;
-				}
-				catch (IllegalArgumentException e)
-				{
-					if (LOG_DISCARDED && log())
-					{
-						// String cause = e.getClass().getName() + ' ' + e.getMessage();
-						Tracing.psErr.printf("[W] Discarded relation '%s' synset=%s offset=%d%n", relationData.relType, synset.synsetId, offset);
+				val targetOffset = offsetFunction.invoke(relationData.target)
+				val targetType = targetSynset!!.type
+				var relation: Data.Relation
+				try {
+					relation = Data.Relation(relationData.relType, type, targetType, targetOffset, 0, 0, pointerCompat)
+				} catch (e: CompatException) {
+					val cause = e.cause!!.message
+					val count = incompats.computeIfAbsent(cause) { 0 } + 1
+					incompats[cause] = count
+					continue
+				} catch (e: IllegalArgumentException) {
+					if (LOG_DISCARDED && log()) {
+						Tracing.psErr.printf("[W] Discarded relation '%s' synset=%s offset=%d%n", relationData.relType, synset.synsetId, offset)
 					}
-					throw e;
+					throw e
 				}
-				relations.add(relation);
+				relations.add(relation)
 			}
 		}
 
 		// senses that have this synset as target in "synset" field
-		Sense[] senses = synset.findSenses(lexesByLemma);
-		assert senses.length > 0;
+		val senses = synset.findSenses(lexesByLemma)
+		assert(senses.isNotEmpty())
 
 		// iterate senses
-		for (Sense sense : senses)
-		{
-			boolean verbFrameCompat = (flags & Flags.verbFrameCompat) != 0;
+		for (sense in senses) {
+			val verbFrameCompat = (flags and Flags.verbFrameCompat) != 0
 
 			// verb frames attribute
-			String[] verbFrameIds = sense.verbFrames;
-			if (verbFrameIds != null && verbFrameIds.length > 0)
-			{
-				for (String verbframeId : verbFrameIds)
-				{
-					try
-					{
-						Frame frame = new Frame(Coder.codeFrameId(verbframeId, verbFrameCompat), sense.findSynsetIndex(synsetsById) + 1);
-						frames.add(frame);
-					}
-					catch (CompatException e)
-					{
-						String cause = e.getCause().getMessage();
-						int count = this.incompats.computeIfAbsent(cause, c -> 0) + 1;
-						this.incompats.put(cause, count);
+			val verbFrameIds = sense.verbFrames
+			if (!verbFrameIds.isNullOrEmpty()) {
+				for (verbframeId in verbFrameIds) {
+					try {
+						val frame = Data.Frame(codeFrameId(verbframeId, verbFrameCompat), sense.findSynsetIndex(synsetsById) + 1)
+						frames.add(frame)
+					} catch (e: CompatException) {
+						val cause = e.cause!!.message
+						val count = incompats.computeIfAbsent(cause) { 0 } + 1
+						incompats[cause] = count
 					}
 				}
 			}
 
 			// sense relations
-			Map<String, Set<String>> modelSenseRelations = sense.getRelations();
-			if (modelSenseRelations != null && modelSenseRelations.size() > 0)
-			{
-				String lemma = sense.getLemma();
+			val modelSenseRelations: Map<String, Set<String>>? = sense.relations
+			if (!modelSenseRelations.isNullOrEmpty()) {
+				val lemma = sense.lemma
 
-				Set<RelationData> senseRelationDataSet = new LinkedHashSet<>();
-				for (Map.Entry<String, Set<String>> entry : modelSenseRelations.entrySet())
-				{
-					String relationType = entry.getKey();
-					Set<String> values = entry.getValue();
-					for (String targetSenseId : values)
-					{
-						RelationData relation = new RelationData(true, relationType, targetSenseId);
-						boolean wasThere = !senseRelationDataSet.add(relation);
-						if (wasThere && LOG_DUPLICATE_RELATION && log())
-						{
-							Tracing.psErr.printf("[W] Sense %s has duplicate %s%n", sense.getSenseKey(), relation);
+				val senseRelationDataSet: MutableSet<RelationData> = LinkedHashSet()
+				for ((relationType, values) in modelSenseRelations) {
+					for (targetSenseId in values) {
+						val relation = RelationData(true, relationType, targetSenseId)
+						val wasThere = !senseRelationDataSet.add(relation)
+						if (wasThere && LOG_DUPLICATE_RELATION && log()) {
+							Tracing.psErr.printf("[W] Sense %s has duplicate %s%n", sense.senseKey, relation)
 						}
 					}
 				}
 
-				for (RelationData relationData : senseRelationDataSet)
-				{
-					Sense targetSense = sensesById.get(relationData.target);
-					String targetSynsetId = targetSense.synsetId;
-					Synset targetSynset = synsetsById.get(targetSynsetId);
+				for (relationData in senseRelationDataSet) {
+					val targetSense = sensesById[relationData.target]
+					val targetSynsetId = targetSense!!.synsetId
+					val targetSynset = synsetsById[targetSynsetId]
 
-					int memberNum = synset.findIndexOfMember(lemma) + 1;
+					val memberNum = synset.findIndexOfMember(lemma) + 1
 
-					Relation relation;
-					try
-					{
-						relation = buildSenseRelation(relationData.relType, type, memberNum, targetSense, targetSynset, targetSynsetId);
-					}
-					catch (CompatException e)
-					{
-						String cause = e.getCause().getMessage();
-						int count = this.incompats.computeIfAbsent(cause, c -> 0) + 1;
-						this.incompats.put(cause, count);
-						continue;
-					}
-					catch (IllegalArgumentException e)
-					{
-						if (LOG_DISCARDED && log())
-						{
+					var relation: Data.Relation
+					try {
+						relation = buildSenseRelation(relationData.relType, type, memberNum, targetSense, targetSynset, targetSynsetId)
+					} catch (e: CompatException) {
+						val cause = e.cause!!.message
+						val count = incompats.computeIfAbsent(cause) { 0 } + 1
+						incompats[cause] = count
+						continue
+					} catch (e: IllegalArgumentException) {
+						if (LOG_DISCARDED && log()) {
 							// String cause = e.getClass().getName() + ' ' + e.getMessage();
-							Tracing.psErr.printf("[W] Discarded relation '%s' synset=%s offset=%d%n", relationData.relType, synset.synsetId, offset);
+							Tracing.psErr.printf("[W] Discarded relation '%s' synset=%s offset=%d%n", relationData.relType, synset.synsetId, offset)
 						}
 						// throw e;
-						continue;
+						continue
 					}
-					relations.add(relation);
+					relations.add(relation)
 				}
 			}
 		}
 
 		// assemble
-		boolean lexIdCompat = (flags & Flags.lexIdCompat) != 0;
-		String membersData = Formatter.joinNum(members, "%02x", m -> m.toWndbString(lexIdCompat));
-		String relatedData = Formatter.joinNum(relations, "%03d", Relation::toWndbString);
-		String verbframesData = frames.toWndbString(type, members.size());
-		if (!verbframesData.isEmpty())
-		{
-			verbframesData = ' ' + verbframesData;
+		val lexIdCompat = (flags and Flags.lexIdCompat) != 0
+		val membersData = Formatter.joinNum(members, "%02x") { m: Data.Member -> m.toWndbString(lexIdCompat) }
+		val relatedData = Formatter.joinNum(relations, "%03d") { obj: Data.Relation -> obj.toWndbString() }
+		var verbframesData = frames.toWndbString(type, members.size)
+		if (verbframesData.isNotEmpty()) {
+			verbframesData = " $verbframesData"
 		}
-		assert definitions != null;
-		String definitionsData = Formatter.join(definitions, "; ");
-		String examplesData = examples == null || examples.length == 0 ? "" : "; " + Formatter.joinAndQuote(examples, " ", false, null);
-		return String.format(SYNSET_FORMAT, offset, lexfileNum, type, membersData, relatedData, verbframesData, definitionsData, examplesData);
+		val definitionsData = Formatter.join(definitions, "; ")
+		val examplesData = if (examples.isNullOrEmpty()) "" else "; " + Formatter.joinAndQuote(examples, " ", false, null)
+		return String.format(SYNSET_FORMAT, offset, lexfileNum, type, membersData, relatedData, verbframesData, definitionsData, examplesData)
 	}
 
 	/**
@@ -384,17 +279,17 @@ public abstract class SynsetProcessor
 	 * @return relation
 	 * @throws CompatException when relation is not legacy compatible
 	 */
-	protected Relation buildSenseRelation(String type, char pos, int sourceMemberNum, Sense targetSense, Synset targetSynset, String targetSynsetId) throws CompatException
-	{
+	@Throws(CompatException::class)
+	protected open fun buildSenseRelation(type: String?, pos: Char, sourceMemberNum: Int, targetSense: Sense?, targetSynset: Synset?, targetSynsetId: String): Data.Relation {
 		// target lemma
-		String targetLemma = targetSense.getLemma();
+		val targetLemma = targetSense!!.lemma
 
 		// which
-		int targetMemberNum = targetSynset.findIndexOfMember(targetLemma) + 1;
-		char targetType = targetSynset.type;
-		long targetOffset = this.offsetFunction.applyAsLong(targetSynsetId);
-		boolean pointerCompat = (flags & Flags.pointerCompat) != 0;
-		return new Relation(type, pos, targetType, targetOffset, sourceMemberNum, targetMemberNum, pointerCompat);
+		val targetMemberNum = targetSynset!!.findIndexOfMember(targetLemma) + 1
+		val targetType = targetSynset.type
+		val targetOffset = offsetFunction.invoke(targetSynsetId)
+		val pointerCompat = (flags and Flags.pointerCompat) != 0
+		return Data.Relation(type, pos, targetType, targetOffset, sourceMemberNum, targetMemberNum, pointerCompat)
 	}
 
 	/**
@@ -403,31 +298,45 @@ public abstract class SynsetProcessor
 	 * @param synset synset
 	 * @return lexfile num
 	 */
-	protected int buildLexfileNum(Synset synset)
-	{
-		String lexfile = synset.getLexfile();
-		try
-		{
-			return Coder.codeLexFile(lexfile);
-		}
-		catch (Exception e)
-		{
-			throw new IllegalArgumentException(String.format("Lexfile '%s' in %s", lexfile, synset.synsetId));
+	protected open fun buildLexfileNum(synset: Synset): Int {
+		val lexfile = synset.lexfile
+		try {
+			return codeLexFile(lexfile!!)
+		} catch (e: Exception) {
+			throw IllegalArgumentException(String.format("Lexfile '%s' in %s", lexfile, synset.synsetId))
 		}
 	}
 
 	/**
 	 * Report
 	 */
-	public void report()
-	{
-		if (this.incompats.size() > 0)
-		{
-			for (Map.Entry<String, Integer> entry : incompats.entrySet())
-			{
-				Tracing.psErr.printf("[W] Incompatibilities '%s': %d%n", entry.getKey(), entry.getValue());
+	fun report() {
+		if (incompats.isNotEmpty()) {
+			for ((key, value) in incompats) {
+				Tracing.psErr.printf("[W] Incompatibilities '%s': %d%n", key, value)
 			}
-			this.incompats.clear();
+			incompats.clear()
 		}
+	}
+
+	companion object {
+		private const val LOG_DISCARDED = true
+
+		private const val LOG_DUPLICATE_RELATION = false
+
+		/**
+		 * Format in data file
+		 * ```
+		 * offset
+		 * lexfile num
+		 * pos
+		 * members
+		 * relations
+		 * frames
+		 * definition
+		 * example
+		 * ```
+		 */
+		private const val SYNSET_FORMAT = "%08d %02d %c %s %s%s | %s%s  \n"
 	}
 }

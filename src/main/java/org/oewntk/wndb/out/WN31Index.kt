@@ -1,58 +1,48 @@
 /*
  * Copyright (c) 2022. Bernard Bou.
  */
+package org.oewntk.wndb.out
 
-package org.oewntk.wndb.out;
+import org.oewntk.model.Sense
+import java.io.BufferedReader
+import java.io.IOException
+import java.io.InputStreamReader
+import java.nio.charset.StandardCharsets
 
-import org.oewntk.model.Sense;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-public class WN31Index
-{
+object WN31Index {
 	/**
 	 * Resource file
 	 */
-	private static final String RES = "/index.sense.31";
+	private const val RES = "/index.sense.31"
 
 	/**
 	 * Sensekey to index map
 	 */
-	private static final Map<String, Integer> SK2INDEX = readIndexes();
+	private val SK2INDEX = readIndexes()
 
 	/**
 	 * Sensekey comparator based on the sensekey-to-index map
 	 */
-	public static final Comparator<String> WN31_SK_COMPARATOR = Comparator.comparing(SK2INDEX::get);
+	private val WN31_SK_COMPARATOR: Comparator<String> = Comparator.comparing { SK2INDEX[it]!! }
 
 	/**
 	 * Sense comparator based on the sensekey-to-index map
 	 */
-	public static final Comparator<Sense> WN31_SENSE_ORDER = Comparator.comparing(Sense::getSenseKey, WN31_SK_COMPARATOR);
+	private val WN31_SENSE_ORDER: Comparator<Sense> = Comparator.comparing(Sense::senseKey, WN31_SK_COMPARATOR)
 
 	/**
 	 * Sense comparator based on the 3.1 sensekey-to-index map. This comparator does not define a total order. It returns 0 when the sensekeys are not defined in 3.1
 	 */
-	public static final Comparator<Sense> SENSE_ORDER = (s1, s2) -> {
-
-		Integer i1 = SK2INDEX.get(s1.getSenseKey());
-		Integer i2 = SK2INDEX.get(s2.getSenseKey());
-		if (i1 == null || i2 == null)
-		{
-			return 0; // fail, to be chained with thenCompare
+	val SENSE_ORDER: Comparator<Sense> = Comparator { s1: Sense, s2: Sense ->
+		val i1 = SK2INDEX[s1.senseKey]
+		val i2 = SK2INDEX[s2.senseKey]
+		if (i1 == null || i2 == null) {
+			return@Comparator 0 // fail, to be chained with thenCompare
 		}
-		int cmp = i1.compareTo(i2);
-		assert cmp != 0 : String.format("Senses have equal indexes %s %s", s1, s2);
-		return cmp;
-	};
+		val cmp = i1.compareTo(i2)
+		assert(cmp != 0) { String.format("Senses have equal indexes %s %s", s1, s2) }
+		cmp
+	}
 
 	/**
 	 * Read indexes from resource index.sense.31, a stripped-down version of index sense with three columns
@@ -60,40 +50,32 @@ public class WN31Index
 	 *
 	 * @return sensekey-to-index map
 	 */
-	public static Map<String, Integer> readIndexes()
-	{
-		Map<String, Integer> map = new HashMap<>();
+	private fun readIndexes(): Map<String, Int> {
 
-		final URL url = WN31Index.class.getResource(RES);
-		assert url != null;
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8)))
-		{
-			String line;
-			while ((line = reader.readLine()) != null)
-			{
-				if (line.isEmpty())
-				{
-					continue;
-				}
+		val map: MutableMap<String, Int> = HashMap()
 
-				try
-				{
-					String[] fields = line.split("\\s");
-					String field1 = fields[0];
-					Integer field2 = Integer.parseInt(fields[1]);
-					map.put(field1, field2);
-				}
-				catch (final RuntimeException e)
-				{
-					Tracing.psErr.println("[E] reading at line '" + line + "' " + e);
+		val url = checkNotNull(WN31Index::class.java.getResource(RES))
+		try {
+			BufferedReader(InputStreamReader(url.openStream(), StandardCharsets.UTF_8)).use { reader ->
+				var line: String
+				while ((reader.readLine().also { line = it }) != null) {
+					if (line.isEmpty()) {
+						continue
+					}
+					try {
+						val fields = line.split("\\s".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+						val field1 = fields[0]
+						val field2 = fields[1].toInt()
+						map[field1] = field2
+					} catch (e: RuntimeException) {
+						Tracing.psErr.println("[E] reading at line '$line' $e")
+					}
 				}
 			}
+		} catch (e: IOException) {
+			Tracing.psErr.println("[E] reading WN31 index $e")
 		}
-		catch (IOException e)
-		{
-			Tracing.psErr.println("[E] reading WN31 index " + e);
-		}
-		return map;
+		return map
 	}
 
 	/**
@@ -101,9 +83,9 @@ public class WN31Index
 	 *
 	 * @param args command-line arguments
 	 */
-	public static void main(String[] args)
-	{
-		var list = List.of("eight%1:06:00::", "eight%1:14:00::", "eight%1:23:00::");
-		list.stream().sorted(WN31_SK_COMPARATOR).forEach(System.out::println);
+	@JvmStatic
+	fun main(args: Array<String>) {
+		val list = listOf("eight%1:06:00::", "eight%1:14:00::", "eight%1:23:00::")
+		list.stream().sorted(WN31_SK_COMPARATOR).forEach { x: String? -> println(x) }
 	}
 }

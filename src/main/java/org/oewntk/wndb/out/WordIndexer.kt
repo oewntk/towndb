@@ -1,88 +1,41 @@
 /*
  * Copyright (c) $originalComment.match("Copyright \(c\) (\d+)", 1, "-")2021. Bernard Bou.
  */
+package org.oewntk.wndb.out
 
-package org.oewntk.wndb.out;
-
-import org.oewntk.model.Sense;
-import org.oewntk.model.SenseGroupings;
-import org.oewntk.model.Synset;
-import org.oewntk.model.TagCount;
-
-import java.io.PrintStream;
-import java.util.*;
-import java.util.stream.Collectors;
+import org.oewntk.model.Sense
+import org.oewntk.model.SenseGroupings.sensesByLCLemmaAndPos
+import org.oewntk.model.Synset
+import java.io.PrintStream
+import java.util.*
+import java.util.stream.Collectors
 
 /**
  * This class produces the 'index.{noun|verb|adj|adv}' files
  *
+ * @property offsets offsets indexed by synset id key
+ * @property flags   flags
  * @author Bernard Bou
  */
-public class WordIndexer
-{
-	private static final boolean LOG = false;
-
+class WordIndexer(
+	private val offsets: Map<String, Long>,
+	private val flags: Int
+) {
 	/**
 	 * This represents what is needed for a line in index.(noun|verb|adj|adv)
 	 */
-	private static class IndexEntry
-	{
-		final char pos;
+	private class IndexEntry
+		(val pos: Char) {
+		var taggedSensesCount: Int = 0
+			private set
 
-		private int taggedSensesCount = 0;
+		val synsetIds: MutableSet<String> = LinkedHashSet()
 
-		final Set<String> synsetIds = new LinkedHashSet<>();
+		val relationPointers: MutableSet<String> = TreeSet()
 
-		final Set<String> relationPointers = new TreeSet<>();
-
-		public IndexEntry(final char pos)
-		{
-			this.pos = pos;
+		fun incTaggedCount() {
+			taggedSensesCount += 1
 		}
-
-		public void incTaggedCount()
-		{
-			taggedSensesCount += 1;
-		}
-
-		public int getTaggedSensesCount()
-		{
-			return taggedSensesCount;
-		}
-	}
-
-	/**
-	 * Format in data file
-	 * lemma
-	 * pos
-	 * synset_cnt
-	 * ptrs=p_cnt  [ptr_symbol...]
-	 * ofs=sense_cnt
-	 * tag sense cnt (number of senses that are tagged)
-	 * synset_offset  [synset_offset...]
-	 */
-	private static final String WORD_FORMAT = "%s %s %d %s %d %d %s  ";
-
-	/**
-	 * Synset offsets indexed by synset id key
-	 */
-	private final Map<String, Long> offsets;
-
-	/**
-	 * Flags
-	 */
-	private final int flags;
-
-	/**
-	 * Constructor
-	 *
-	 * @param offsets offsets indexed by synset id key
-	 * @param flags   flags
-	 */
-	public WordIndexer(final Map<String, Long> offsets, final int flags)
-	{
-		this.offsets = offsets;
-		this.flags = flags;
 	}
 
 	/**
@@ -94,54 +47,53 @@ public class WordIndexer
 	 * @param posFilter   part-of-speech filter for lexes
 	 * @return number of indexes
 	 */
-	public long make(final PrintStream ps, final Collection<Sense> senses, final Map<String, Synset> synsetsById, final char posFilter)
-	{
-		Map<String, Integer> incompats = new HashMap<>();
+	fun make(ps: PrintStream, senses: Collection<Sense>, synsetsById: Map<String, Synset>, posFilter: Char): Long {
+		val incompats: MutableMap<String, Int> = HashMap()
 
 		// file header
-		ps.print(Formatter.OEWN_HEADER);
+		ps.print(Formatter.OEWN_HEADER)
 
 		// collect entries
-		boolean pointerCompat = (flags & Flags.pointerCompat) != 0;
-		Map<String, IndexEntry> indexEntries = new TreeMap<>();
+		val pointerCompat = (flags and Flags.pointerCompat) != 0
+		val indexEntries: MutableMap<String, IndexEntry> = TreeMap()
 
-		var groupedSenses = SenseGroupings.sensesByLCLemmaAndPos(senses);
-		groupedSenses.entrySet().stream() //
-				.filter(e -> e.getKey().pos == posFilter) //
-				.sorted(Comparator.comparing(s -> s.getKey().lcLemma.replace(' ', '_'))) //
-				.forEach(e -> {
+		val groupedSenses = sensesByLCLemmaAndPos(senses)
+		groupedSenses.entries.stream()
+			.filter { it.key.pos == posFilter }
+			.sorted(Comparator.comparing { it.key.lcLemma.replace(' ', '_') })
+			.forEach {
+				val k = it.key
+				val kSenses = it.value.stream()
+					.sorted(SenseComparator.WNDB_SENSE_ORDER)
+					.collect(Collectors.toList())
 
-					var k = e.getKey();
-					var kSenses = e.getValue().stream().sorted(SenseComparator.WNDB_SENSE_ORDER).collect(Collectors.toList());
+				val lcLemma = k.lcLemma
+				val pos = k.pos
+				val ik = lcLemma.replace(' ', '_')
+				val eik = Formatter.escape(ik)
 
-					var lcLemma = k.lcLemma;
-					var pos = k.pos;
-					var ik = lcLemma.replace(' ', '_');
-					var eik = Formatter.escape(ik);
+				// init data mapped by lower-cased lemma
+				val indexEntry = indexEntries.computeIfAbsent(eik) { IndexEntry(pos) }
 
-					// init data mapped by lower-cased lemma
-					IndexEntry indexEntry = indexEntries.computeIfAbsent(eik, ke -> new IndexEntry(pos));
+				// synset ids
+				collectSynsetIds(kSenses, indexEntry.synsetIds)
 
-					// synset ids
-					collectSynsetIds(kSenses, indexEntry.synsetIds);
+				// tag counts
+				collectTagCounts(kSenses, indexEntry)
 
-					// tag counts
-					collectTagCounts(kSenses, indexEntry);
+				// synset relations
+				collectSynsetRelations(kSenses, synsetsById, pos, indexEntry.relationPointers, pointerCompat, incompats)
 
-					// synset relations
-					collectSynsetRelations(kSenses, synsetsById, pos, indexEntry.relationPointers, pointerCompat, incompats);
+				// sense relations
+				collectSenseRelations(kSenses, pos, indexEntry.relationPointers, pointerCompat, incompats)
 
-					// sense relations
-					collectSenseRelations(kSenses, pos, indexEntry.relationPointers, pointerCompat, incompats);
-
-					// print
-					printIndexEntry(eik, indexEntry, ps);
-				});
+				// print
+				printIndexEntry(eik, indexEntry, ps)
+			}
 
 		// log
-		reportIncompats(incompats);
-		//Tracing.psInfo.printf("Words: %d for %s%n", indexEntries.size(), posFilter);
-		return indexEntries.size();
+		reportIncompats(incompats)
+		return indexEntries.size.toLong()
 	}
 
 	/**
@@ -150,26 +102,12 @@ public class WordIndexer
 	 * @param senses    senses
 	 * @param synsetIds set to collect to
 	 */
-	private void collectSynsetIds(final List<Sense> senses, final Set<String> synsetIds)
-	{
-		// int previousRank = -1;
-		for (Sense sense : senses)
-		{
-			/*
-			// check ordering
-			int rank = sense.getLexIndex();
-			if (previousRank >= rank)
-			{
-				throw new IllegalArgumentException("Lex " + sense.getLex().getLemma() + " " + " previous=" + previousRank + " current=" + rank);
-			}
-			previousRank = rank;
-			*/
-
+	private fun collectSynsetIds(senses: List<Sense>, synsetIds: MutableSet<String>) {
+		for (sense in senses) {
 			// synsetid
-			String synsetId = sense.synsetId;
-
+			val synsetId = sense.synsetId
 			// collect
-			synsetIds.add(synsetId);
+			synsetIds.add(synsetId)
 		}
 	}
 
@@ -179,21 +117,13 @@ public class WordIndexer
 	 * @param senses     senses
 	 * @param indexEntry to collect to
 	 */
-	private void collectTagCounts(final List<Sense> senses, final IndexEntry indexEntry)
-	{
-		for (Sense sense : senses)
-		{
+	private fun collectTagCounts(senses: List<Sense>, indexEntry: IndexEntry) {
+		for (sense in senses) {
 			// synsetid
-			TagCount tagCount = sense.getTagCount();
-			if (tagCount == null)
-			{
-				continue;
-			}
-
+			val tagCount = sense.tagCount ?: continue
 			// collect
-			if (tagCount.count > 0)
-			{
-				indexEntry.incTaggedCount();
+			if (tagCount.count > 0) {
+				indexEntry.incTaggedCount()
 			}
 		}
 	}
@@ -208,16 +138,13 @@ public class WordIndexer
 	 * @param pointerCompat pointer compatibility flag
 	 * @param incompats     incompatibility log
 	 */
-	private void collectSynsetRelations(final List<Sense> senses, final Map<String, Synset> synsetsById, final char pos, final Set<String> pointers, final boolean pointerCompat, final Map<String, Integer> incompats)
-	{
-		for (Sense sense : senses)
-		{
+	private fun collectSynsetRelations(senses: List<Sense>, synsetsById: Map<String, Synset>, pos: Char, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
+		for (sense in senses) {
 			// synsetid
-			String synsetId = sense.synsetId;
-
+			val synsetId = sense.synsetId
 			// synset relations
-			Synset synset = synsetsById.get(synsetId);
-			collectSynsetRelations(synset, pos, pointers, pointerCompat, incompats);
+			val synset = synsetsById[synsetId]
+			collectSynsetRelations(synset, pos, pointers, pointerCompat, incompats)
 		}
 	}
 
@@ -230,38 +157,26 @@ public class WordIndexer
 	 * @param pointerCompat pointer compatibility flag
 	 * @param incompats     incompatibility log
 	 */
-	private void collectSynsetRelations(final Synset synset, final char pos, final Set<String> pointers, final boolean pointerCompat, final Map<String, Integer> incompats)
-	{
-		Map<String, Set<String>> synsetRelations = synset.getRelations();
-		if (synsetRelations != null && synsetRelations.size() > 0)
-		{
-			for (Map.Entry<String, Set<String>> relationEntry : synsetRelations.entrySet())
-			{
-				String relationType = relationEntry.getKey();
-				String pointer;
-				try
-				{
-					pointer = Coder.codeRelation(relationType, pos, pointerCompat);
-				}
-				catch (CompatException e)
-				{
-					String cause = e.getCause().getMessage();
-					int count = incompats.computeIfAbsent(cause, (c) -> 0) + 1;
-					incompats.put(cause, count);
-					continue;
-				}
-				catch (IllegalArgumentException e)
-				{
-					//String cause = e.getClass().getName() + ' ' + e.getMessage();
-					if (LOG)
-					{
-						Tracing.psErr.printf("[W] Discarded relation '%s'%n", relationType);
+	private fun collectSynsetRelations(synset: Synset?, pos: Char, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
+		val synsetRelations: Map<String, Set<String>>? = synset!!.relations
+		if (!synsetRelations.isNullOrEmpty()) {
+			for ((relationType) in synsetRelations) {
+				var pointer: String
+				try {
+					pointer = Coder.codeRelation(relationType, pos, pointerCompat)
+				} catch (e: CompatException) {
+					val cause = e.cause!!.message!!
+					val count = incompats.computeIfAbsent(cause) { 0 } + 1
+					incompats[cause] = count
+					continue
+				} catch (e: IllegalArgumentException) {
+					if (LOG) {
+						Tracing.psErr.printf("[W] Discarded relation '%s'%n", relationType)
 					}
-					throw e;
+					throw e
 				}
-
 				// collect
-				pointers.add(pointer);
+				pointers.add(pointer)
 			}
 		}
 	}
@@ -275,40 +190,27 @@ public class WordIndexer
 	 * @param pointerCompat pointer compatibility flag
 	 * @param incompats     incompatibility log
 	 */
-	private void collectSenseRelations(final List<Sense> senses, final char pos, final Set<String> pointers, final boolean pointerCompat, final Map<String, Integer> incompats)
-	{
-		for (Sense lexSense : senses)
-		{
-			Map<String, Set<String>> senseRelations = lexSense.getRelations();
-			if (senseRelations != null && senseRelations.size() > 0)
-			{
-				for (Map.Entry<String, Set<String>> relationEntry : senseRelations.entrySet())
-				{
-					String relationType = relationEntry.getKey();
-					String pointer;
-					try
-					{
-						pointer = Coder.codeRelation(relationType, pos, pointerCompat);
-					}
-					catch (CompatException e)
-					{
-						String cause = e.getCause().getMessage();
-						int count = incompats.computeIfAbsent(cause, (c) -> 0) + 1;
-						incompats.put(cause, count);
-						continue;
-					}
-					catch (IllegalArgumentException e)
-					{
-						//String cause = e.getClass().getName() + ' ' + e.getMessage();
-						if (LOG)
-						{
-							Tracing.psErr.printf("[W] Discarded relation '%s'%n", relationType);
+	private fun collectSenseRelations(senses: List<Sense>, pos: Char, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
+		for (lexSense in senses) {
+			val senseRelations = lexSense.relations
+			if (!senseRelations.isNullOrEmpty()) {
+				for ((relationType) in senseRelations) {
+					var pointer: String
+					try {
+						pointer = Coder.codeRelation(relationType, pos, pointerCompat)
+					} catch (e: CompatException) {
+						val cause = e.cause!!.message!!
+						val count = incompats.computeIfAbsent(cause) { 0 } + 1
+						incompats[cause] = count
+						continue
+					} catch (e: IllegalArgumentException) {
+						if (LOG) {
+							Tracing.psErr.printf("[W] Discarded relation '%s'%n", relationType)
 						}
-						continue;
+						continue
 					}
-
 					// collect
-					pointers.add(pointer);
+					pointers.add(pointer)
 				}
 			}
 		}
@@ -321,13 +223,12 @@ public class WordIndexer
 	 * @param indexEntry index data
 	 * @param ps         print stream
 	 */
-	private void printIndexEntry(final String key, final IndexEntry indexEntry, final PrintStream ps)
-	{
-		int nSenses = indexEntry.synsetIds.size();
-		String ptrs = Formatter.joinNum(indexEntry.relationPointers, "%d", String::toString);
-		String ofs = Formatter.join(indexEntry.synsetIds, " ", false, s -> String.format("%08d", offsets.get(s)));
-		String line = String.format(WORD_FORMAT, key, indexEntry.pos, nSenses, ptrs, nSenses, indexEntry.getTaggedSensesCount(), ofs);
-		ps.println(line);
+	private fun printIndexEntry(key: String, indexEntry: IndexEntry, ps: PrintStream) {
+		val nSenses = indexEntry.synsetIds.size
+		val ptrs = Formatter.joinNum(indexEntry.relationPointers, "%d") { it }
+		val ofs = Formatter.join(indexEntry.synsetIds, " ", false) { String.format("%08d", offsets[it]) }
+		val line = String.format(WORD_FORMAT, key, indexEntry.pos, nSenses, ptrs, nSenses, indexEntry.taggedSensesCount, ofs)
+		ps.println(line)
 	}
 
 	/**
@@ -335,14 +236,29 @@ public class WordIndexer
 	 *
 	 * @param incompats incompatibilities
 	 */
-	private void reportIncompats(final Map<String, Integer> incompats)
-	{
-		if (incompats.size() > 0)
-		{
-			for (Map.Entry<String, Integer> entry : incompats.entrySet())
-			{
-				Tracing.psErr.printf("[W] Incompatibilities '%s': %d%n", entry.getKey(), entry.getValue());
+	private fun reportIncompats(incompats: Map<String, Int>) {
+		if (incompats.isNotEmpty()) {
+			for ((key, value) in incompats) {
+				Tracing.psErr.printf("[W] Incompatibilities '%s': %d%n", key, value)
 			}
 		}
+	}
+
+	companion object {
+		private const val LOG = false
+
+		/**
+		 * Format in data file
+		 * ```
+		 * lemma
+		 * pos
+		 * synset_cnt
+		 * ptrs=p_cnt  [ptr_symbol...]
+		 * ofs=sense_cnt
+		 * tag sense cnt (number of senses that are tagged)
+		 * synset_offset  [synset_offset...]
+		 * ```
+		 */
+		private const val WORD_FORMAT = "%s %s %d %s %d %d %s  "
 	}
 }

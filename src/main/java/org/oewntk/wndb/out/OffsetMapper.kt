@@ -1,63 +1,39 @@
 /*
  * Copyright (c) 2021-2021. Bernard Bou.
  */
+package org.oewntk.wndb.out
 
-package org.oewntk.wndb.out;
-
-import org.oewntk.model.CoreModel;
-import org.oewntk.model.Model;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.toMap;
+import org.oewntk.model.CoreModel
+import org.oewntk.model.Model
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.PrintStream
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.util.function.Consumer
+import java.util.stream.Collectors
 
 /**
  * Main class that generates the serialized synsetId to offset map
  *
+ * @param outDir output directory
+ * @param flags  flags
+ * @param ps     log print stream
+ *
  * @author Bernard Bou
  */
-public class OffsetMapper implements Consumer<Model>
-{
-	static final String FILE_OFFSET_MAP = "offsets.map";
+class OffsetMapper(
+	private val outDir: File,
+	private val flags: Int,
+	private val ps: PrintStream
+) : Consumer<Model> {
 
-	private final File outDir;
-
-	private final int flags;
-
-	private final PrintStream ps;
-
-	/**
-	 * Constructor
-	 *
-	 * @param outDir output directory
-	 * @param flags  flags
-	 * @param ps     log print stream
-	 */
-	public OffsetMapper(final File outDir, final int flags, final PrintStream ps)
-	{
-		this.outDir = outDir;
-		this.flags = flags;
-		this.ps = ps;
-	}
-
-	@Override
-	public void accept(final Model model)
-	{
-		try
-		{
-			grind(model);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace(Tracing.psErr);
+	override fun accept(model: Model) {
+		try {
+			grind(model)
+		} catch (e: IOException) {
+			e.printStackTrace(Tracing.psErr)
 		}
 	}
 
@@ -67,56 +43,58 @@ public class OffsetMapper implements Consumer<Model>
 	 * @param model model
 	 * @throws IOException io exception
 	 */
-	public void grind(final CoreModel model) throws IOException
-	{
+	@Throws(IOException::class)
+	fun grind(model: CoreModel) {
 		// Model
-		ps.printf("[CoreModel] %s%n", model.getSource());
+		ps.printf("[CoreModel] %s%n", model.source)
 
 		// Output
-		if (!outDir.exists())
-		{
-			//noinspection ResultOfMethodCallIgnored
-			outDir.mkdirs();
+		if (!outDir.exists()) {
+			outDir.mkdirs()
 		}
 
 		// Compute synset offsets
-		Map<String, Long> offsets = new GrindOffsets(model.getLexesByLemma(), model.getSynsetsById(), model.getSensesById(), flags).compute();
+		val offsets = GrindOffsets(model.lexesByLemma!!, model.synsetsById!!, model.sensesById!!, flags).compute()
 
 		// Serialize offsets
-		writeOffsets(offsets, new File(outDir, FILE_OFFSET_MAP));
+		writeOffsets(offsets, File(outDir, FILE_OFFSET_MAP))
 	}
 
-	/**
-	 * Write offsets to file
-	 *
-	 * @param offsets offsets by synset id
-	 * @param file    out file
-	 * @throws IOException io exception
-	 */
-	public static void writeOffsets(final Map<String, Long> offsets, final File file) throws IOException
-	{
-		try (PrintStream ps = new PrintStream(new FileOutputStream(file), true, StandardCharsets.UTF_8))
-		{
-			offsets.keySet().stream() //
+	companion object {
+		const val FILE_OFFSET_MAP: String = "offsets.map"
+
+		/**
+		 * Write offsets to file
+		 *
+		 * @param offsets offsets by synset id
+		 * @param file    out file
+		 * @throws IOException io exception
+		 */
+		@Throws(IOException::class)
+		fun writeOffsets(offsets: Map<String, Long>, file: File) {
+			PrintStream(FileOutputStream(file), true, StandardCharsets.UTF_8).use { ps ->
+				offsets.keys.stream() //
 					.sorted() //
-					.forEach(k -> ps.printf("%s %d%n", k, offsets.get(k)));
+					.forEach { k: String? -> ps.printf("%s %d%n", k, offsets[k]) }
+			}
 		}
-	}
 
-	/**
-	 * Read offsets from file
-	 *
-	 * @param file in file
-	 * @return offsets by synset id
-	 * @throws IOException io exception
-	 */
-	public static Map<String, Long> readOffsets(File file) throws IOException
-	{
-		try (Stream<String> stream = Files.lines(file.toPath()))
-		{
-			return stream //
-					.map(str -> str.split("\\s")) //
-					.collect(toMap(f -> f[0], f -> Long.parseLong(f[1])));
+		/**
+		 * Read offsets from file
+		 *
+		 * @param file in file
+		 * @return offsets by synset id
+		 * @throws IOException io exception
+		 */
+		@Throws(IOException::class)
+		fun readOffsets(file: File): Map<String, Long> {
+			Files.lines(file.toPath()).use { s ->
+				return s //
+					.map { it.split("\\s".toRegex()).dropLastWhile { it2 -> it2.isEmpty() }.toTypedArray() }
+					.collect(Collectors.toMap(
+						{ it[0] },
+						{ it[1].toLong() }))
+			}
 		}
 	}
 }

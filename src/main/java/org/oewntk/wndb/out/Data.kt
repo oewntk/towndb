@@ -1,123 +1,89 @@
 /*
  * Copyright (c) $originalComment.match("Copyright \(c\) (\d+)", 1, "-")2021. Bernard Bou.
  */
+package org.oewntk.wndb.out
 
-package org.oewntk.wndb.out;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import org.oewntk.wndb.out.Coder.codeRelation
 
 /**
  * Intermediate data, that are usually accumulated, not Pojos
  *
  * @author Bernard Bou
  */
-public class Data
-{
-	private Data()
-	{
-	}
+object Data {
 
 	/**
 	 * Filter for noun synset pos
 	 */
-	public static final char NOUN_POS_FILTER = 'n';
+	const val NOUN_POS_FILTER: Char = 'n'
 
 	/**
 	 * Filter for verb synset pos
 	 */
-	public static final char VERB_POS_FILTER = 'v';
+	const val VERB_POS_FILTER: Char = 'v'
 
 	/**
 	 * Filter for adj synset pos
 	 */
-	public static final char ADJ_POS_FILTER = 'a';
+	const val ADJ_POS_FILTER: Char = 'a'
 
 	/**
 	 * Filter for adv synset pos
 	 */
-	public static final char ADV_POS_FILTER = 'r';
+	const val ADV_POS_FILTER: Char = 'r'
 
 	/**
 	 * Synset member lemma. Members are ordered lemmas. Lexid (from lexicographer file should not exceed 15 in compat mode)
 	 */
-	static class Member
-	{
-		protected final String lemma;
+	internal open class Member(
+		protected val lemma: String,
+		lexid: Int,
+		lexIdCompat: Boolean
+	) {
+		protected var lexid: Int = 0
 
-		protected final int lexid;
-
-		public Member(String lemma, int lexid, boolean lexIdCompat)
-		{
-			super();
-			this.lemma = lemma;
-			if (lexIdCompat)
-			{
-				this.lexid = lexid % 16; // 16 -> 0
-				if (lexid > 16)
-				// throw new RuntimeException("Out of range lexid" + lemma + " " + lexid);
+		init {
+			if (lexIdCompat) {
+				this.lexid = lexid % 16 // 16 -> 0
+				if (lexid > 16) // throw new RuntimeException("Out of range lexid" + lemma + " " + lexid);
 				{
-					Tracing.psErr.printf("Out of range lexid %s: %d tweaked to %d%n", lemma, lexid, this.lexid);
+					Tracing.psErr.printf("Out of range lexid %s: %d tweaked to %d%n", lemma, lexid, this.lexid)
 				}
-			}
-			else
-			{
-				this.lexid = lexid;
+			} else {
+				this.lexid = lexid
 			}
 		}
 
-		public String toWndbString(boolean lexIdCompat)
-		{
-			return String.format(lexIdCompat ? "%s %1X" : "%s %X", lemma, lexid);
+		open fun toWndbString(lexIdCompat: Boolean): String {
+			return String.format(if (lexIdCompat) "%s %1X" else "%s %X", lemma, lexid)
 		}
 
-		@Override
-		public String toString()
-		{
-			return String.format("Member %s lexid:%X", lemma, lexid);
+		override fun toString(): String {
+			return String.format("Member %s lexid:%X", lemma, lexid)
 		}
 	}
 
 	/**
 	 * Adjective synset member lemmas with position constraint expressed (ip,p,a).
 	 */
-	static class AdjMember extends Member
-	{
-		private final String position;
-
-		public AdjMember(String lemma, int lexid, String position, boolean lexIdCompat)
-		{
-			super(lemma, lexid, lexIdCompat);
-			this.position = position;
+	internal class AdjMember(lemma: String, lexid: Int, private val position: String, lexIdCompat: Boolean) : Member(lemma, lexid, lexIdCompat) {
+		override fun toWndbString(lexIdCompat: Boolean): String {
+			return String.format(if (lexIdCompat) "%s(%s) %1X" else "%s(%s) %X", lemma, position, lexid)
 		}
 
-		@Override
-		public String toWndbString(boolean lexIdCompat)
-		{
-			return String.format(lexIdCompat ? "%s(%s) %1X" : "%s(%s) %X", lemma, position, lexid);
-		}
-
-		@Override
-		public String toString()
-		{
-			return String.format("Adj Member %s(%s) %X", lemma, position, lexid);
+		override fun toString(): String {
+			return String.format("Adj Member %s(%s) %X", lemma, position, lexid)
 		}
 	}
 
 	/**
 	 * Semantic or lexical relations
 	 */
-	static class Relation
-	{
-		final String ptrSymbol;
-
-		final long targetOffset;
-
-		final char pos;
-
-		final char targetPos;
-
+	class Relation(
+		type: String?,
+		pos: Char,
+		private val targetPos: Char,
+		private val targetOffset: Long,
 		/**
 		 * The source/target field distinguishes lexical and semantic pointers.
 		 * It is a four byte field, containing two two-digit hexadecimal integers.
@@ -125,8 +91,7 @@ public class Data
 		 * A value of 0000 means that pointer_symbol represents a semantic relation between
 		 * the current (source) synset and the target synset indicated by synset_offset .
 		 */
-		final int sourceWordNum;
-
+		private val sourceWordNum: Int,
 		/**
 		 * The source/target field distinguishes lexical and semantic pointers.
 		 * It is a four byte field, containing two two-digit hexadecimal integers.
@@ -134,92 +99,47 @@ public class Data
 		 * A value of 0000 means that pointer_symbol represents a semantic relation between
 		 * the current (source) synset and the target synset indicated by synset_offset .
 		 */
-		final int targetWordNum;
+		private val targetWordNum: Int, pointerCompat: Boolean
+	) {
+		private val ptrSymbol: String = codeRelation(type!!, pos, pointerCompat)
 
-		/**
-		 * Constructor
-		 *
-		 * @param type          type of relation @see Coder.codeRelation
-		 * @param pos           source part of speech
-		 * @param targetPos     target part of speech
-		 * @param targetOffset  relation target offset
-		 * @param sourceWordNum word number in source synset
-		 * @param targetWordNum word number in target synset
-		 * @param pointerCompat pointer compatibility
-		 */
-		public Relation(String type, char pos, char targetPos, long targetOffset, int sourceWordNum, int targetWordNum, final boolean pointerCompat) throws CompatException
-		{
-			super();
-			this.ptrSymbol = Coder.codeRelation(type, pos, pointerCompat);
-			this.pos = pos;
-			this.targetPos = targetPos;
-			this.targetOffset = targetOffset;
-			this.sourceWordNum = sourceWordNum;
-			this.targetWordNum = targetWordNum;
+		fun toWndbString(): String {
+			return String.format("%s %08d %c %02x%02x", ptrSymbol, targetOffset, targetPos, sourceWordNum, targetWordNum)
 		}
 
-		public String toWndbString()
-		{
-			return String.format("%s %08d %c %02x%02x", ptrSymbol, targetOffset, targetPos, sourceWordNum, targetWordNum);
-		}
-
-		@Override
-		public String toString()
-		{
-			return String.format("Relation %s %08d %c %02x%02x", ptrSymbol, targetOffset, targetPos, sourceWordNum, targetWordNum);
+		override fun toString(): String {
+			return String.format("Relation %s %08d %c %02x%02x", ptrSymbol, targetOffset, targetPos, sourceWordNum, targetWordNum)
 		}
 	}
 
 	/**
 	 * Verb (syntactic) frames
+	 *
+	 * @param frameNum  frame number
+	 * @param memberNum 1-based lemma member number in synset this frame applies to
 	 */
-	static class Frame
-	{
-		public final int frameNum;
+	internal class Frame(
+		val frameNum: Int,
+		private val memberNum: Int
+	) {
 
-		public final int memberNum;
-
-		/**
-		 * Constructor
-		 *
-		 * @param frameNum  frame number
-		 * @param memberNum 1-based lemma member number in synset this frame applies to
-		 */
-		public Frame(int frameNum, int memberNum)
-		{
-			super();
-			this.frameNum = frameNum;
-			this.memberNum = memberNum;
+		fun toWndbString(): String {
+			return String.format("+ %02d %02x", frameNum, memberNum)
 		}
 
-		public String toWndbString()
-		{
-			return String.format("+ %02d %02x", frameNum, memberNum);
-		}
-
-		@Override
-		public String toString()
-		{
-			return String.format("Frame %02d %02x", frameNum, memberNum);
+		override fun toString(): String {
+			return String.format("Frame %02d %02x", frameNum, memberNum)
 		}
 	}
 
 	/**
 	 * Verb (syntactic) frames, a list of frames mapped per given frameNum
 	 */
-	static class Frames extends HashMap<Integer, List<Frame>>
-	{
-		private static final long serialVersionUID = -3313309054723217964L;
+	internal class Frames : HashMap<Int, MutableList<Frame>>() {
 
-		public Frames()
-		{
-			super();
-		}
-
-		public void add(final Frame frame)
-		{
-			List<Frame> frames2 = computeIfAbsent(frame.frameNum, k -> new ArrayList<>());
-			frames2.add(frame);
+		fun add(frame: Frame) {
+			val frames2 = computeIfAbsent(frame.frameNum) { ArrayList() }
+			frames2.add(frame)
 		}
 
 		/**
@@ -229,32 +149,23 @@ public class Data
 		 * @param membersCount synset member count
 		 * @return formatted verb frames
 		 */
-		public String toWndbString(char pos, int membersCount)
-		{
-			if (pos != 'v')
-			{
-				return "";
+		fun toWndbString(pos: Char, membersCount: Int): String {
+			if (pos != 'v') {
+				return ""
 			}
 			// compulsory for verbs even if empty
-			if (size() < 1)
-			{
-				return "00";
+			if (size < 1) {
+				return "00"
 			}
-			List<Frame> resultFrames = new ArrayList<>();
-			for (Entry<Integer, List<Frame>> entry : entrySet())
-			{
-				Integer frameNum = entry.getKey();
-				List<Frame> framesWithFrameNum = entry.getValue();
-				if (framesWithFrameNum.size() == membersCount)
-				{
-					resultFrames.add(new Frame(frameNum, 0));
-				}
-				else
-				{
-					resultFrames.addAll(framesWithFrameNum);
+			val resultFrames: MutableList<Frame> = ArrayList()
+			for ((frameNum, framesWithFrameNum) in entries) {
+				if (framesWithFrameNum.size == membersCount) {
+					resultFrames.add(Frame(frameNum, 0))
+				} else {
+					resultFrames.addAll(framesWithFrameNum)
 				}
 			}
-			return Formatter.joinNum(resultFrames, "%02d", Frame::toWndbString);
+			return Formatter.joinNum(resultFrames, "%02d") { obj: Frame -> obj.toWndbString() }
 		}
 	}
 }

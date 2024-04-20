@@ -1,118 +1,93 @@
-/*
- * Copyright (c) $originalComment.match("Copyright \(c\) (\d+)", 1, "-")2021. Bernard Bou.
- */
+package org.oewntk.wndb.out
 
-package org.oewntk.wndb.out;
-
-import org.oewntk.model.Sense;
-import org.oewntk.model.SenseGroupings;
-import org.oewntk.model.SenseGroupings.KeyLCLemmaAndPos;
-
-import java.io.PrintStream;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.stream.Collectors;
+import org.oewntk.model.Sense
+import org.oewntk.model.SenseGroupings.KeyLCLemmaAndPos.Companion.of
+import org.oewntk.model.SenseGroupings.sensesByLCLemmaAndPos
+import java.io.PrintStream
+import java.util.stream.Collectors
 
 /**
  * This class produces the 'index.sense' file
+ *
+ * @param flags   flags
+ * @param offsets synset offsets map indexed by synsetid key
  */
-public class SenseIndexer
-{
-    /**
-     * Format in data file
-     * sense_key
-     * synset_offset
-     * sense_number
-     * tag_cnt
-     */
-    private static final String SENSE_FORMAT = "%s %08d %d %d";
+class SenseIndexer(
+	private val flags: Int,
+	private val offsets: Map<String, Long>
+) {
+	/**
+	 * Make senses
+	 *
+	 * @param ps     print stream
+	 * @param senses senses
+	 */
+	fun make(ps: PrintStream, senses: Collection<Sense>) {
 
-    /**
-     * Flags
-     */
-    private final int flags;
+		val groupedSenses = sensesByLCLemmaAndPos(senses)
 
-    /**
-     * Synset offsets map indexed by synsetid key
-     */
-    private final Map<String, Long> offsets;
+		// collect
+		senses.stream() //
+			.sorted(Comparator.comparing(Sense::senseKey))
+			.forEach { sense: Sense ->
 
-    /**
-     * Constructor
-     *
-     * @param flags   flags
-     * @param offsets synset offsets map indexed by synsetid key
-     */
-    public SenseIndexer(final int flags, final Map<String, Long> offsets)
-    {
-        super();
-        this.flags = flags;
-        this.offsets = offsets;
-    }
+				// sense
+				val sensekey = sense.senseKey
 
-    /**
-     * Make senses
-     *
-     * @param ps     print stream
-     * @param senses senses
-     */
-    public void make(final PrintStream ps, final Collection<Sense> senses)
-    {
-        var groupedSenses = SenseGroupings.sensesByLCLemmaAndPos(senses);
+				// offset
+				val synsetId = sense.synsetId
+				val offset = offsets[synsetId]!!
 
-        // collect
-        senses.stream() //
-                .sorted(Comparator.comparing(Sense::getSenseKey)) //
-                .forEach(sense -> {
+				// sense num
+				val senseNum: Int
+				if ((flags and Flags.noReIndex) == 0) {
+					val k = of(sense)
+					// this will yield diverging sensenums to senses varying only in lemma, not synsetid target, e.g. a%1:10:00:: and a%1:10:01::
+					// var kSenses = groupedSenses.get(k).stream().sorted(SenseGroupings.byDecreasingTagCount).collect(Collectors.toList());
+					// senseNum = kSenses.indexOf(sense) + 1;
+					// the following will yield the same sensenum to senses varying only in lemma, not synsetid target, e.g. a%1:10:00:: and a%1:10:01::
+					val kTargetSynsetIds = groupedSenses[k]!!.stream().sorted(SenseComparator.WNDB_SENSE_ORDER).map { s: Sense -> s.synsetId }.distinct().collect(Collectors.toList())
+					senseNum = kTargetSynsetIds.indexOf(sense.synsetId) + 1
+				} else {
+					senseNum = sense.lexIndex + 1
+				}
 
-                    // sense
-                    String sensekey = sense.getSenseKey();
+				// tag count
+				val tagCount = sense.intTagCount
 
-                    // offset
-                    String synsetId = sense.synsetId;
-                    long offset = offsets.get(synsetId);
+				// print
+				printSenseEntry(sensekey, offset, senseNum, tagCount, ps)
+			}
 
-                    // sense num
-                    int senseNum;
-                    if ((flags & Flags.noReIndex) == 0)
-                    {
-                        var k = KeyLCLemmaAndPos.of(sense);
-                        // this will yield diverging sensenums to senses varying only in lemma, not synsetid target, e.g. a%1:10:00:: and a%1:10:01::
-                        // var kSenses = groupedSenses.get(k).stream().sorted(SenseGroupings.byDecreasingTagCount).collect(Collectors.toList());
-                        // senseNum = kSenses.indexOf(sense) + 1;
-                        // the following will yield the same sensenum to senses varying only in lemma, not synsetid target, e.g. a%1:10:00:: and a%1:10:01::
-                        var kTargetSynsetIds = groupedSenses.get(k).stream().sorted(SenseComparator.WNDB_SENSE_ORDER).map(s -> s.synsetId).distinct().collect(Collectors.toList());
-                        senseNum = kTargetSynsetIds.indexOf(sense.synsetId) + 1;
-                    }
-                    else
-                    {
-                        senseNum = sense.getLexIndex() + 1;
-                    }
+		// log
+		Tracing.psInfo.printf("Senses: %d%n", senses.size)
+	}
 
-                    // tag count
-                    int tagCount = sense.getIntTagCount();
+	/**
+	 * Print sense entry
+	 *
+	 * @param sensekey sensekey
+	 * @param offset   offset
+	 * @param senseNum sense number (index)
+	 * @param tagCount tag count
+	 * @param ps       print stream
+	 */
+	private fun printSenseEntry(sensekey: String, offset: Long, senseNum: Int, tagCount: Int, ps: PrintStream) {
+		val line = String.format(SENSE_FORMAT, sensekey, offset, senseNum, tagCount)
+		ps.println(line)
+	}
 
-                    // print
-                    printSenseEntry(sensekey, offset, senseNum, tagCount, ps);
-                });
+	companion object {
 
-        // log
-        Tracing.psInfo.printf("Senses: %d%n", senses.size());
-    }
-
-    /**
-     * Print sense entry
-     *
-     * @param sensekey sensekey
-     * @param offset   offset
-     * @param senseNum sense number (index)
-     * @param tagCount tag count
-     * @param ps       print stream
-     */
-    void printSenseEntry(String sensekey, long offset, int senseNum, int tagCount, PrintStream ps)
-    {
-        String line = String.format(SENSE_FORMAT, sensekey, offset, senseNum, tagCount);
-        ps.println(line);
-    }
+		/**
+		 * Format in data file
+		 * ```
+		 * sense_key
+		 * synset_offset
+		 * sense_number
+		 * tag_cnt
+		 * ```
+		 */
+		private const val SENSE_FORMAT = "%s %08d %d %d"
+	}
 }

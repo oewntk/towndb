@@ -1,28 +1,15 @@
 /*
  * Copyright (c) $originalComment.match("Copyright \(c\) (\d+)", 1, "-")2021. Bernard Bou.
  */
-
-package org.oewntk.wndb.out;
+package org.oewntk.wndb.out
 
 /**
  * Exception raised on compatibility issues
  */
-public class CompatException extends Exception
-{
-	private static final long serialVersionUID = 1091637245877106012L;
+class CompatException : Exception {
+	constructor(message: String?) : super(message)
 
-	public CompatException(String message)
-	{
-		super(message);
-	}
+	constructor(message: String?, cause: Throwable?) : super(message, cause)
 
-	public CompatException(String message, Throwable cause)
-	{
-		super(message, cause);
-	}
-
-	public CompatException(Throwable cause)
-	{
-		super(cause);
-	}
+	constructor(cause: Throwable?) : super(cause)
 }
