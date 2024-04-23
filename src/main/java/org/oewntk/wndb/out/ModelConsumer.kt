@@ -181,9 +181,9 @@ class ModelConsumer(
 	 */
 	@Throws(FileNotFoundException::class)
 	private fun verbFrames(dir: File, verbFrames: Collection<VerbFrame>) {
-
 		PrintStream(FileOutputStream(File(dir, "verb.Framestext")), true, StandardCharsets.UTF_8).use { ps ->
-			verbFrames.withIndex()
+			verbFrames
+				.withIndex()
 				.map { (i, vf) -> getVerbFrameNID(vf, i + 1) to vf }
 				.sortedBy { it.first }
 				.forEach { ps.printf("%d %s%n", it.first, it.second.frame) }

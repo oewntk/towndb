@@ -3,8 +3,6 @@
  */
 package org.oewntk.wndb.out
 
-import java.util.function.Function
-
 /**
  * Format utilities
  *
@@ -95,7 +93,7 @@ object Formatter {
 	 * @param f      string function to represent item
 	 * @return joined string representation of items
 	</T> */
-	fun <T> join(items: Iterable<T>?, delim: CharSequence?, escape: Boolean, f: Function<T, String>): String {
+	fun <T> join(items: Iterable<T>?, delim: CharSequence?, escape: Boolean, f: (T) -> String): String {
 		if (items == null) {
 			return ""
 		}
@@ -107,7 +105,7 @@ object Formatter {
 			} else {
 				sb.append(delim)
 			}
-			val value = f.apply(item)
+			val value = f.invoke(item)
 			sb.append(if (escape) escape(value) else value)
 		}
 		return sb.toString()
@@ -123,7 +121,7 @@ object Formatter {
 	 * @param f      string function to represent item
 	 * @return joined string representation of items
 	 */
-	fun <T> joinAndQuote(items: Array<T>?, delim: CharSequence?, escape: Boolean, f: Function<T, String?>?): String {
+	fun <T> joinAndQuote(items: Array<T>?, delim: CharSequence?, escape: Boolean, f: ((T) -> String)?): String {
 		if (items == null) {
 			return ""
 		}
@@ -135,7 +133,7 @@ object Formatter {
 			} else {
 				sb.append(delim)
 			}
-			val value = if (f == null) item.toString() else f.apply(item)!!
+			val value = f?.invoke(item) ?: item.toString()
 			if (value.matches("\".*\"".toRegex())) {
 				sb.append(if (escape) escape(value) else value)
 			} else {
@@ -156,7 +154,7 @@ object Formatter {
 	 * @param f           string function to represent item
 	 * @return joined string representation of items preceded by count
 	 */
-	fun <T> joinNum(items: Collection<T>?, countFormat: String?, f: Function<T, String?>): String {
+	fun <T> joinNum(items: Collection<T>?, countFormat: String?, f: (T) -> String): String {
 		if (items == null) {
 			return ""
 		}
@@ -164,7 +162,7 @@ object Formatter {
 		sb.append(String.format(countFormat!!, items.size))
 		for (item in items) {
 			sb.append(' ')
-			val value = f.apply(item)
+			val value = f.invoke(item)
 			sb.append(value)
 		}
 		return sb.toString()
