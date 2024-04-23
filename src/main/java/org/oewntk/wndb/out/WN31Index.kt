@@ -56,7 +56,7 @@ object WN31Index {
 
 		val url = checkNotNull(WN31Index::class.java.getResource(RES))
 		try {
-			BufferedReader(InputStreamReader(url.openStream(), StandardCharsets.UTF_8)).use {
+			BufferedReader(InputStreamReader(url.openStream(), StandardCharsets.UTF_8)).use { it ->
 				var line: String
 				while ((it.readLine().also { line = it }) != null) {
 					if (line.isEmpty()) {
