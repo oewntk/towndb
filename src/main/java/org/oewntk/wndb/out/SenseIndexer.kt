@@ -4,7 +4,6 @@ import org.oewntk.model.Sense
 import org.oewntk.model.SenseGroupings.KeyLCLemmaAndPos.Companion.of
 import org.oewntk.model.SenseGroupings.sensesByLCLemmaAndPos
 import java.io.PrintStream
-import java.util.stream.Collectors
 
 /**
  * This class produces the 'index.sense' file
@@ -27,33 +26,38 @@ class SenseIndexer(
 		val groupedSenses = sensesByLCLemmaAndPos(senses)
 
 		// collect
-		senses.stream() //
-			.sorted(Comparator.comparing(Sense::senseKey))
-			.forEach { sense: Sense ->
+		senses
+			.asSequence()
+			.sortedBy(Sense::senseKey)
+			.forEach {
 
-				// sense
-				val sensekey = sense.senseKey
+				// sensekey
+				val sensekey = it.senseKey
 
 				// offset
-				val synsetId = sense.synsetId
+				val synsetId = it.synsetId
 				val offset = offsets[synsetId]!!
 
 				// sense num
 				val senseNum: Int
 				if ((flags and Flags.NO_REINDEX) == 0) {
-					val k = of(sense)
+					val k = of(it)
 					// this will yield diverging sensenums to senses varying only in lemma, not synsetid target, e.g. a%1:10:00:: and a%1:10:01::
-					// var kSenses = groupedSenses.get(k).stream().sorted(SenseGroupings.byDecreasingTagCount).collect(Collectors.toList());
+					// var kSenses = groupedSenses.get(k).sortedWith(SenseGroupings.BY_DECREASING_TAGCOUNT).toList()
 					// senseNum = kSenses.indexOf(sense) + 1;
 					// the following will yield the same sensenum to senses varying only in lemma, not synsetid target, e.g. a%1:10:00:: and a%1:10:01::
-					val kTargetSynsetIds = groupedSenses[k]!!.stream().sorted(SenseComparator.WNDB_SENSE_ORDER).map { s: Sense -> s.synsetId }.distinct().collect(Collectors.toList())
-					senseNum = kTargetSynsetIds.indexOf(sense.synsetId) + 1
+					val kTargetSynsetIds = groupedSenses[k]!!
+						.sortedWith(SenseComparator.WNDB_SENSE_ORDER)
+						.map { it2 -> it2.synsetId }
+						.distinct()
+						.toList()
+					senseNum = kTargetSynsetIds.indexOf(it.synsetId) + 1
 				} else {
-					senseNum = sense.lexIndex + 1
+					senseNum = it.lexIndex + 1
 				}
 
 				// tag count
-				val tagCount = sense.intTagCount
+				val tagCount = it.intTagCount
 
 				// print
 				printSenseEntry(sensekey, offset, senseNum, tagCount, ps)

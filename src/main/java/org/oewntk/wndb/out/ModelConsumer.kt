@@ -7,8 +7,6 @@ import org.oewntk.model.*
 import java.io.*
 import java.nio.charset.StandardCharsets
 import java.util.function.Consumer
-import java.util.stream.Collectors
-import java.util.stream.Stream
 
 /**
  * Main class that generates the WN database in the WNDB format as per wndb(5WN)
@@ -169,7 +167,8 @@ class ModelConsumer(
 				.toList()
 				.sortedBy { it.value }
 				.forEach {
-					ps.printf("%02d\t%s\t%d%n", it.value, it.key, posNameToInt(it.key.split("\\.".toRegex()).dropLastWhile { it2 ->it2.isEmpty() }.toTypedArray()[0])) }
+					ps.printf("%02d\t%s\t%d%n", it.value, it.key, posNameToInt(it.key.split("\\.".toRegex()).dropLastWhile { it2 -> it2.isEmpty() }.toTypedArray()[0]))
+				}
 		}
 		Tracing.psInfo.printf("Lexfiles: %d%n", Coder.LEXFILE_TO_NUM.size)
 	}
@@ -185,7 +184,7 @@ class ModelConsumer(
 
 		PrintStream(FileOutputStream(File(dir, "verb.Framestext")), true, StandardCharsets.UTF_8).use { ps ->
 			verbFrames.withIndex()
-				.map { (i, vf) -> getVerbFrameNID(vf, i+1) to vf }
+				.map { (i, vf) -> getVerbFrameNID(vf, i + 1) to vf }
 				.sortedBy { it.first }
 				.forEach { ps.printf("%d %s%n", it.first, it.second.frame) }
 		}
@@ -333,10 +332,9 @@ class ModelConsumer(
 		/**
 		 * Map frame id (via, ...) to numeric id
 		 */
-		private val VERB_FRAME_ID_TO_NIDS: MutableMap<String, Int> = Stream.of(*VERBFRAME_VALUES).collect(Collectors.toMap(
-			{ it[0] as String },
-			{ it[1] as Int })
-		)
+		private val VERB_FRAME_ID_TO_NIDS = sequenceOf(*VERBFRAME_VALUES)
+			.map { it[0] as String to it[1] as Int }
+			.toMap()
 
 		/**
 		 * Get verb frame nid

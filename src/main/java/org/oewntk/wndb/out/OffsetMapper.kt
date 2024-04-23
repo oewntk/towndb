@@ -10,9 +10,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.PrintStream
 import java.nio.charset.StandardCharsets
-import java.nio.file.Files
 import java.util.function.Consumer
-import java.util.stream.Collectors
 
 /**
  * Main class that generates the serialized synsetId to offset map
@@ -73,9 +71,10 @@ class OffsetMapper(
 		@Throws(IOException::class)
 		fun writeOffsets(offsets: Map<String, Long>, file: File) {
 			PrintStream(FileOutputStream(file), true, StandardCharsets.UTF_8).use { ps ->
-				offsets.keys.stream() //
-					.sorted() //
-					.forEach { k: String? -> ps.printf("%s %d%n", k, offsets[k]) }
+				offsets.keys
+					.asSequence()
+					.sorted()
+					.forEach { ps.printf("%s %d%n", it, offsets[it]) }
 			}
 		}
 
@@ -88,12 +87,11 @@ class OffsetMapper(
 		 */
 		@Throws(IOException::class)
 		fun readOffsets(file: File): Map<String, Long> {
-			Files.lines(file.toPath()).use { s ->
-				return s //
+			return file.useLines { lines ->
+				lines
 					.map { it.split("\\s".toRegex()).dropLastWhile { it2 -> it2.isEmpty() }.toTypedArray() }
-					.collect(Collectors.toMap(
-						{ it[0] },
-						{ it[1].toLong() }))
+					.map { it[0] to it[1].toLong() }
+					.toMap()
 			}
 		}
 	}

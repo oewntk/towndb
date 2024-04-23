@@ -8,7 +8,6 @@ import org.oewntk.model.SenseGroupings.sensesByLCLemmaAndPos
 import org.oewntk.model.Synset
 import java.io.PrintStream
 import java.util.*
-import java.util.stream.Collectors
 
 /**
  * This class produces the 'index.{noun|verb|adj|adv}' files
@@ -58,14 +57,16 @@ class WordIndexer(
 		val indexEntries: MutableMap<String, IndexEntry> = TreeMap()
 
 		val groupedSenses = sensesByLCLemmaAndPos(senses)
-		groupedSenses.entries.stream()
+		groupedSenses.entries
+			.asSequence()
 			.filter { it.key.pos == posFilter }
-			.sorted(Comparator.comparing { it.key.lcLemma.replace(' ', '_') })
+			.sortedBy { it.key.lcLemma.replace(' ', '_') }
 			.forEach {
 				val k = it.key
-				val kSenses = it.value.stream()
-					.sorted(SenseComparator.WNDB_SENSE_ORDER)
-					.collect(Collectors.toList())
+				val kSenses = it.value
+					.asSequence()
+					.sortedWith(SenseComparator.WNDB_SENSE_ORDER)
+					.toList()
 
 				val lcLemma = k.lcLemma
 				val pos = k.pos

@@ -56,9 +56,9 @@ object WN31Index {
 
 		val url = checkNotNull(WN31Index::class.java.getResource(RES))
 		try {
-			BufferedReader(InputStreamReader(url.openStream(), StandardCharsets.UTF_8)).use { reader ->
+			BufferedReader(InputStreamReader(url.openStream(), StandardCharsets.UTF_8)).use {
 				var line: String
-				while ((reader.readLine().also { line = it }) != null) {
+				while ((it.readLine().also { line = it }) != null) {
 					if (line.isEmpty()) {
 						continue
 					}
@@ -86,6 +86,8 @@ object WN31Index {
 	@JvmStatic
 	fun main(ignoredArgs: Array<String>) {
 		val list = listOf("eight%1:06:00::", "eight%1:14:00::", "eight%1:23:00::")
-		list.stream().sorted(WN31_SK_COMPARATOR).forEach { x: String? -> println(x) }
+		list
+			.sortedWith(WN31_SK_COMPARATOR)
+			.forEach { println(it) }
 	}
 }
