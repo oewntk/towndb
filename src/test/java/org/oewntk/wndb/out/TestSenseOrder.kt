@@ -142,11 +142,19 @@ class TestSenseOrder {
 	}
 
 	@Test
-	fun testCompare() {
+	fun testCompareLanguageSoothsayer() {
 		testCompareWith(senseLanguage, senseSoothsayer, WNDB_SENSE_ORDER_BY_TAGCOUNT)
 		testCompareWith(senseLanguage, senseSoothsayer, WNDB_SENSE_ORDER_BY_WN31)
 		testCompareWith(senseLanguage, senseSoothsayer, WNDB_SENSE_ORDER_BY_TAIL)
 		testCompareWith(senseLanguage, senseSoothsayer, WNDB_SENSE_ORDER)
+	}
+
+	@Test
+	fun testCompareLanguageDragon() {
+		testCompareWith(senseLanguage, senseDragon, WNDB_SENSE_ORDER_BY_TAGCOUNT)
+		testCompareWith(senseLanguage, senseDragon, WNDB_SENSE_ORDER_BY_WN31)
+		testCompareWith(senseLanguage, senseDragon, WNDB_SENSE_ORDER_BY_TAIL)
+		testCompareWith(senseLanguage, senseDragon, WNDB_SENSE_ORDER)
 	}
 
 	// C O M P O U N D  C O M P A R A T O R
@@ -169,7 +177,7 @@ class TestSenseOrder {
 	@Test
 	fun testSortWithSenseOrderExpected() {
 		val order = testSortWith(WNDB_SENSE_ORDER).map { it.short }
-		assertEquals(listOf("boa", "soothsayer", "dragon", "language"), order)
+		assertEquals(listOf("boa", "Language", "soothsayer", "Dragon"), order)
 	}
 
 	// S P E C I F I  C   C O M P A R A T O R S
