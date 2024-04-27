@@ -47,14 +47,18 @@ object WN31Index {
 	/**
 	 * Read indexes from resource index.sense.31, a stripped-down version of index sense with three columns
 	 * sensekey index tagcount
-	 *
+	 * sense_number or index is a decimal integer indicating the sense number of the word, within the part of speech encoded in sense_key , in the WordNet database.
+	 * ```
+	 * How sense numbers are assigned [from wndb(5WN) Sense Numbers section]
+	 * Senses in WordNet are generally ordered from most to least frequently used, with the most common sense numbered 1.
+	 * Frequency of use is determined by the number of times a sense is tagged in the various semantic concordance texts.
+	 * Senses that are not semantically tagged follow the ordered senses. The tagsense_cnt field for each entry in the index.pos files indicates how many of the senses in the list have been tagged.
+	 * ```
 	 * @return sensekey-to-index map
 	 */
 	private fun readIndexes(): Map<String, Int> {
-
-		val map: MutableMap<String, Int> = HashMap()
-
 		val url = checkNotNull(WN31Index::class.java.getResource(RES))
+		val map: MutableMap<String, Int> = HashMap()
 		try {
 			BufferedReader(InputStreamReader(url.openStream(), StandardCharsets.UTF_8)).use { reader ->
 				reader.useLines { lines ->
@@ -62,9 +66,9 @@ object WN31Index {
 						if (line.isNotEmpty()) {
 							try {
 								val fields = line.split("\\s".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-								val field1 = fields[0]
-								val field2 = fields[1].toInt()
-								map[field1] = field2
+								val senseKey = fields[0] // .trimEnd { it == ':' }
+								val index = fields[1].toInt()
+								map[senseKey] = index
 							} catch (e: RuntimeException) {
 								Tracing.psErr.println("[E] reading at line '$line' $e")
 							}
@@ -76,6 +80,10 @@ object WN31Index {
 			Tracing.psErr.println("[E] reading WN31 index $e")
 		}
 		return map
+	}
+
+	fun getWN31SenseIndex(sense: Sense): Int? {
+		return SK2INDEX[sense.senseKey]
 	}
 
 	/**

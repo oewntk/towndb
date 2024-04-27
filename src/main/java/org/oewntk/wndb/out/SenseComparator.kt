@@ -14,7 +14,7 @@ object SenseComparator {
 	/**
 	 * Tail comparator, after head comparators fail
 	 */
-	private val WNDB_SENSE_ORDER_TAIL: Comparator<Sense> = Comparator { s1: Sense, s2: Sense ->
+	val WNDB_SENSE_ORDER_TAIL: Comparator<Sense> = Comparator { s1: Sense, s2: Sense ->
 
 		// sense are equal
 		if (s1 == s2) {
