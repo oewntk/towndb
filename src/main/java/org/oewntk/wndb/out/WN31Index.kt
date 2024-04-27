@@ -56,19 +56,19 @@ object WN31Index {
 
 		val url = checkNotNull(WN31Index::class.java.getResource(RES))
 		try {
-			BufferedReader(InputStreamReader(url.openStream(), StandardCharsets.UTF_8)).use { it ->
-				var line: String
-				while ((it.readLine().also { line = it }) != null) {
-					if (line.isEmpty()) {
-						continue
-					}
-					try {
-						val fields = line.split("\\s".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-						val field1 = fields[0]
-						val field2 = fields[1].toInt()
-						map[field1] = field2
-					} catch (e: RuntimeException) {
-						Tracing.psErr.println("[E] reading at line '$line' $e")
+			BufferedReader(InputStreamReader(url.openStream(), StandardCharsets.UTF_8)).use { reader ->
+				reader.useLines { lines ->
+					lines.forEach { line ->
+						if (line.isNotEmpty()) {
+							try {
+								val fields = line.split("\\s".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+								val field1 = fields[0]
+								val field2 = fields[1].toInt()
+								map[field1] = field2
+							} catch (e: RuntimeException) {
+								Tracing.psErr.println("[E] reading at line '$line' $e")
+							}
+						}
 					}
 				}
 			}
