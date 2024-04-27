@@ -13,13 +13,22 @@ import org.oewntk.wndb.out.SenseComparator.WNDB_SENSE_ORDER_TAIL
 
 class TestSenseOrder {
 
-	val WNDB_SENSE_ORDER_BY_TAGCOUNT: Comparator<Sense> = SenseGroupings.BY_DECREASING_TAGCOUNT
+	// C O M P A R A T O R S
 
-	val WNDB_SENSE_ORDER_BY_WN31: Comparator<Sense> = WN31Index.SENSE_ORDER
+	private val WNDB_SENSE_ORDER_BY_TAGCOUNT: Comparator<Sense> = SenseGroupings.BY_DECREASING_TAGCOUNT
 
-	val WNDB_SENSE_ORDER_BY_TAIL: Comparator<Sense> = WNDB_SENSE_ORDER_TAIL
+	private val WNDB_SENSE_ORDER_BY_WN31: Comparator<Sense> = WN31Index.SENSE_ORDER
 
-	val comparatorNames = mapOf(
+	private val WNDB_SENSE_ORDER_BY_TAIL: Comparator<Sense> = WNDB_SENSE_ORDER_TAIL
+
+	private val comparators = arrayOf(
+		WNDB_SENSE_ORDER_BY_TAGCOUNT,
+		WNDB_SENSE_ORDER_BY_WN31,
+		WNDB_SENSE_ORDER_BY_TAIL,
+		WNDB_SENSE_ORDER
+	)
+
+	private val comparatorNames = mapOf(
 		WNDB_SENSE_ORDER to "global",
 		WNDB_SENSE_ORDER_BY_TAGCOUNT to "tagcount",
 		WNDB_SENSE_ORDER_BY_WN31 to "wn31",
@@ -28,6 +37,8 @@ class TestSenseOrder {
 
 	private val Comparator<Sense>.short
 		get() = comparatorNames[this]
+
+	// S E N S E S
 
 	// Python:
 	//  n:
@@ -60,8 +71,8 @@ class TestSenseOrder {
 	val defs = mapOf(
 		"01746246-n" to "boa",
 		"10516512-n" to "soothsayer",
-		"09524330-n" to "dragon",
-		"83541804-n" to "language",
+		"09524330-n" to "Dragon",
+		"83541804-n" to "Language",
 	)
 
 	val offsets = mapOf(
@@ -71,16 +82,16 @@ class TestSenseOrder {
 		"83541804-n" to "09662231",
 	)
 
-	val Sense.short
+	private val Sense.short
 		get() = defs[this.synsetId]
 
-	private val lex1 = Lex("Python", "n", null)
-	private val lex2 = Lex("python", "n", null)
-	private val sense1 = Sense("python%1:05:00::", lex2, 'n', 0, "01746246-n", null, null, null, null).apply { tagCount = TagCount(1, 3) }
-	private val sense2 = Sense("python%1:18:01::", lex2, 'n', 1, "10516512-n", null, null, null, null)
-	private val sense3 = Sense("python%1:18:00::", lex1, 'n', 0, "09524330-n", null, null, null, null)
-	private val sense4 = Sense("python%1:10:01::", lex1, 'n', 1, "83541804-n", null, null, null, null)
-	val senses = listOf(sense1, sense2, sense3, sense4)
+	private val lexPythonCapitalized = Lex("Python", "n", null)
+	private val lexPython = Lex("python", "n", null)
+	private val senseBoa = Sense("python%1:05:00::", lexPython, 'n', 0, "01746246-n", null, null, null, null).apply { tagCount = TagCount(1, 3) }
+	private val senseSoothsayer = Sense("python%1:18:01::", lexPython, 'n', 1, "10516512-n", null, null, null, null)
+	private val senseDragon = Sense("python%1:18:00::", lexPythonCapitalized, 'n', 0, "09524330-n", null, null, null, null)
+	private val senseLanguage = Sense("python%1:10:01::", lexPythonCapitalized, 'n', 1, "83541804-n", null, null, null, null)
+	private val senses = listOf(senseBoa, senseSoothsayer, senseDragon, senseLanguage)
 
 	private fun testSortWith(comparator: Comparator<Sense>): List<Sense> {
 		return senses
@@ -98,24 +109,24 @@ class TestSenseOrder {
 		val s: Char = when {
 			c < 0 -> '<'
 			c > 0 -> '>'
-			else -> '='
+			else -> '?'
 		}
 		ps.println("compare ${sense1.short} $s ${sense2.short} by ${comparator.short}")
 	}
 
-	private fun testCompareWith(comparator: Comparator<Sense>) {
+	private fun testCompareWithAllComparatrrs() {
+		testCompareWith(*comparators)
+	}
+
+	private fun testCompareWith(vararg comparators: Comparator<Sense>) {
 		senses
 			.asSequence()
 			.map { it to senses - it }
 			.forEach {
 				it.second.forEach { alt ->
-					val c = comparator.compare(it.first, alt)
-					val s: Char = when {
-						c < 0 -> '<'
-						c > 0 -> '>'
-						else -> '='
+					for (comparator in comparators) {
+						testCompareWith(it.first, alt, comparator)
 					}
-					ps.println("compare ${it.first.short} $s ${alt.short} by ${comparator.short}")
 				}
 				ps.println()
 			}
@@ -132,16 +143,17 @@ class TestSenseOrder {
 
 	@Test
 	fun testCompare() {
-		testCompareWith(sense1, sense2, WNDB_SENSE_ORDER_BY_TAGCOUNT)
-		testCompareWith(sense1, sense2, WNDB_SENSE_ORDER_BY_WN31)
-		testCompareWith(sense1, sense2, WNDB_SENSE_ORDER_BY_TAIL)
-		testCompareWith(sense1, sense2, WNDB_SENSE_ORDER)
+		testCompareWith(senseLanguage, senseSoothsayer, WNDB_SENSE_ORDER_BY_TAGCOUNT)
+		testCompareWith(senseLanguage, senseSoothsayer, WNDB_SENSE_ORDER_BY_WN31)
+		testCompareWith(senseLanguage, senseSoothsayer, WNDB_SENSE_ORDER_BY_TAIL)
+		testCompareWith(senseLanguage, senseSoothsayer, WNDB_SENSE_ORDER)
 	}
 
+	// C O M P O U N D  C O M P A R A T O R
+
 	@Test
-	fun testSortWithWNDBSenseOrder() {
-		val order = testSortWith(WNDB_SENSE_ORDER).map { it.short }
-		assertEquals(listOf("boa", "soothsayer", "dragon", "language"), order)
+	fun testCompareWithAll() {
+		testCompareWith(*comparators)
 	}
 
 	@Test
@@ -155,12 +167,15 @@ class TestSenseOrder {
 	}
 
 	@Test
-	fun testCompareBySenseOrder() {
-		testCompareWith(WNDB_SENSE_ORDER)
+	fun testSortWithSenseOrderExpected() {
+		val order = testSortWith(WNDB_SENSE_ORDER).map { it.short }
+		assertEquals(listOf("boa", "soothsayer", "dragon", "language"), order)
 	}
 
+	// S P E C I F I  C   C O M P A R A T O R S
+
 	@Test
-	fun testOrderByWN31() {
+	fun testSortWithWN31() {
 		testSortWith(WNDB_SENSE_ORDER_BY_WN31)
 	}
 
@@ -170,7 +185,7 @@ class TestSenseOrder {
 	}
 
 	@Test
-	fun testOrderByTagCount() {
+	fun testSortWithTagCount() {
 		testSortWith(WNDB_SENSE_ORDER_BY_TAGCOUNT)
 	}
 
@@ -180,7 +195,7 @@ class TestSenseOrder {
 	}
 
 	@Test
-	fun testOrderByTail() {
+	fun testSortWithTail() {
 		testSortWith(WNDB_SENSE_ORDER_BY_TAIL)
 	}
 

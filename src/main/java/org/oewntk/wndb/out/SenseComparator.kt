@@ -16,14 +16,10 @@ object SenseComparator {
 	 */
 	val WNDB_SENSE_ORDER_TAIL: Comparator<Sense> = Comparator { s1: Sense, s2: Sense ->
 
-		// sense are equal
+		// senses are equal
 		if (s1 == s2) {
 			return@Comparator 0
 		}
-
-		// same tag count, possibly zero
-		val lemma1 = s1.lemma
-		val lemma2 = s2.lemma
 
 		// type a before s
 		if (s1.type != s2.type) {
@@ -38,6 +34,8 @@ object SenseComparator {
 		}
 
 		// different lemmas, upper-case first
+		val lemma1 = s1.lemma
+		val lemma2 = s2.lemma
 		val cmpCase = lemma1.compareTo(lemma2)
 		if (cmpCase != 0) {
 			// different lemmas, upper-case first
