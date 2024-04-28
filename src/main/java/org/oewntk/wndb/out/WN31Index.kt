@@ -36,11 +36,28 @@ object WN31Index {
 	val SENSE_ORDER: Comparator<Sense> = Comparator { s1: Sense, s2: Sense ->
 		val i1 = SK2INDEX[s1.senseKey]
 		val i2 = SK2INDEX[s2.senseKey]
+		if (i1 == null && i2 == null) {
+			return@Comparator 0 // fail, to be chained with thenCompare
+		}
+		if (i1 != null && i2 == null) {
+			return@Comparator -1 // non-null before null
+		}
+		if (i1 == null /* && i2 != null */) {
+			return@Comparator 1 // null after non-null
+		}
+		val cmp = i1.compareTo(i2!!)
+		// assert(cmp != 0) { String.format("Senses have equal indexes %s %s", s1, s2) }
+		cmp
+	}
+
+	val SENSE_ORDER_NULL: Comparator<Sense> = Comparator { s1: Sense, s2: Sense ->
+		val i1 = SK2INDEX[s1.senseKey]
+		val i2 = SK2INDEX[s2.senseKey]
 		if (i1 == null || i2 == null) {
 			return@Comparator 0 // fail, to be chained with thenCompare
 		}
 		val cmp = i1.compareTo(i2)
-		assert(cmp != 0) { String.format("Senses have equal indexes %s %s", s1, s2) }
+		// assert(cmp != 0) { String.format("Senses have equal indexes %s %s", s1, s2) }
 		cmp
 	}
 

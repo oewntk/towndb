@@ -177,7 +177,7 @@ class TestSenseOrder {
 	@Test
 	fun testSortWithSenseOrderExpected() {
 		val order = testSortWith(WNDB_SENSE_ORDER).map { it.short }
-		assertEquals(listOf("boa", "Language", "soothsayer", "Dragon"), order)
+		assertEquals(listOf("boa", "soothsayer", "Dragon", "Language"), order)
 	}
 
 	// S P E C I F I  C   C O M P A R A T O R S
