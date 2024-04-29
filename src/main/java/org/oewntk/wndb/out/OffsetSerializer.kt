@@ -93,6 +93,7 @@ class OffsetSerializer(
 		 * @throws IOException            io exception
 		 * @throws ClassNotFoundException class not found exception
 		 */
+		@Suppress("UNCHECKED_CAST")
 		@Throws(IOException::class, ClassNotFoundException::class)
 		fun deSerializedOffsets(file: File): Map<String, Long> {
 			FileInputStream(file).use { s ->
