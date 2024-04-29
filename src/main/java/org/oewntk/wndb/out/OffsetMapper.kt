@@ -22,77 +22,78 @@ import java.util.function.Consumer
  * @author Bernard Bou
  */
 class OffsetMapper(
-	private val outDir: File,
-	private val flags: Int,
-	private val ps: PrintStream
+    private val outDir: File,
+    private val flags: Int,
+    private val ps: PrintStream,
 ) : Consumer<Model> {
 
-	override fun accept(model: Model) {
-		try {
-			grind(model)
-		} catch (e: IOException) {
-			e.printStackTrace(Tracing.psErr)
-		}
-	}
+    override fun accept(model: Model) {
+        try {
+            grind(model)
+        } catch (e: IOException) {
+            e.printStackTrace(Tracing.psErr)
+        }
+    }
 
-	/**
-	 * Grind
-	 *
-	 * @param model model
-	 * @throws IOException io exception
-	 */
-	@Throws(IOException::class)
-	fun grind(model: CoreModel) {
-		// Model
-		ps.printf("[CoreModel] %s%n", model.source)
+    /**
+     * Grind
+     *
+     * @param model model
+     * @throws IOException io exception
+     */
+    @Throws(IOException::class)
+    fun grind(model: CoreModel) {
+        // Model
+        ps.printf("[CoreModel] %s%n", model.source)
 
-		// Output
-		if (!outDir.exists()) {
-			outDir.mkdirs()
-		}
+        // Output
+        if (!outDir.exists()) {
+            outDir.mkdirs()
+        }
 
-		// Compute synset offsets
-		val offsets = GrindOffsets(model.lexesByLemma!!, model.synsetsById!!, model.sensesById!!, flags).compute()
+        // Compute synset offsets
+        val offsets = GrindOffsets(model.lexesByLemma!!, model.synsetsById!!, model.sensesById!!, flags).compute()
 
-		// Serialize offsets
-		writeOffsets(offsets, File(outDir, FILE_OFFSET_MAP))
-	}
+        // Serialize offsets
+        writeOffsets(offsets, File(outDir, FILE_OFFSET_MAP))
+    }
 
-	companion object {
-		const val FILE_OFFSET_MAP: String = "offsets.map"
+    companion object {
 
-		/**
-		 * Write offsets to file
-		 *
-		 * @param offsets offsets by synset id
-		 * @param file    out file
-		 * @throws IOException io exception
-		 */
-		@Throws(IOException::class)
-		fun writeOffsets(offsets: Map<String, Long>, file: File) {
-			PrintStream(FileOutputStream(file), true, StandardCharsets.UTF_8).use { ps ->
-				offsets.keys
-					.asSequence()
-					.sorted()
-					.forEach { ps.printf("%s %d%n", it, offsets[it]) }
-			}
-		}
+        const val FILE_OFFSET_MAP: String = "offsets.map"
 
-		/**
-		 * Read offsets from file
-		 *
-		 * @param file in file
-		 * @return offsets by synset id
-		 * @throws IOException io exception
-		 */
-		@Throws(IOException::class)
-		fun readOffsets(file: File): Map<String, Long> {
-			return file.useLines { lines ->
-				lines
-					.map { it.split("\\s".toRegex()).dropLastWhile { it2 -> it2.isEmpty() }.toTypedArray() }
-					.map { it[0] to it[1].toLong() }
-					.toMap()
-			}
-		}
-	}
+        /**
+         * Write offsets to file
+         *
+         * @param offsets offsets by synset id
+         * @param file    out file
+         * @throws IOException io exception
+         */
+        @Throws(IOException::class)
+        fun writeOffsets(offsets: Map<String, Long>, file: File) {
+            PrintStream(FileOutputStream(file), true, StandardCharsets.UTF_8).use { ps ->
+                offsets.keys
+                    .asSequence()
+                    .sorted()
+                    .forEach { ps.printf("%s %d%n", it, offsets[it]) }
+            }
+        }
+
+        /**
+         * Read offsets from file
+         *
+         * @param file in file
+         * @return offsets by synset id
+         * @throws IOException io exception
+         */
+        @Throws(IOException::class)
+        fun readOffsets(file: File): Map<String, Long> {
+            return file.useLines { lines ->
+                lines
+                    .map { it.split("\\s".toRegex()).dropLastWhile { it2 -> it2.isEmpty() }.toTypedArray() }
+                    .map { it[0] to it[1].toLong() }
+                    .toMap()
+            }
+        }
+    }
 }

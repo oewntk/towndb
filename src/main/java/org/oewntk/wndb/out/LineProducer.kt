@@ -16,46 +16,46 @@ import org.oewntk.model.Synset
  * @author Bernard Bou
  */
 class LineProducer(
-	private val flags: Int
+    private val flags: Int,
 ) : (CoreModel, String) -> String {
 
-	override fun invoke(model: CoreModel, synsetId: String): String {
+    override fun invoke(model: CoreModel, synsetId: String): String {
 
-		// Compute synset offsets
-		val offsets = GrindOffsets(model.lexesByLemma!!, model.synsetsById!!, model.sensesById!!, flags).compute()
+        // Compute synset offsets
+        val offsets = GrindOffsets(model.lexesByLemma!!, model.synsetsById!!, model.sensesById!!, flags).compute()
 
-		// Get synset
-		val synset = model.synsetsById!![synsetId]!!
-		val offset = offsets[synsetId]!!
-		require(offsets.containsValue(offset)) { String.format("%d is not a valid offset", offset) }
+        // Get synset
+        val synset = model.synsetsById!![synsetId]!!
+        val offset = offsets[synsetId]!!
+        require(offsets.containsValue(offset)) { String.format("%d is not a valid offset", offset) }
 
-		// Produce line
-		return data(synset, offset, model.lexesByLemma!!, model.synsetsById!!, model.sensesById!!, offsets, flags)
-	}
+        // Produce line
+        return data(synset, offset, model.lexesByLemma!!, model.synsetsById!!, model.sensesById!!, offsets, flags)
+    }
 
-	companion object {
+    companion object {
 
-		/**
-		 * Grind data for this synset
-		 *
-		 * @param synset       synset
-		 * @param offset       offset
-		 * @param lexesByLemma lexes mapped by lemma
-		 * @param synsetsById  synset elements mapped by id
-		 * @param sensesById   sense elements mapped by id
-		 * @param offsets      offsets mapped by synsetId
-		 * @param flags        flags
-		 * @return line
-		 */
-		fun data(
-			synset: Synset, offset: Long,  //
-			lexesByLemma: Map<String, Collection<Lex>>,  //
-			synsetsById: Map<String, Synset>,  //
-			sensesById: Map<String, Sense>,  //
-			offsets: Map<String, Long>, flags: Int
-		): String {
-			val factory = GrindSynsets(lexesByLemma, synsetsById, sensesById, offsets, flags)
-			return factory.getData(synset, offset)
-		}
-	}
+        /**
+         * Grind data for this synset
+         *
+         * @param synset       synset
+         * @param offset       offset
+         * @param lexesByLemma lexes mapped by lemma
+         * @param synsetsById  synset elements mapped by id
+         * @param sensesById   sense elements mapped by id
+         * @param offsets      offsets mapped by synsetId
+         * @param flags        flags
+         * @return line
+         */
+        fun data(
+            synset: Synset, offset: Long,  //
+            lexesByLemma: Map<String, Collection<Lex>>,  //
+            synsetsById: Map<String, Synset>,  //
+            sensesById: Map<String, Sense>,  //
+            offsets: Map<String, Long>, flags: Int,
+        ): String {
+            val factory = GrindSynsets(lexesByLemma, synsetsById, sensesById, offsets, flags)
+            return factory.getData(synset, offset)
+        }
+    }
 }

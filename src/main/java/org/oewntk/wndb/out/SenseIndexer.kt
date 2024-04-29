@@ -12,86 +12,87 @@ import java.io.PrintStream
  * @param offsets synset offsets map indexed by synsetid key
  */
 class SenseIndexer(
-	private val flags: Int,
-	private val offsets: Map<String, Long>
+    private val flags: Int,
+    private val offsets: Map<String, Long>,
 ) {
-	/**
-	 * Make senses
-	 *
-	 * @param ps     print stream
-	 * @param senses senses
-	 */
-	fun make(ps: PrintStream, senses: Collection<Sense>) {
 
-		val groupedSenses = sensesByLCLemmaAndPos(senses)
+    /**
+     * Make senses
+     *
+     * @param ps     print stream
+     * @param senses senses
+     */
+    fun make(ps: PrintStream, senses: Collection<Sense>) {
 
-		// collect
-		senses
-			.asSequence()
-			.sortedBy(Sense::senseKey)
-			.forEach {
+        val groupedSenses = sensesByLCLemmaAndPos(senses)
 
-				// sensekey
-				val sensekey = it.senseKey
+        // collect
+        senses
+            .asSequence()
+            .sortedBy(Sense::senseKey)
+            .forEach {
 
-				// offset
-				val synsetId = it.synsetId
-				val offset = offsets[synsetId]!!
+                // sensekey
+                val sensekey = it.senseKey
 
-				// sense num
-				val senseNum: Int
-				if ((flags and Flags.NO_REINDEX) == 0) {
-					val k = of(it)
-					// this will yield diverging sensenums to senses varying only in lemma, not synsetid target, e.g. a%1:10:00:: and a%1:10:01::
-					// var kSenses = groupedSenses.get(k).sortedWith(SenseGroupings.BY_DECREASING_TAGCOUNT).toList()
-					// senseNum = kSenses.indexOf(sense) + 1;
-					// the following will yield the same sensenum to senses varying only in lemma, not synsetid target, e.g. a%1:10:00:: and a%1:10:01::
-					val kTargetSynsetIds = groupedSenses[k]!!
-						.sortedWith(SenseComparator.WNDB_SENSE_ORDER)
-						.map { it2 -> it2.synsetId }
-						.distinct()
-						.toList()
-					senseNum = kTargetSynsetIds.indexOf(it.synsetId) + 1
-				} else {
-					senseNum = it.lexIndex + 1
-				}
+                // offset
+                val synsetId = it.synsetId
+                val offset = offsets[synsetId]!!
 
-				// tag count
-				val tagCount = it.intTagCount
+                // sense num
+                val senseNum: Int
+                if ((flags and Flags.NO_REINDEX) == 0) {
+                    val k = of(it)
+                    // this will yield diverging sensenums to senses varying only in lemma, not synsetid target, e.g. a%1:10:00:: and a%1:10:01::
+                    // var kSenses = groupedSenses.get(k).sortedWith(SenseGroupings.BY_DECREASING_TAGCOUNT).toList()
+                    // senseNum = kSenses.indexOf(sense) + 1;
+                    // the following will yield the same sensenum to senses varying only in lemma, not synsetid target, e.g. a%1:10:00:: and a%1:10:01::
+                    val kTargetSynsetIds = groupedSenses[k]!!
+                        .sortedWith(SenseComparator.WNDB_SENSE_ORDER)
+                        .map { it2 -> it2.synsetId }
+                        .distinct()
+                        .toList()
+                    senseNum = kTargetSynsetIds.indexOf(it.synsetId) + 1
+                } else {
+                    senseNum = it.lexIndex + 1
+                }
 
-				// print
-				printSenseEntry(sensekey, offset, senseNum, tagCount, ps)
-			}
+                // tag count
+                val tagCount = it.intTagCount
 
-		// log
-		Tracing.psInfo.printf("Senses: %d%n", senses.size)
-	}
+                // print
+                printSenseEntry(sensekey, offset, senseNum, tagCount, ps)
+            }
 
-	/**
-	 * Print sense entry
-	 *
-	 * @param sensekey sensekey
-	 * @param offset   offset
-	 * @param senseNum sense number (index)
-	 * @param tagCount tag count
-	 * @param ps       print stream
-	 */
-	private fun printSenseEntry(sensekey: String, offset: Long, senseNum: Int, tagCount: Int, ps: PrintStream) {
-		val line = String.format(SENSE_FORMAT, sensekey, offset, senseNum, tagCount)
-		ps.println(line)
-	}
+        // log
+        Tracing.psInfo.printf("Senses: %d%n", senses.size)
+    }
 
-	companion object {
+    /**
+     * Print sense entry
+     *
+     * @param sensekey sensekey
+     * @param offset   offset
+     * @param senseNum sense number (index)
+     * @param tagCount tag count
+     * @param ps       print stream
+     */
+    private fun printSenseEntry(sensekey: String, offset: Long, senseNum: Int, tagCount: Int, ps: PrintStream) {
+        val line = String.format(SENSE_FORMAT, sensekey, offset, senseNum, tagCount)
+        ps.println(line)
+    }
 
-		/**
-		 * Format in data file
-		 * ```
-		 * sense_key
-		 * synset_offset
-		 * sense_number
-		 * tag_cnt
-		 * ```
-		 */
-		private const val SENSE_FORMAT = "%s %08d %d %d"
-	}
+    companion object {
+
+        /**
+         * Format in data file
+         * ```
+         * sense_key
+         * synset_offset
+         * sense_number
+         * tag_cnt
+         * ```
+         */
+        private const val SENSE_FORMAT = "%s %08d %d %d"
+    }
 }

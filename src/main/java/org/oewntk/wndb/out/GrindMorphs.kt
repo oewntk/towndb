@@ -14,38 +14,38 @@ import java.util.*
  */
 class GrindMorphs {
 
-	/**
-	 * Make morph files
-	 *
-	 * @param ps           print stream
-	 * @param lexesByLemma lexes mapped by lemma
-	 * @param posFilter    filter selecting lexes
-	 * @return morphs
-	 */
-	fun makeMorph(ps: PrintStream, lexesByLemma: Map<String, Collection<Lex>>, posFilter: Char): Long {
-		val lines: MutableSet<String> = TreeSet()
+    /**
+     * Make morph files
+     *
+     * @param ps           print stream
+     * @param lexesByLemma lexes mapped by lemma
+     * @param posFilter    filter selecting lexes
+     * @return morphs
+     */
+    fun makeMorph(ps: PrintStream, lexesByLemma: Map<String, Collection<Lex>>, posFilter: Char): Long {
+        val lines: MutableSet<String> = TreeSet()
 
-		// iterate lexes
-		var n = 0
-		for ((lemma, lexes) in lexesByLemma) {
-			for (lex in lexes) {
-				if (lex.partOfSpeech != posFilter) {
-					continue
-				}
+        // iterate lexes
+        var n = 0
+        for ((lemma, lexes) in lexesByLemma) {
+            for (lex in lexes) {
+                if (lex.partOfSpeech != posFilter) {
+                    continue
+                }
 
-				val forms = lex.forms
-				if (forms != null) {
-					for (form in forms) {
-						val line = String.format("%s %s", form, lemma)
-						lines.add(line)
-						n++
-					}
-				}
-			}
-		}
-		for (line in lines) {
-			ps.println(line)
-		}
-		return n.toLong()
-	}
+                val forms = lex.forms
+                if (forms != null) {
+                    for (form in forms) {
+                        val line = String.format("%s %s", form, lemma)
+                        lines.add(line)
+                        n++
+                    }
+                }
+            }
+        }
+        for (line in lines) {
+            ps.println(line)
+        }
+        return n.toLong()
+    }
 }

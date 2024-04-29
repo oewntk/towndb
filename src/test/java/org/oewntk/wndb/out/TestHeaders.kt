@@ -8,12 +8,12 @@ import org.junit.Test
 
 class TestHeaders {
 
-	@Test
-	fun testHeaders() {
-		val pwnHeader = Formatter.PRINCETON_HEADER.length
-		val oewnHeader = Formatter.OEWN_HEADER.length
-		println("PWN $pwnHeader")
-		println("OEWN $oewnHeader")
-		Assert.assertEquals(pwnHeader.toLong(), oewnHeader.toLong())
-	}
+    @Test
+    fun testHeaders() {
+        val pwnHeader = Formatter.PRINCETON_HEADER.length
+        val oewnHeader = Formatter.OEWN_HEADER.length
+        println("PWN $pwnHeader")
+        println("OEWN $oewnHeader")
+        Assert.assertEquals(pwnHeader.toLong(), oewnHeader.toLong())
+    }
 }

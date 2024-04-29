@@ -20,72 +20,73 @@ import java.nio.charset.StandardCharsets
  * @author Bernard Bou
  */
 class GrindOffsets(
-	lexesByLemma: Map<String, Collection<Lex>>,
-	synsetsById: Map<String, Synset>,
-	sensesById: Map<String, Sense>,
-	flags: Int
+    lexesByLemma: Map<String, Collection<Lex>>,
+    synsetsById: Map<String, Synset>,
+    sensesById: Map<String, Sense>,
+    flags: Int,
 ) :
-	SynsetProcessor(lexesByLemma, synsetsById, sensesById, { 0L }, flags) {
+    SynsetProcessor(lexesByLemma, synsetsById, sensesById, { 0L }, flags) {
 
-	/**
-	 * Log things on the first pass
-	 */
-	override fun log(): Boolean {
-		return false
-	}
+    /**
+     * Log things on the first pass
+     */
+    override fun log(): Boolean {
+        return false
+    }
 
-	/**
-	 * Compute synset offsets
-	 *
-	 * @param posFilter     selection of synsets
-	 * @param offsets       result map
-	 */
-	private fun compute(posFilter: Char, offsets: MutableMap<String, Long>) {
-		var offset = Formatter.OEWN_HEADER.toByteArray(StandardCharsets.UTF_8).size.toLong()
+    /**
+     * Compute synset offsets
+     *
+     * @param posFilter     selection of synsets
+     * @param offsets       result map
+     */
+    private fun compute(posFilter: Char, offsets: MutableMap<String, Long>) {
+        var offset = Formatter.OEWN_HEADER.toByteArray(StandardCharsets.UTF_8).size.toLong()
 
-		// iterate synsets
-		for ((id, synset) in synsetsById) {
-			if (synset.partOfSpeech != posFilter) {
-				continue
-			}
+        // iterate synsets
+        for ((id, synset) in synsetsById) {
+            if (synset.partOfSpeech != posFilter) {
+                continue
+            }
 
-			val data = getData(synset, dummyOfs)
-			offsets[id] = offset
+            val data = getData(synset, dummyOfs)
+            offsets[id] = offset
 
-			offset += data.toByteArray(StandardCharsets.UTF_8).size.toLong()
-		}
-	}
+            offset += data.toByteArray(StandardCharsets.UTF_8).size.toLong()
+        }
+    }
 
-	/**
-	 * Compute offsets mapped by synsetId
-	 *
-	 * @return map of offsets by synsetId
-	 */
-	fun compute(): Map<String, Long> {
-		val offsets: MutableMap<String, Long> = HashMap()
-		compute(Data.NOUN_POS_FILTER, offsets)
-		compute(Data.VERB_POS_FILTER, offsets)
-		compute(Data.ADJ_POS_FILTER, offsets)
-		compute(Data.ADV_POS_FILTER, offsets)
-		return offsets
-	}
+    /**
+     * Compute offsets mapped by synsetId
+     *
+     * @return map of offsets by synsetId
+     */
+    fun compute(): Map<String, Long> {
+        val offsets: MutableMap<String, Long> = HashMap()
+        compute(Data.NOUN_POS_FILTER, offsets)
+        compute(Data.VERB_POS_FILTER, offsets)
+        compute(Data.ADJ_POS_FILTER, offsets)
+        compute(Data.ADV_POS_FILTER, offsets)
+        return offsets
+    }
 
-	// I M P L E M E N T A T I O N
+    // I M P L E M E N T A T I O N
 
-	private val dummyOfs = offsetFunction.invoke("")
+    private val dummyOfs = offsetFunction.invoke("")
 
-	@Throws(CompatException::class)
-	override fun buildSenseRelation(type: String?, pos: Char, sourceMemberNum: Int, targetSense: Sense?, targetSynset: Synset?, targetSynsetId: String): Data.Relation {
-		val targetType = targetSynset!!.type
-		val pointerCompat = (flags and Flags.POINTER_COMPAT) != 0
-		return Data.Relation(type, pos, targetType, dummyOfs, DUMMY_NUM, DUMMY_NUM, pointerCompat)
-	}
+    @Throws(CompatException::class)
+    override fun buildSenseRelation(type: String?, pos: Char, sourceMemberNum: Int, targetSense: Sense?, targetSynset: Synset?, targetSynsetId: String): Data.Relation {
+        val targetType = targetSynset!!.type
+        val pointerCompat = (flags and Flags.POINTER_COMPAT) != 0
+        return Data.Relation(type, pos, targetType, dummyOfs, DUMMY_NUM, DUMMY_NUM, pointerCompat)
+    }
 
-	override fun buildLexfileNum(synset: Synset): Int {
-		return DUMMY_NUM
-	}
+    override fun buildLexfileNum(synset: Synset): Int {
+        return DUMMY_NUM
+    }
 
-	companion object {
-		private const val DUMMY_NUM = 0
-	}
+    companion object {
+
+        private const val DUMMY_NUM = 0
+    }
 }
