@@ -68,7 +68,7 @@ class TestSenseOrder {
 
     // "python%1:05:00::": {num: 1, cnt: 3}
 
-    val defs = mapOf(
+    private val defs = mapOf(
         "01746246-n" to "boa",
         "10516512-n" to "soothsayer",
         "09524330-n" to "Dragon",
@@ -216,6 +216,7 @@ class TestSenseOrder {
 
         private val ps = if (!System.getProperties().containsKey("SILENT")) Tracing.psInfo else Tracing.psNull
 
+        @Suppress("EmptyMethod")
         @JvmStatic
         @BeforeClass
         fun init() {

@@ -18,9 +18,9 @@ import java.util.function.Consumer
  * @author Bernard Bou
  */
 class OffsetSerializer(
-	private val outDir: File,
-	private val flags: Int,
-	private val ps: PrintStream,
+    private val outDir: File,
+    private val flags: Int,
+    private val ps: PrintStream,
 ) : Consumer<Model> {
 
     override fun accept(model: Model) {
