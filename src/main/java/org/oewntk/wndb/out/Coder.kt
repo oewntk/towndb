@@ -79,7 +79,6 @@ object Coder {
 	 * @param pointerCompat pointer compatibility
 	 * @return code
 	 */
-	@JvmStatic
 	@Throws(CompatException::class)
 	fun codeRelation(type: String, pos: Char, pointerCompat: Boolean): String {
 		when (pos) {
@@ -231,7 +230,6 @@ object Coder {
 	 * @param verbFrameCompat verbFrame compatibility
 	 * @return code
 	 */
-	@JvmStatic
 	@Throws(CompatException::class)
 	fun codeFrameId(frameid0: String, verbFrameCompat: Boolean): Int {
 		val frameid = frameid0.trim { it <= ' ' }
@@ -244,7 +242,6 @@ object Coder {
 
 	// L E X F I L E
 
-	@JvmField
 	val LEXFILE_TO_NUM = mapOf(
 		"adj.all" to 0,
 		"adj.pert" to 1,
@@ -299,7 +296,6 @@ object Coder {
 	 * @param name name of lex file
 	 * @return code
 	 */
-	@JvmStatic
 	fun codeLexFile(name: String): Int {
 		return LEXFILE_TO_NUM[name]!!
 	}

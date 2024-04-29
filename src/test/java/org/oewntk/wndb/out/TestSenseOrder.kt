@@ -213,6 +213,7 @@ class TestSenseOrder {
 	}
 
 	companion object {
+
 		private val ps = if (!System.getProperties().containsKey("SILENT")) Tracing.psInfo else Tracing.psNull
 
 		@JvmStatic

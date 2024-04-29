@@ -21,27 +21,27 @@ protected constructor(
 	/**
 	 * Lexes mapped by lemma
 	 */
-	@JvmField protected val lexesByLemma: Map<String, Collection<Lex>>,
+	protected val lexesByLemma: Map<String, Collection<Lex>>,
 
 	/**
 	 * Synsets mapped by id
 	 */
-	@JvmField protected val synsetsById: Map<String, Synset>,
+	protected val synsetsById: Map<String, Synset>,
 
 	/**
 	 * Senses mapped by id
 	 */
-	@JvmField protected val sensesById: Map<String, Sense>,
+	protected val sensesById: Map<String, Sense>,
 
 	/**
 	 * Function that, when applied to a synsetId, yields the synset offset in the data files. May be dummy constant function.
 	 */
-	@JvmField protected val offsetFunction: (String) -> Long,
+	protected val offsetFunction: (String) -> Long,
 
 	/**
 	 * Flags
 	 */
-	@JvmField protected val flags: Int
+	protected val flags: Int
 ) {
 	/**
 	 * Report incompatibility counts (indexed by cause)
