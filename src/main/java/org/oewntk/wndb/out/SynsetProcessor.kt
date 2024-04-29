@@ -320,7 +320,8 @@ protected constructor(
 	}
 
 	companion object {
-		private const val LOG_DISCARDED = true
+
+		private const val LOG_DISCARDED = false
 
 		private const val LOG_DUPLICATE_RELATION = false
 
