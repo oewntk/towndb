@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2024. Bernard Bou.
+ */
+
 package org.oewntk.wndb.out
 
 import org.oewntk.model.Sense

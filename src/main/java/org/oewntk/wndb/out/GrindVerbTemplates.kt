@@ -1,5 +1,5 @@
 /*
- * Copyright (c) $originalComment.match("Copyright \(c\) (\d+)", 1, "-")2021. Bernard Bou.
+ * Copyright (c) 2024. Bernard Bou.
  */
 package org.oewntk.wndb.out
 
