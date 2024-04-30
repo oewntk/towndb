@@ -53,7 +53,7 @@ class ModelConsumer(
         indexWords(outDir, model.senses, model.synsetsById!!, offsets)
         indexSenses(outDir, model.senses, offsets)
         morphs(outDir, model.lexesByLemma!!)
-        templates(outDir, model.verbTemplatesById)
+        templates(outDir, model.verbTemplatesById!!)
         indexTemplates(outDir, model.sensesById!!)
         verbFrames(outDir, model.verbFrames)
         tagcounts(outDir, model.sensesById!!)
