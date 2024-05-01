@@ -138,7 +138,7 @@ protected constructor(
         // build members ordered set
         val members: MutableList<Data.Member> = ArrayList()
         for (lemma in synset.members) {
-            val sense = checkNotNull(synset.findSenseOf(lemma, lexesByLemma)) { String.format("find sense of '%s' in synset %s", lemma, synset) }
+            val sense = checkNotNull(synset.findSenseOf(lemma, lexesByLemma)) { "find sense of '$lemma' in synset $synset" }
             val member = buildMember(sense)
             members.add(member)
         }
@@ -257,14 +257,14 @@ protected constructor(
 
         // assemble
         val lexIdCompat = (flags and Flags.LEXID_COMPAT) != 0
-        val membersData = Formatter.joinNum(members, "%02x") { m: Data.Member -> m.toWndbString(lexIdCompat) }
-        val relatedData = Formatter.joinNum(relations, "%03d") { obj: Data.Relation -> obj.toWndbString() }
+        val membersData = members.joinToString(separator = " ") { String.format("%02x", it.toWndbString(lexIdCompat)) }
+        val relatedData = relations.joinToString(separator = " ") { String.format("%03d", it.toWndbString()) }
         var verbframesData = frames.toWndbString(type, members.size)
         if (verbframesData.isNotEmpty()) {
             verbframesData = " $verbframesData"
         }
-        val definitionsData = Formatter.join(definitions, "; ")
-        val examplesData = if (examples.isNullOrEmpty()) "" else "; " + Formatter.joinAndQuote(examples, " ", false, null)
+        val definitionsData = definitions.joinToString("; ")
+        val examplesData = if (examples.isNullOrEmpty()) "" else "; " + examples.joinToString(" ")
         return String.format(SYNSET_FORMAT, offset, lexfileNum, type, membersData, relatedData, verbframesData, definitionsData, examplesData)
     }
 
@@ -304,7 +304,7 @@ protected constructor(
         try {
             return codeLexFile(lexfile!!)
         } catch (e: Exception) {
-            throw IllegalArgumentException(String.format("Lexfile '%s' in %s", lexfile, synset.synsetId))
+            throw IllegalArgumentException("Lexfile '$lexfile' in ${synset.synsetId}")
         }
     }
 

@@ -6,6 +6,7 @@ package org.oewntk.wndb.out
 import org.oewntk.model.Sense
 import org.oewntk.model.SenseGroupings.sensesByLCLemmaAndPos
 import org.oewntk.model.Synset
+import org.oewntk.wndb.out.Formatter.joinToStringWithCount
 import java.io.PrintStream
 import java.util.*
 
@@ -228,8 +229,8 @@ class WordIndexer(
      */
     private fun printIndexEntry(key: String, indexEntry: IndexEntry, ps: PrintStream) {
         val nSenses = indexEntry.synsetIds.size
-        val ptrs = Formatter.joinNum(indexEntry.relationPointers, "%d") { it }
-        val ofs = Formatter.join(indexEntry.synsetIds, " ", false) { String.format("%08d", offsets[it]) }
+        val ptrs = indexEntry.relationPointers.joinToStringWithCount(countFormat = "%d")
+        val ofs = indexEntry.synsetIds.joinToString(separator = " ") { String.format("%08d", offsets[it]) }
         val line = String.format(WORD_FORMAT, key, indexEntry.pos, nSenses, ptrs, nSenses, indexEntry.taggedSensesCount, ofs)
         ps.println(line)
     }

@@ -27,7 +27,7 @@ class LineProducer(
         // Get synset
         val synset = model.synsetsById!![synsetId]!!
         val offset = offsets[synsetId]!!
-        require(offsets.containsValue(offset)) { String.format("%d is not a valid offset", offset) }
+        require(offsets.containsValue(offset)) { "$offset is not a valid offset" }
 
         // Produce line
         return data(synset, offset, model.lexesByLemma!!, model.synsetsById!!, model.sensesById!!, offsets, flags)

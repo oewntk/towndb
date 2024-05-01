@@ -4,6 +4,7 @@
 package org.oewntk.wndb.out
 
 import org.oewntk.wndb.out.Coder.codeRelation
+import org.oewntk.wndb.out.Formatter.joinToStringWithCount
 
 /**
  * Intermediate data, that are usually accumulated, not Pojos
@@ -169,7 +170,7 @@ object Data {
                     resultFrames.addAll(framesWithFrameNum)
                 }
             }
-            return Formatter.joinNum(resultFrames, "%02d") { obj: Frame -> obj.toWndbString() }
+            return resultFrames.joinToStringWithCount(countFormat = "%02d") { it.toWndbString() }
         }
     }
 }

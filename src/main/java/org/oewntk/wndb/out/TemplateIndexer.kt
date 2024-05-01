@@ -22,7 +22,8 @@ class TemplateIndexer {
         for ((sensekey, sense) in sensesById) {
             val verbTemplateIds = sense.verbTemplates
             if (!verbTemplateIds.isNullOrEmpty()) {
-                val line = String.format("%s %s", sensekey, Formatter.join(verbTemplateIds, ","))
+                val templates = verbTemplateIds.joinToString( ",")
+                val line = "$sensekey $templates"
                 ps.println(line)
                 n++
             }

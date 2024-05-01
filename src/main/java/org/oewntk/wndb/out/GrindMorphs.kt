@@ -36,7 +36,7 @@ class GrindMorphs {
                 val forms = lex.forms
                 if (forms != null) {
                     for (form in forms) {
-                        val line = String.format("%s %s", form, lemma)
+                        val line = "$form $lemma"
                         lines.add(line)
                         n++
                     }

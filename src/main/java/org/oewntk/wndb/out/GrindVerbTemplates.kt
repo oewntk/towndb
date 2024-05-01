@@ -20,7 +20,7 @@ class GrindVerbTemplates {
     fun makeTemplates(ps: PrintStream, verbTemplatesById: Map<Int, VerbTemplate>) {
         var n: Long = 0
         for ((id, verbTemplate) in verbTemplatesById) {
-            val line = String.format("%s %s", id, verbTemplate.template)
+            val line = "$id ${verbTemplate.template}"
             ps.println(line)
             n++
         }

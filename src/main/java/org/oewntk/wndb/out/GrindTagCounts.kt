@@ -22,12 +22,12 @@ class GrindTagCounts {
         for ((sensekey, sense) in sensesById) {
             val tagCount = sense.tagCount
             if (tagCount != null) {
-                val line = String.format("%s %d %d", sensekey, sense.lexIndex, tagCount.count)
+                val line = "$sensekey ${sense.lexIndex} ${tagCount.count}"
                 ps.println(line)
                 n++
             }
         }
-        Tracing.psInfo.printf("Tag counts reverse: %d%n", n)
+        Tracing.psInfo.println("Tag counts reverse: $n")
     }
 
     /**
@@ -41,7 +41,7 @@ class GrindTagCounts {
         for ((sensekey, sense) in sensesById) {
             val tagCount = sense.tagCount
             if (tagCount != null) {
-                val line = String.format("%d %s %d", tagCount.count, sensekey, sense.lexIndex)
+                val line = "${tagCount.count} $sensekey ${sense.lexIndex}"
                 lines.add(line)
             }
         }
