@@ -47,7 +47,7 @@ object WN31Index {
             return@Comparator 1 // null after non-null
         }
         val cmp = i1.compareTo(i2!!)
-        // assert(cmp != 0) { String.format("Senses have equal indexes %s %s", s1, s2) }
+        // assert(cmp != 0) { "Senses have equal indexes $s1 $s2" }
         cmp
     }
 
@@ -58,7 +58,7 @@ object WN31Index {
             return@Comparator 0 // fail, to be chained with thenCompare
         }
         val cmp = i1.compareTo(i2)
-        // assert(cmp != 0) { String.format("Senses have equal indexes %s %s", s1, s2) }
+        // assert(cmp != 0) { "Senses have equal indexes $s1 $s2" }
         cmp
     }
 
