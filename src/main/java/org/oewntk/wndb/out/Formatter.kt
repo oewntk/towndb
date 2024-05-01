@@ -23,11 +23,11 @@ object Formatter {
     /**
      * Join array of items
      *
-     * @param <T>   type of item
+     * @param T     type of item
      * @param items array of items of type T
      * @param delim delimiter
      * @return joined string representation of items
-    </T> */
+     */
     fun <T> join(items: Array<T>?, delim: CharSequence?): String {
         if (items == null) {
             return ""
@@ -73,12 +73,12 @@ object Formatter {
     /**
      * Join items
      *
-     * @param <T>    type of item
+     * @param T      type of item
      * @param items  iteration of items of type T
      * @param delim  delimiter
      * @param escape whether to escape
      * @return joined string representation of items
-    </T> */
+     */
     fun <T> join(items: Iterable<T>?, delim: CharSequence?, escape: Boolean): String {
         return join(items, delim, escape) { obj: T -> obj.toString() }
     }
@@ -86,13 +86,13 @@ object Formatter {
     /**
      * Join items
      *
-     * @param <T>    type of item
+     * @param T      type of item
      * @param items  iteration of items of type T
      * @param delim  delimiter
      * @param escape whether to escape
      * @param f      string function to represent item
      * @return joined string representation of items
-    </T> */
+     */
     fun <T> join(items: Iterable<T>?, delim: CharSequence?, escape: Boolean, f: (T) -> String): String {
         if (items == null) {
             return ""
@@ -114,7 +114,7 @@ object Formatter {
     /**
      * Join and quote items
      *
-     * @param <T>    type of item
+     * @param T      type of item
      * @param items  array of items of type T
      * @param delim  delimiter
      * @param escape whether to escape
@@ -148,7 +148,7 @@ object Formatter {
     /**
      * Join items, prefix with count
      *
-     * @param <T>         type of item
+     * @param T           type of item
      * @param items       collection of items of type T
      * @param countFormat format of count field
      * @param f           string function to represent item
@@ -171,8 +171,8 @@ object Formatter {
     /**
      * Join items in multimap
      *
-     * @param <K>   type of key
-     * @param <V>   type of value
+     * @param K     type of key
+     * @param V     type of value
      * @param map   array of items of type T
      * @param delim delimiter
      * @return joined string representation of items
