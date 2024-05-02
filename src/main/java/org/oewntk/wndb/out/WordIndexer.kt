@@ -7,6 +7,7 @@ import org.oewntk.model.Sense
 import org.oewntk.model.SenseGroupings.sensesByLCLemmaAndPos
 import org.oewntk.model.Synset
 import org.oewntk.wndb.out.Formatter.joinToStringWithCount
+import org.oewntk.wndb.out.Formatter.offsetFormat
 import java.io.PrintStream
 import java.util.*
 
@@ -226,12 +227,21 @@ class WordIndexer(
      * @param key        index key
      * @param indexEntry index data
      * @param ps         print stream
+     * ```
+     * lemma
+     * pos
+     * synset_cnt
+     * ptrs=p_cnt  [ptr_symbol...]
+     * ofs=sense_cnt
+     * tag sense cnt (number of senses that are tagged)
+     * synset_offset  [synset_offset...]
+     * ```
      */
     private fun printIndexEntry(key: String, indexEntry: IndexEntry, ps: PrintStream) {
         val nSenses = indexEntry.synsetIds.size
-        val ptrs = indexEntry.relationPointers.joinToStringWithCount(countFormat = "%d")
-        val ofs = indexEntry.synsetIds.joinToString(separator = " ") { String.format("%08d", offsets[it]) }
-        val line = String.format(WORD_FORMAT, key, indexEntry.pos, nSenses, ptrs, nSenses, indexEntry.taggedSensesCount, ofs)
+        val ptrs = indexEntry.relationPointers.joinToStringWithCount(countFormat = Int::toString)
+        val ofs = indexEntry.synsetIds.joinToString(separator = " ") { offsetFormat(offsets[it]!!) }
+        val line = "$key ${indexEntry.pos} $nSenses $ptrs $nSenses ${indexEntry.taggedSensesCount} $ofs  "
         ps.println(line)
     }
 
@@ -251,19 +261,5 @@ class WordIndexer(
     companion object {
 
         private const val LOG = false
-
-        /**
-         * Format in data file
-         * ```
-         * lemma
-         * pos
-         * synset_cnt
-         * ptrs=p_cnt  [ptr_symbol...]
-         * ofs=sense_cnt
-         * tag sense cnt (number of senses that are tagged)
-         * synset_offset  [synset_offset...]
-         * ```
-         */
-        private const val WORD_FORMAT = "%s %s %d %s %d %d %s  "
     }
 }

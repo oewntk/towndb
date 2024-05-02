@@ -4,7 +4,12 @@
 package org.oewntk.wndb.out
 
 import org.oewntk.wndb.out.Coder.codeRelation
+import org.oewntk.wndb.out.Formatter.intFormat2
+import org.oewntk.wndb.out.Formatter.intFormatHex2X
+import org.oewntk.wndb.out.Formatter.intFormatHex2x
 import org.oewntk.wndb.out.Formatter.joinToStringWithCount
+import org.oewntk.wndb.out.Formatter.lexidFormat
+import org.oewntk.wndb.out.Formatter.offsetFormat
 
 /**
  * Intermediate data, that are usually accumulated, not Pojos
@@ -57,11 +62,11 @@ object Data {
         }
 
         open fun toWndbString(lexIdCompat: Boolean): String {
-            return String.format(if (lexIdCompat) "%s %1X" else "%s %X", lemma, lexid)
+            return "$lemma ${lexidFormat(lexid, lexIdCompat)}"
         }
 
         override fun toString(): String {
-            return String.format("Member %s lexid:%X", lemma, lexid)
+            return "Member $lemma lexid:${lexidFormat(lexid)}"
         }
     }
 
@@ -71,11 +76,11 @@ object Data {
     internal class AdjMember(lemma: String, lexid: Int, private val position: String, lexIdCompat: Boolean) : Member(lemma, lexid, lexIdCompat) {
 
         override fun toWndbString(lexIdCompat: Boolean): String {
-            return String.format(if (lexIdCompat) "%s(%s) %1X" else "%s(%s) %X", lemma, position, lexid)
+            return "$lemma($position) ${lexidFormat(lexid, lexIdCompat)}"
         }
 
         override fun toString(): String {
-            return String.format("Adj Member %s(%s) %X", lemma, position, lexid)
+            return "Adj Member $lemma($position) ${lexidFormat(lexid)}"
         }
     }
 
@@ -104,16 +109,17 @@ object Data {
          */
         private val targetWordNum: Int,
         pointerCompat: Boolean,
+
     ) {
 
         private val ptrSymbol: String = codeRelation(type!!, pos, pointerCompat)
 
         fun toWndbString(): String {
-            return String.format("%s %08d %c %02x%02x", ptrSymbol, targetOffset, targetPos, sourceWordNum, targetWordNum)
+            return "$ptrSymbol ${offsetFormat(targetOffset)} $targetPos ${intFormatHex2X(sourceWordNum)}${intFormatHex2X(targetWordNum)}"
         }
 
         override fun toString(): String {
-            return String.format("Relation %s %08d %c %02x%02x", ptrSymbol, targetOffset, targetPos, sourceWordNum, targetWordNum)
+            return "Relation $ptrSymbol ${offsetFormat(targetOffset)} $targetPos ${intFormatHex2X(sourceWordNum)}${intFormatHex2X(targetWordNum)}"
         }
     }
 
@@ -129,11 +135,11 @@ object Data {
     ) {
 
         fun toWndbString(): String {
-            return String.format("+ %02d %02x", frameNum, memberNum)
+            return "+ ${intFormat2(frameNum)} ${intFormatHex2x(memberNum)}"
         }
 
         override fun toString(): String {
-            return String.format("Frame %02d %02x", frameNum, memberNum)
+            return "Frame ${intFormat2(frameNum)} ${intFormatHex2x(memberNum)}"
         }
     }
 
@@ -170,7 +176,7 @@ object Data {
                     resultFrames.addAll(framesWithFrameNum)
                 }
             }
-            return resultFrames.joinToStringWithCount(countFormat = "%02d") { it.toWndbString() }
+            return resultFrames.joinToStringWithCount(countFormat = ::intFormat2) { it.toWndbString() }
         }
     }
 }

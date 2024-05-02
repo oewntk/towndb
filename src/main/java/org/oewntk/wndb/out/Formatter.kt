@@ -10,6 +10,30 @@ package org.oewntk.wndb.out
  */
 object Formatter {
 
+    fun offsetFormat(offset: Long): String {
+        return String.format("%08d", offset)
+    }
+
+    fun lexidFormat(lexId: Int, lexIdCompat: Boolean = false): String {
+        return String.format(if (lexIdCompat) "%1X" else "%X", lexId)
+    }
+
+    fun intFormat2(int: Int): String {
+        return String.format("%02d", int)
+    }
+
+    fun intFormat3(int: Int): String {
+        return String.format("%03d", int)
+    }
+
+    fun intFormatHex2x(int: Int): String {
+        return String.format("%02x", int)
+    }
+
+    fun intFormatHex2X(int: Int): String {
+        return String.format("%02X", int)
+    }
+
     /**
      * Escape string
      *
@@ -28,8 +52,8 @@ object Formatter {
      * @param transform   string function to represent item
      * @return joined string representation of items preceded by count
      */
-    fun <T> Collection<T>.joinToStringWithCount(separator: CharSequence = " ", countSeparator: String = " ", countFormat: String = "%d", transform: ((T) -> String)? = null): String {
-        return this.joinToString(prefix = String.format(countFormat, size) + if (isNotEmpty()) countSeparator else "", separator = separator, transform = transform)
+    fun <T> Collection<T>.joinToStringWithCount(separator: CharSequence = " ", countSeparator: String = " ", countFormat: (Int) -> String, transform: ((T) -> String)? = null): String {
+        return this.joinToString(prefix = countFormat(size) + if (isNotEmpty()) countSeparator else "", separator = separator, transform = transform)
     }
 
     /**

@@ -7,6 +7,7 @@ package org.oewntk.wndb.out
 import org.oewntk.model.Sense
 import org.oewntk.model.SenseGroupings.KeyLCLemmaAndPos.Companion.of
 import org.oewntk.model.SenseGroupings.sensesByLCLemmaAndPos
+import org.oewntk.wndb.out.Formatter.offsetFormat
 import java.io.PrintStream
 
 /**
@@ -80,23 +81,15 @@ class SenseIndexer(
      * @param senseNum sense number (index)
      * @param tagCount tag count
      * @param ps       print stream
+     * ```
+     * sense_key
+     * synset_offset
+     * sense_number
+     * tag_cnt
+     * ```
      */
     private fun printSenseEntry(sensekey: String, offset: Long, senseNum: Int, tagCount: Int, ps: PrintStream) {
-        val line = String.format(SENSE_FORMAT, sensekey, offset, senseNum, tagCount)
-        ps.println(line)
-    }
-
-    companion object {
-
-        /**
-         * Format in data file
-         * ```
-         * sense_key
-         * synset_offset
-         * sense_number
-         * tag_cnt
-         * ```
-         */
-        private const val SENSE_FORMAT = "%s %08d %d %d"
+        val line = "$sensekey ${offsetFormat(offset)} $senseNum $tagCount"
+         ps.println(line)
     }
 }

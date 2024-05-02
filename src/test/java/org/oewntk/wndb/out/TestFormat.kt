@@ -9,6 +9,7 @@ import org.oewntk.model.Lex
 import org.oewntk.model.Sense
 import org.oewntk.model.TagCount
 import org.oewntk.model.Tracing
+import org.oewntk.wndb.out.Formatter.intFormat2
 import org.oewntk.wndb.out.Formatter.joinToStringWithCount
 import kotlin.test.assertEquals
 
@@ -24,44 +25,48 @@ class TestFormat {
 
     private val seq = listOf("a", 'b', "c", "d")
 
+    private fun intFormat4(int: Int): String {
+        return String.format("%04d", int)
+    }
+
     @Test
     fun testJoinWithCount() {
-        val r = seq.joinToStringWithCount()
+        val r = seq.joinToStringWithCount(countFormat = Int::toString)
         ps.println(r)
         assertEquals("4 a b c d", r)
     }
 
     @Test
     fun testJoinWithCount2() {
-        val r = seq.joinToStringWithCount(countFormat = "%02d")
+        val r = seq.joinToStringWithCount(countFormat = ::intFormat2)
         ps.println(r)
         assertEquals("04 a b c d", r)
     }
 
     @Test
     fun testJoinWithCountAndTransform() {
-        val r = seq.joinToStringWithCount(countFormat = "%02d") { "*$it*" }
+        val r = seq.joinToStringWithCount(countFormat = ::intFormat2) { "*$it*" }
         ps.println(r)
         assertEquals("04 *a* *b* *c* *d*", r)
     }
 
     @Test
     fun testJoinWithCountAndCountPrefix() {
-        val r = seq.joinToStringWithCount(countFormat = "%04d", countSeparator = " # ") { "+$it-" }
+        val r = seq.joinToStringWithCount(countFormat = ::intFormat4, countSeparator = " # ") { "+$it-" }
         ps.println(r)
         assertEquals("0004 # +a- +b- +c- +d-", r)
     }
 
     @Test
     fun testJoinWithCountEmpty() {
-        val r = emptyList<Any>().joinToStringWithCount(countFormat = "%04d", countSeparator = " # ") { "+$it-" }
+        val r = emptyList<Any>().joinToStringWithCount(countFormat = ::intFormat4, countSeparator = " # ") { "+$it-" }
         ps.println(r)
         assertEquals("0000", r)
     }
 
     @Test
     fun testJoinSensesWithCountAEmpty() {
-        val r = senses.joinToStringWithCount(countFormat = "%04d", countSeparator = " ") { it.synsetId.trimEnd('-', 'n', 'v', 'a', 'r', 's') }
+        val r = senses.joinToStringWithCount(countFormat = ::intFormat4, countSeparator = " ") { it.synsetId.trimEnd('-', 'n', 'v', 'a', 'r', 's') }
         ps.println(r)
         assertEquals("0004 01746246 10516512 09524330 83541804", r)
     }

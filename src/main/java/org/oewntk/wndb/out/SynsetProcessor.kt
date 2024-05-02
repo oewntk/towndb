@@ -9,6 +9,11 @@ import org.oewntk.model.Synset
 import org.oewntk.wndb.out.Coder.codeFrameId
 import org.oewntk.wndb.out.Coder.codeLexFile
 import org.oewntk.wndb.out.Data.AdjMember
+import org.oewntk.wndb.out.Formatter.intFormat2
+import org.oewntk.wndb.out.Formatter.intFormat3
+import org.oewntk.wndb.out.Formatter.intFormatHex2X
+import org.oewntk.wndb.out.Formatter.joinToStringWithCount
+import org.oewntk.wndb.out.Formatter.offsetFormat
 import java.util.*
 
 /**
@@ -126,6 +131,16 @@ protected constructor(
      * @param synset synset
      * @param offset allocated offset for the synset
      * @return line
+     * ```
+     * offset
+     * lexfile num
+     * pos
+     * members
+     * relations
+     * frames
+     * definition
+     * example
+     * ```
      */
     fun getData(synset: Synset, offset: Long): String {
         // init
@@ -257,15 +272,16 @@ protected constructor(
 
         // assemble
         val lexIdCompat = (flags and Flags.LEXID_COMPAT) != 0
-        val membersData = members.joinToString(separator = " ") { String.format("%02x", it.toWndbString(lexIdCompat)) }
-        val relatedData = relations.joinToString(separator = " ") { String.format("%03d", it.toWndbString()) }
+        val membersData = members.joinToStringWithCount(separator = " ", countSeparator = " ", countFormat = ::intFormatHex2X) { it.toWndbString(lexIdCompat) }
+        val relatedData = relations.joinToStringWithCount(separator = " ", countSeparator = " ", countFormat = ::intFormat3) { it.toWndbString() }
+
         var verbframesData = frames.toWndbString(type, members.size)
         if (verbframesData.isNotEmpty()) {
             verbframesData = " $verbframesData"
         }
         val definitionsData = definitions.joinToString("; ")
         val examplesData = if (examples.isNullOrEmpty()) "" else "; " + examples.joinToString(" ")
-        return String.format(SYNSET_FORMAT, offset, lexfileNum, type, membersData, relatedData, verbframesData, definitionsData, examplesData)
+        return "${offsetFormat(offset)} ${intFormat2(lexfileNum)} $type $membersData $relatedData$verbframesData | $definitionsData$examplesData  \n"
     }
 
     /**
@@ -325,20 +341,5 @@ protected constructor(
         private const val LOG_DISCARDED = false
 
         private const val LOG_DUPLICATE_RELATION = false
-
-        /**
-         * Format in data file
-         * ```
-         * offset
-         * lexfile num
-         * pos
-         * members
-         * relations
-         * frames
-         * definition
-         * example
-         * ```
-         */
-        private const val SYNSET_FORMAT = "%08d %02d %c %s %s%s | %s%s  \n"
     }
 }
