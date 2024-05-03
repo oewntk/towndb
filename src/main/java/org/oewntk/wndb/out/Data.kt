@@ -88,7 +88,7 @@ object Data {
      * Semantic or lexical relations
      */
     class Relation(
-        type: String?,
+        type: String,
         pos: Char,
         private val targetPos: Char,
         private val targetOffset: Long,
@@ -110,9 +110,9 @@ object Data {
         private val targetWordNum: Int,
         pointerCompat: Boolean,
 
-    ) {
+        ) {
 
-        private val ptrSymbol: String = codeRelation(type!!, pos, pointerCompat)
+        private val ptrSymbol: String = codeRelation(type, pos, pointerCompat)
 
         fun toWndbString(): String {
             return "$ptrSymbol ${offsetFormat(targetOffset)} $targetPos ${intFormatHex2X(sourceWordNum)}${intFormatHex2X(targetWordNum)}"

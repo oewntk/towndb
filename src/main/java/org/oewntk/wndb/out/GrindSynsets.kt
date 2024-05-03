@@ -45,10 +45,10 @@ class GrindSynsets(
      */
     fun makeData(ps: PrintStream, synsetsById: Map<String, Synset>, posFilter: Char): Long {
         ps.print(Formatter.OEWN_HEADER)
-        var offset = Formatter.OEWN_HEADER.toByteArray(StandardCharsets.UTF_8).size.toLong()
-        var previous: Synset? = null
 
         // iterate synsets
+        var offset = Formatter.OEWN_HEADER.toByteArray(StandardCharsets.UTF_8).size.toLong()
+        var previous: Synset? = null
         var n: Long = 0
         for ((id, synset) in synsetsById) {
             if (synset.partOfSpeech != posFilter) {

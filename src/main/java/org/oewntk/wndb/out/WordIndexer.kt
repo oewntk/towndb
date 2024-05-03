@@ -148,7 +148,7 @@ class WordIndexer(
             // synsetid
             val synsetId = sense.synsetId
             // synset relations
-            val synset = synsetsById[synsetId]
+            val synset = synsetsById[synsetId]!!
             collectSynsetRelations(synset, pos, pointers, pointerCompat, incompats)
         }
     }
@@ -162,10 +162,9 @@ class WordIndexer(
      * @param pointerCompat pointer compatibility flag
      * @param incompats     incompatibility log
      */
-    private fun collectSynsetRelations(synset: Synset?, pos: Char, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
-        val synsetRelations: Map<String, Set<String>>? = synset!!.relations
-        if (!synsetRelations.isNullOrEmpty()) {
-            for ((relationType) in synsetRelations) {
+    private fun collectSynsetRelations(synset: Synset, pos: Char, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
+        if (!synset.relations.isNullOrEmpty()) {
+            for ((relationType) in synset.relations!!) {
                 var pointer: String
                 try {
                     pointer = Coder.codeRelation(relationType, pos, pointerCompat)

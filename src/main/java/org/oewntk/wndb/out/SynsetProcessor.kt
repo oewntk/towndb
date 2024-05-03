@@ -52,7 +52,7 @@ protected constructor(
     /**
      * Report incompatibility counts (indexed by cause)
      */
-    private val incompats: MutableMap<String?, Int> = HashMap()
+    private val incompats: MutableMap<String, Int> = HashMap()
 
     /**
      * Log error flag (avoid duplicate messages)
@@ -167,10 +167,9 @@ protected constructor(
         val lexfileNum = buildLexfileNum(synset)
 
         // synset relations
-        val modelSynsetRelations: Map<String, Set<String>>? = synset.relations
-        if (!modelSynsetRelations.isNullOrEmpty()) {
+        if (!synset.relations.isNullOrEmpty()) {
             val relationDataSet: MutableSet<RelationData> = LinkedHashSet()
-            for ((relationType, values) in modelSynsetRelations) {
+            for ((relationType, values) in synset.relations!!) {
                 for (targetSynsetId in values) {
                     val relation = RelationData(false, relationType, targetSynsetId)
                     val wasThere = !relationDataSet.add(relation)
@@ -189,7 +188,7 @@ protected constructor(
                 try {
                     relation = Data.Relation(relationData.relType, type, targetType, targetOffset, 0, 0, pointerCompat)
                 } catch (e: CompatException) {
-                    val cause = e.cause!!.message
+                    val cause = e.cause!!.message!!
                     val count = incompats.computeIfAbsent(cause) { 0 } + 1
                     incompats[cause] = count
                     continue
@@ -219,7 +218,7 @@ protected constructor(
                         val frame = Data.Frame(codeFrameId(verbframeId, verbFrameCompat), sense.findSynsetIndex(synsetsById) + 1)
                         frames.add(frame)
                     } catch (e: CompatException) {
-                        val cause = e.cause!!.message
+                        val cause = e.cause!!.message!!
                         val count = incompats.computeIfAbsent(cause) { 0 } + 1
                         incompats[cause] = count
                     }
@@ -227,12 +226,11 @@ protected constructor(
             }
 
             // sense relations
-            val modelSenseRelations: Map<String, Set<String>>? = sense.relations
-            if (!modelSenseRelations.isNullOrEmpty()) {
+            if (!sense.relations.isNullOrEmpty()) {
                 val lemma = sense.lemma
 
                 val senseRelationDataSet: MutableSet<RelationData> = LinkedHashSet()
-                for ((relationType, values) in modelSenseRelations) {
+                for ((relationType, values) in sense.relations!!) {
                     for (targetSenseId in values) {
                         val relation = RelationData(true, relationType, targetSenseId)
                         val wasThere = !senseRelationDataSet.add(relation)
@@ -243,9 +241,9 @@ protected constructor(
                 }
 
                 for (relationData in senseRelationDataSet) {
-                    val targetSense = sensesById[relationData.target]
-                    val targetSynsetId = targetSense!!.synsetId
-                    val targetSynset = synsetsById[targetSynsetId]
+                    val targetSense = sensesById[relationData.target]!!
+                    val targetSynsetId = targetSense.synsetId
+                    val targetSynset = synsetsById[targetSynsetId]!!
 
                     val memberNum = synset.findIndexOfMember(lemma) + 1
 
@@ -253,7 +251,7 @@ protected constructor(
                     try {
                         relation = buildSenseRelation(relationData.relType, type, memberNum, targetSense, targetSynset, targetSynsetId)
                     } catch (e: CompatException) {
-                        val cause = e.cause!!.message
+                        val cause = e.cause!!.message!!
                         val count = incompats.computeIfAbsent(cause) { 0 } + 1
                         incompats[cause] = count
                         continue
@@ -297,12 +295,12 @@ protected constructor(
      * @throws CompatException when relation is not legacy compatible
      */
     @Throws(CompatException::class)
-    protected open fun buildSenseRelation(type: String?, pos: Char, sourceMemberNum: Int, targetSense: Sense?, targetSynset: Synset?, targetSynsetId: String): Data.Relation {
+    protected open fun buildSenseRelation(type: String, pos: Char, sourceMemberNum: Int, targetSense: Sense, targetSynset: Synset, targetSynsetId: String): Data.Relation {
         // target lemma
-        val targetLemma = targetSense!!.lemma
+        val targetLemma = targetSense.lemma
 
         // which
-        val targetMemberNum = targetSynset!!.findIndexOfMember(targetLemma) + 1
+        val targetMemberNum = targetSynset.findIndexOfMember(targetLemma) + 1
         val targetType = targetSynset.type
         val targetOffset = offsetFunction.invoke(targetSynsetId)
         val pointerCompat = (flags and Flags.POINTER_COMPAT) != 0

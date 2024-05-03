@@ -90,6 +90,6 @@ class SenseIndexer(
      */
     private fun printSenseEntry(sensekey: String, offset: Long, senseNum: Int, tagCount: Int, ps: PrintStream) {
         val line = "$sensekey ${offsetFormat(offset)} $senseNum $tagCount"
-         ps.println(line)
+        ps.println(line)
     }
 }

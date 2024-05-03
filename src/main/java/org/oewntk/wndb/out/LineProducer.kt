@@ -48,10 +48,10 @@ class LineProducer(
          * @return line
          */
         fun data(
-            synset: Synset, offset: Long,  
-            lexesByLemma: Map<String, Collection<Lex>>,  
-            synsetsById: Map<String, Synset>,  
-            sensesById: Map<String, Sense>,  
+            synset: Synset, offset: Long,
+            lexesByLemma: Map<String, Collection<Lex>>,
+            synsetsById: Map<String, Synset>,
+            sensesById: Map<String, Sense>,
             offsets: Map<String, Long>, flags: Int,
         ): String {
             val factory = GrindSynsets(lexesByLemma, synsetsById, sensesById, offsets, flags)
