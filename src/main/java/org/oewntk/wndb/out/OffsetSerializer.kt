@@ -105,14 +105,14 @@ class OffsetSerializer(
         /**
          * Deserialize object
          *
-         * @param is input stream
+         * @param inStream input stream
          * @return object
          * @throws IOException            io exception
          * @throws ClassNotFoundException class not found exception
          */
         @Throws(IOException::class, ClassNotFoundException::class)
-        private fun deSerialize(`is`: InputStream): Any {
-            ObjectInputStream(`is`).use { ois ->
+        private fun deSerialize(inStream: InputStream): Any {
+            ObjectInputStream(inStream).use { ois ->
                 return ois.readObject()
             }
         }

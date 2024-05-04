@@ -47,6 +47,7 @@ protected constructor(
      * Flags
      */
     protected val flags: Int,
+
 ) {
 
     /**
