@@ -48,7 +48,7 @@ protected constructor(
      */
     protected val flags: Int,
 
-) {
+    ) {
 
     /**
      * Report incompatibility counts (indexed by cause)
