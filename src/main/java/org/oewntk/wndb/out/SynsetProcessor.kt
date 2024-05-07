@@ -154,8 +154,11 @@ protected constructor(
         // build members ordered set
         val members: MutableList<Data.Member> = ArrayList()
         for (lemma in synset.members) {
-            val sk = checkNotNull(synset.findSenseOf(lemma, lexesByLemma)) { "find sense of '$lemma' in synset $synset" }
-            val sense: Sense = sensesById[sk]!!
+            val sense = checkNotNull(
+                synset.findSenseOf(lemma,
+                                   { lexesByLemma[it]!! },
+                                   { sensesById[it]!! })
+            ) { "find sense of '$lemma' in synset $synset" }
             val member = buildMember(sense)
             members.add(member)
         }
@@ -205,7 +208,10 @@ protected constructor(
         }
 
         // senses that have this synset as target in "synset" field
-        val senses = synset.findSenses(lexesByLemma)
+        val senses = synset.findSenses(
+            { lemma -> lexesByLemma[lemma]!! },
+            { senseKey -> sensesById[senseKey]!! },
+        )
         assert(senses.isNotEmpty())
 
         // iterate senses
