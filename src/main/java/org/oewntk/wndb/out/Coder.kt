@@ -3,7 +3,7 @@
  */
 package org.oewntk.wndb.out
 
-import org.oewntk.model.PosType
+import org.oewntk.model.PosId
 
 /**
  * This class maps information to a documented code
@@ -83,7 +83,7 @@ object Coder {
      * @return code
      */
     @Throws(CompatException::class)
-    fun codeRelation(type: String, pos: PosType, pointerCompat: Boolean): String {
+    fun codeRelation(type: String, pos: PosId, pointerCompat: Boolean): String {
         when (pos) {
             'n'      -> when (type) {
                 ANTONYM           -> return "!"

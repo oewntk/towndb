@@ -4,7 +4,7 @@
 package org.oewntk.wndb.out
 
 import org.oewntk.model.Lex
-import org.oewntk.model.PosType
+import org.oewntk.model.PosId
 import org.oewntk.model.Sense
 import org.oewntk.model.Synset
 import java.nio.charset.StandardCharsets
@@ -76,7 +76,7 @@ class GrindOffsets(
     private val dummyOfs = offsetFunction.invoke("")
 
     @Throws(CompatException::class)
-    override fun buildSenseRelation(type: String, pos: PosType, sourceMemberNum: Int, targetSense: Sense, targetSynset: Synset, targetSynsetId: String): Data.Relation {
+    override fun buildSenseRelation(type: String, pos: PosId, sourceMemberNum: Int, targetSense: Sense, targetSynset: Synset, targetSynsetId: String): Data.Relation {
         val targetType = targetSynset.type
         val pointerCompat = (flags and Flags.POINTER_COMPAT) != 0
         return Data.Relation(type, pos, targetType, dummyOfs, DUMMY_NUM, DUMMY_NUM, pointerCompat)
