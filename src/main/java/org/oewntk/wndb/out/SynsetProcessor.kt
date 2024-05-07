@@ -215,8 +215,7 @@ protected constructor(
         assert(senses.isNotEmpty())
 
         // iterate senses
-        for (sk in senses) {
-            val sense: Sense = sensesById[sk]!!
+        for (sense in senses) {
             val verbFrameCompat = (flags and Flags.VERBFRAME_COMPAT) != 0
 
             // verb frames attribute
