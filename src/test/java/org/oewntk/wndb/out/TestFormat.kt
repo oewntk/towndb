@@ -15,12 +15,12 @@ import kotlin.test.assertEquals
 
 class TestFormat {
 
-    private val lexPythonCapitalized = Lex("Python", "n", null)
-    private val lexPython = Lex("python", "n", null)
-    private val senseBoa = Sense("python%1:05:00::", lexPython, 'n', 0, "01746246-n", null, null, null, null).apply { tagCount = TagCount(1, 3) }
-    private val senseSoothsayer = Sense("python%1:18:01::", lexPython, 'n', 1, "10516512-n", null, null, null, null)
-    private val senseDragon = Sense("python%1:18:00::", lexPythonCapitalized, 'n', 0, "09524330-n", null, null, null, null)
-    private val senseLanguage = Sense("python%1:10:01::", lexPythonCapitalized, 'n', 1, "83541804-n", null, null, null, null)
+    private val lexPythonCapitalized = Lex("Python", "n")
+    private val lexPython = Lex("python", "n")
+    private val senseBoa = Sense("python%1:05:00::", lexPython, 'n', 0, "01746246-n").apply { tagCount = TagCount(1, 3) }
+    private val senseSoothsayer = Sense("python%1:18:01::", lexPython, 'n', 1, "10516512-n")
+    private val senseDragon = Sense("python%1:18:00::", lexPythonCapitalized, 'n', 0, "09524330-n")
+    private val senseLanguage = Sense("python%1:10:01::", lexPythonCapitalized, 'n', 1, "83541804-n")
     private val senses = listOf(senseBoa, senseSoothsayer, senseDragon, senseLanguage)
 
     private val seq = listOf("a", 'b', "c", "d")
