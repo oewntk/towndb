@@ -3,6 +3,7 @@
  */
 package org.oewntk.wndb.out
 
+import org.oewntk.model.PosType
 import org.oewntk.model.Sense
 import org.oewntk.model.SenseGroupings.sensesByLCLemmaAndPos
 import org.oewntk.model.Synset
@@ -26,8 +27,7 @@ class WordIndexer(
     /**
      * This represents what is needed for a line in index.(noun|verb|adj|adv)
      */
-    private class IndexEntry
-        (val pos: Char) {
+    private class IndexEntry(val pos: PosType) {
 
         var taggedSensesCount: Int = 0
             private set
@@ -143,7 +143,7 @@ class WordIndexer(
      * @param pointerCompat pointer compatibility flag
      * @param incompats     incompatibility log
      */
-    private fun collectSynsetRelations(senses: List<Sense>, synsetsById: Map<String, Synset>, pos: Char, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
+    private fun collectSynsetRelations(senses: List<Sense>, synsetsById: Map<String, Synset>, pos: PosType, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
         for (sense in senses) {
             // synsetid
             val synsetId = sense.synsetId
@@ -162,7 +162,7 @@ class WordIndexer(
      * @param pointerCompat pointer compatibility flag
      * @param incompats     incompatibility log
      */
-    private fun collectSynsetRelations(synset: Synset, pos: Char, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
+    private fun collectSynsetRelations(synset: Synset, pos: PosType, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
         if (!synset.relations.isNullOrEmpty()) {
             for ((relationType) in synset.relations!!) {
                 var pointer: String
@@ -194,7 +194,7 @@ class WordIndexer(
      * @param pointerCompat pointer compatibility flag
      * @param incompats     incompatibility log
      */
-    private fun collectSenseRelations(senses: List<Sense>, pos: Char, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
+    private fun collectSenseRelations(senses: List<Sense>, pos: PosType, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
         for (lexSense in senses) {
             val senseRelations = lexSense.relations
             if (!senseRelations.isNullOrEmpty()) {

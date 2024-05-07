@@ -4,6 +4,7 @@
 package org.oewntk.wndb.out
 
 import org.oewntk.model.Lex
+import org.oewntk.model.PosType
 import org.oewntk.model.Sense
 import org.oewntk.model.Synset
 import org.oewntk.wndb.out.Coder.codeFrameId
@@ -303,7 +304,7 @@ protected constructor(
      * @throws CompatException when relation is not legacy compatible
      */
     @Throws(CompatException::class)
-    protected open fun buildSenseRelation(type: String, pos: Char, sourceMemberNum: Int, targetSense: Sense, targetSynset: Synset, targetSynsetId: String): Data.Relation {
+    protected open fun buildSenseRelation(type: String, pos: PosType, sourceMemberNum: Int, targetSense: Sense, targetSynset: Synset, targetSynsetId: String): Data.Relation {
         // target lemma
         val targetLemma = targetSense.lemma
 

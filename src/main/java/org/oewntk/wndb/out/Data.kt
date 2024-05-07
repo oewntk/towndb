@@ -3,6 +3,7 @@
  */
 package org.oewntk.wndb.out
 
+import org.oewntk.model.PosType
 import org.oewntk.wndb.out.Coder.codeRelation
 import org.oewntk.wndb.out.Formatter.intFormat2
 import org.oewntk.wndb.out.Formatter.intFormatHex2X
@@ -89,7 +90,7 @@ object Data {
      */
     class Relation(
         type: String,
-        pos: Char,
+        pos: PosType,
         private val targetPos: Char,
         private val targetOffset: Long,
         /**
@@ -160,7 +161,7 @@ object Data {
          * @param membersCount synset member count
          * @return formatted verb frames
          */
-        fun toWndbString(pos: Char, membersCount: Int): String {
+        fun toWndbString(pos: PosType, membersCount: Int): String {
             if (pos != 'v') {
                 return ""
             }

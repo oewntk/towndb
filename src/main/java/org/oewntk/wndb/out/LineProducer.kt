@@ -3,10 +3,7 @@
  */
 package org.oewntk.wndb.out
 
-import org.oewntk.model.CoreModel
-import org.oewntk.model.Lex
-import org.oewntk.model.Sense
-import org.oewntk.model.Synset
+import org.oewntk.model.*
 
 /**
  * Class that produces the synset line from model and synsetId
@@ -19,7 +16,7 @@ class LineProducer(
     private val flags: Int,
 ) : (CoreModel, String) -> String {
 
-    override fun invoke(model: CoreModel, synsetId: String): String {
+    override fun invoke(model: CoreModel, synsetId: SynsetId): String {
 
         // Compute synset offsets
         val offsets = GrindOffsets(model.lexesByLemma!!, model.synsetsById!!, model.sensesById!!, flags).compute()
