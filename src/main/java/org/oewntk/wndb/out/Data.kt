@@ -3,7 +3,7 @@
  */
 package org.oewntk.wndb.out
 
-import org.oewntk.model.PosId
+import org.oewntk.model.Category
 import org.oewntk.wndb.out.Coder.codeRelation
 import org.oewntk.wndb.out.Formatter.intFormat2
 import org.oewntk.wndb.out.Formatter.intFormatHex2X
@@ -90,7 +90,7 @@ object Data {
      */
     class Relation(
         type: String,
-        pos: PosId,
+        category: Category,
         private val targetPos: Char,
         private val targetOffset: Long,
         /**
@@ -113,7 +113,7 @@ object Data {
 
         ) {
 
-        private val ptrSymbol: String = codeRelation(type, pos, pointerCompat)
+        private val ptrSymbol: String = codeRelation(type, category, pointerCompat)
 
         fun toWndbString(): String {
             return "$ptrSymbol ${offsetFormat(targetOffset)} $targetPos ${intFormatHex2X(sourceWordNum)}${intFormatHex2X(targetWordNum)}"
@@ -157,12 +157,12 @@ object Data {
         /**
          * Join frames. If a frame applies to all words, then frame num is zeroed
          *
-         * @param pos          part of speech
+         * @param category          part of speech
          * @param membersCount synset member count
          * @return formatted verb frames
          */
-        fun toWndbString(pos: PosId, membersCount: Int): String {
-            if (pos != 'v') {
+        fun toWndbString(category: Category, membersCount: Int): String {
+            if (category != 'v') {
                 return ""
             }
             // compulsory for verbs even if empty

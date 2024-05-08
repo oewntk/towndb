@@ -4,7 +4,7 @@
 package org.oewntk.wndb.out
 
 import org.oewntk.model.Lex
-import org.oewntk.model.PosId
+import org.oewntk.model.Category
 import org.oewntk.model.Sense
 import org.oewntk.model.Synset
 import org.oewntk.wndb.out.Coder.codeFrameId
@@ -295,7 +295,7 @@ protected constructor(
      * Build relation
      *
      * @param type            relation type
-     * @param pos             part of speech
+     * @param category             part of speech
      * @param sourceMemberNum 1-based index of source member in source synset
      * @param targetSense     target sense
      * @param targetSynset    target synset
@@ -304,7 +304,7 @@ protected constructor(
      * @throws CompatException when relation is not legacy compatible
      */
     @Throws(CompatException::class)
-    protected open fun buildSenseRelation(type: String, pos: PosId, sourceMemberNum: Int, targetSense: Sense, targetSynset: Synset, targetSynsetId: String): Data.Relation {
+    protected open fun buildSenseRelation(type: String, category: Category, sourceMemberNum: Int, targetSense: Sense, targetSynset: Synset, targetSynsetId: String): Data.Relation {
         // target lemma
         val targetLemma = targetSense.lemma
 
@@ -313,7 +313,7 @@ protected constructor(
         val targetType = targetSynset.type
         val targetOffset = offsetFunction.invoke(targetSynsetId)
         val pointerCompat = (flags and Flags.POINTER_COMPAT) != 0
-        return Data.Relation(type, pos, targetType, targetOffset, sourceMemberNum, targetMemberNum, pointerCompat)
+        return Data.Relation(type, category, targetType, targetOffset, sourceMemberNum, targetMemberNum, pointerCompat)
     }
 
     /**

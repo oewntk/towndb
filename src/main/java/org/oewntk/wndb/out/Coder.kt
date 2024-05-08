@@ -3,7 +3,7 @@
  */
 package org.oewntk.wndb.out
 
-import org.oewntk.model.PosId
+import org.oewntk.model.Category
 
 /**
  * This class maps information to a documented code
@@ -78,13 +78,13 @@ object Coder {
      * Code relation
      *
      * @param type          relation type
-     * @param pos           part-of-speech
+     * @param category      part-of-speech
      * @param pointerCompat pointer compatibility
      * @return code
      */
     @Throws(CompatException::class)
-    fun codeRelation(type: String, pos: PosId, pointerCompat: Boolean): String {
-        when (pos) {
+    fun codeRelation(type: String, category: Category, pointerCompat: Boolean): String {
+        when (category) {
             'n'      -> when (type) {
                 ANTONYM           -> return "!"
                 HYPERNYM          -> return "@"
@@ -176,7 +176,7 @@ object Coder {
 
             else     -> {}
         }
-        throw IllegalArgumentException("pos=$pos relType=$type")
+        throw IllegalArgumentException("pos=$category relType=$type")
     }
 
     // V E R B F R A M E

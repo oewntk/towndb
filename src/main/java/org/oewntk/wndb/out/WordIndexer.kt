@@ -3,7 +3,7 @@
  */
 package org.oewntk.wndb.out
 
-import org.oewntk.model.PosId
+import org.oewntk.model.Category
 import org.oewntk.model.Sense
 import org.oewntk.model.SenseGroupings.sensesByLCLemmaAndPos
 import org.oewntk.model.Synset
@@ -27,7 +27,7 @@ class WordIndexer(
     /**
      * This represents what is needed for a line in index.(noun|verb|adj|adv)
      */
-    private class IndexEntry(val pos: PosId) {
+    private class IndexEntry(val category: Category) {
 
         var taggedSensesCount: Int = 0
             private set
@@ -63,7 +63,7 @@ class WordIndexer(
         val groupedSenses = sensesByLCLemmaAndPos(senses)
         groupedSenses.entries
             .asSequence()
-            .filter { it.key.pos == posFilter }
+            .filter { it.key.category == posFilter }
             .sortedBy { it.key.lcLemma.replace(' ', '_') }
             .forEach {
                 val k = it.key
@@ -73,7 +73,7 @@ class WordIndexer(
                     .toList()
 
                 val lcLemma = k.lcLemma
-                val pos = k.pos
+                val pos = k.category
                 val ik = lcLemma.replace(' ', '_')
                 val eik = Formatter.escape(ik)
 
@@ -138,18 +138,18 @@ class WordIndexer(
      *
      * @param senses        senses
      * @param synsetsById   synsets by id
-     * @param pos           pos
+     * @param category           pos
      * @param pointers      set of pointers to collect to
      * @param pointerCompat pointer compatibility flag
      * @param incompats     incompatibility log
      */
-    private fun collectSynsetRelations(senses: List<Sense>, synsetsById: Map<String, Synset>, pos: PosId, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
+    private fun collectSynsetRelations(senses: List<Sense>, synsetsById: Map<String, Synset>, category: Category, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
         for (sense in senses) {
             // synsetid
             val synsetId = sense.synsetId
             // synset relations
             val synset = synsetsById[synsetId]!!
-            collectSynsetRelations(synset, pos, pointers, pointerCompat, incompats)
+            collectSynsetRelations(synset, category, pointers, pointerCompat, incompats)
         }
     }
 
@@ -157,17 +157,17 @@ class WordIndexer(
      * Collect sense relations
      *
      * @param synset        synset
-     * @param pos           pos
+     * @param category           pos
      * @param pointers      set of pointers to collect to
      * @param pointerCompat pointer compatibility flag
      * @param incompats     incompatibility log
      */
-    private fun collectSynsetRelations(synset: Synset, pos: PosId, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
+    private fun collectSynsetRelations(synset: Synset, category: Category, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
         if (!synset.relations.isNullOrEmpty()) {
             for ((relationType) in synset.relations!!) {
                 var pointer: String
                 try {
-                    pointer = Coder.codeRelation(relationType, pos, pointerCompat)
+                    pointer = Coder.codeRelation(relationType, category, pointerCompat)
                 } catch (e: CompatException) {
                     val cause = e.cause!!.message!!
                     val count = incompats.computeIfAbsent(cause) { 0 } + 1
@@ -189,19 +189,19 @@ class WordIndexer(
      * Collect sense relations
      *
      * @param senses        senses
-     * @param pos           pos
+     * @param category           pos
      * @param pointers      set of pointers to collect to
      * @param pointerCompat pointer compatibility flag
      * @param incompats     incompatibility log
      */
-    private fun collectSenseRelations(senses: List<Sense>, pos: PosId, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
+    private fun collectSenseRelations(senses: List<Sense>, category: Category, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
         for (lexSense in senses) {
             val senseRelations = lexSense.relations
             if (!senseRelations.isNullOrEmpty()) {
                 for ((relationType) in senseRelations) {
                     var pointer: String
                     try {
-                        pointer = Coder.codeRelation(relationType, pos, pointerCompat)
+                        pointer = Coder.codeRelation(relationType, category, pointerCompat)
                     } catch (e: CompatException) {
                         val cause = e.cause!!.message!!
                         val count = incompats.computeIfAbsent(cause) { 0 } + 1
@@ -240,7 +240,7 @@ class WordIndexer(
         val nSenses = indexEntry.synsetIds.size
         val ptrs = indexEntry.relationPointers.joinToStringWithCount(countFormat = Int::toString)
         val ofs = indexEntry.synsetIds.joinToString(separator = " ") { offsetFormat(offsets[it]!!) }
-        val line = "$key ${indexEntry.pos} $nSenses $ptrs $nSenses ${indexEntry.taggedSensesCount} $ofs  "
+        val line = "$key ${indexEntry.category} $nSenses $ptrs $nSenses ${indexEntry.taggedSensesCount} $ofs  "
         ps.println(line)
     }
 
