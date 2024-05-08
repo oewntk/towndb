@@ -100,8 +100,8 @@ object WN31Index {
         return map
     }
 
-    fun getWN31SenseIndex(sense: Sense): Int {
-        return SK2INDEX[sense.senseKey]!!
+    fun getWN31SenseIndex(sense: Sense): Int? {
+        return SK2INDEX[sense.senseKey]
     }
 
     /**
