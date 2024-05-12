@@ -63,7 +63,6 @@ class GrindSynsets(
                 ps.print(line)
                 offset += line.toByteArray(StandardCharsets.UTF_8).size.toLong()
                 previous = synset
-                1
             }
             .count()
     }

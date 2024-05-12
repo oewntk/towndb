@@ -204,10 +204,10 @@ class ModelConsumer(
          */
         @Throws(IOException::class)
         fun morphs(dir: File, lexesByLemma: Map<String, Collection<Lex>>) {
-            var nCount: Long
-            var vCount: Long
-            var aCount: Long
-            var rCount: Long
+            var nCount: Int
+            var vCount: Int
+            var aCount: Int
+            var rCount: Int
             val grinder = GrindMorphs()
             PrintStream(FileOutputStream(File(dir, "noun.exc")), true, StandardCharsets.UTF_8).use { ps ->
                 nCount = grinder.makeMorph(ps, lexesByLemma, Data.NOUN_POS_FILTER)
