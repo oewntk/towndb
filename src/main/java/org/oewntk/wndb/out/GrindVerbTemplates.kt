@@ -18,12 +18,12 @@ class GrindVerbTemplates {
      * @param verbTemplatesById verb templates by id
      */
     fun makeTemplates(ps: PrintStream, verbTemplatesById: Map<Int, VerbTemplate>) {
-        var n: Long = 0
-        for ((id, verbTemplate) in verbTemplatesById) {
-            val line = "$id ${verbTemplate.template}"
-            ps.println(line)
-            n++
-        }
-        Tracing.psInfo.printf("Verb templates: %d%n", n)
+        val n = verbTemplatesById
+            .onEach { (verbTemplateId, verbTemplate) ->
+                val line = "$verbTemplateId ${verbTemplate.template}"
+                ps.println(line)
+            }
+            .count()
+        Tracing.psInfo.println("Verb templates: $n")
     }
 }

@@ -3,8 +3,8 @@
  */
 package org.oewntk.wndb.out
 
-import org.oewntk.model.Lex
 import org.oewntk.model.Category
+import org.oewntk.model.Lex
 import org.oewntk.model.Sense
 import org.oewntk.model.Synset
 import java.nio.charset.StandardCharsets
@@ -45,16 +45,13 @@ class GrindOffsets(
         var offset = Formatter.OEWN_HEADER.toByteArray(StandardCharsets.UTF_8).size.toLong()
 
         // iterate synsets
-        for ((id, synset) in synsetsById) {
-            if (synset.partOfSpeech != posFilter) {
-                continue
+        synsetsById
+            .filter { (_, synset) -> synset.partOfSpeech == posFilter }
+            .forEach { (synsetId, synset) ->
+                val data = getData(synset, dummyOfs)
+                offsets[synsetId] = offset
+                offset += data.toByteArray(StandardCharsets.UTF_8).size.toLong()
             }
-
-            val data = getData(synset, dummyOfs)
-            offsets[id] = offset
-
-            offset += data.toByteArray(StandardCharsets.UTF_8).size.toLong()
-        }
     }
 
     /**

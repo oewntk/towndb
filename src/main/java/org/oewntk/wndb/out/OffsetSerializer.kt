@@ -39,8 +39,9 @@ class OffsetSerializer(
      */
     @Throws(IOException::class)
     fun grind(model: CoreModel) {
+
         // Model
-        ps.printf("[CoreModel] %s%n", model.source)
+        ps.println("[CoreModel] ${model.source}")
 
         // Output
         if (!outDir.exists()) {

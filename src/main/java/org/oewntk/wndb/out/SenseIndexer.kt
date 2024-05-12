@@ -70,7 +70,7 @@ class SenseIndexer(
             }
 
         // log
-        Tracing.psInfo.printf("Senses: %d%n", senses.size)
+        Tracing.psInfo.println("Senses: ${senses.size}")
     }
 
     /**

@@ -3,8 +3,8 @@
  */
 package org.oewntk.wndb.out
 
-import org.oewntk.model.Lex
 import org.oewntk.model.Category
+import org.oewntk.model.Lex
 import org.oewntk.model.Sense
 import org.oewntk.model.Synset
 import org.oewntk.wndb.out.Coder.codeFrameId
@@ -180,7 +180,7 @@ protected constructor(
                     val relation = RelationData(false, relationType, targetSynsetId)
                     val wasThere = !relationDataSet.add(relation)
                     if (wasThere && LOG_DUPLICATE_RELATION && log()) {
-                        Tracing.psErr.printf("[W] Synset %s has duplicate %s%n", synset.synsetId, relation)
+                        Tracing.psErr.println("[W] Synset ${synset.synsetId} has duplicate $relation")
                     }
                 }
             }
@@ -200,7 +200,7 @@ protected constructor(
                     continue
                 } catch (e: IllegalArgumentException) {
                     if (LOG_DISCARDED && log()) {
-                        Tracing.psErr.printf("[W] Discarded relation '%s' synset=%s offset=%d%n", relationData.relType, synset.synsetId, offset)
+                        Tracing.psErr.println("[W] Discarded relation '${relationData.relType}' synset=${synset.synsetId} offset=$offset")
                     }
                     throw e
                 }
@@ -244,7 +244,7 @@ protected constructor(
                         val relation = RelationData(true, relationType, targetSenseId)
                         val wasThere = !senseRelationDataSet.add(relation)
                         if (wasThere && LOG_DUPLICATE_RELATION && log()) {
-                            Tracing.psErr.printf("[W] Sense %s has duplicate %s%n", sense.senseKey, relation)
+                            Tracing.psErr.println("[W] Sense ${sense.senseKey} has duplicate $relation")
                         }
                     }
                 }
@@ -266,8 +266,7 @@ protected constructor(
                         continue
                     } catch (e: IllegalArgumentException) {
                         if (LOG_DISCARDED && log()) {
-                            // String cause = e.getClass().getName() + ' ' + e.getMessage();
-                            Tracing.psErr.printf("[W] Discarded relation '%s' synset=%s offset=%d%n", relationData.relType, synset.synsetId, offset)
+                            Tracing.psErr.println("[W] Discarded relation '${relationData.relType}' synset=${synset.synsetId} offset=$offset")
                         }
                         // throw e;
                         continue
@@ -337,7 +336,7 @@ protected constructor(
     fun report() {
         if (incompats.isNotEmpty()) {
             for ((key, value) in incompats) {
-                Tracing.psErr.printf("[W] Incompatibilities '%s': %d%n", key, value)
+                Tracing.psErr.println("[W] Incompatibilities '$key': $value")
             }
             incompats.clear()
         }

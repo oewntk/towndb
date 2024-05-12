@@ -43,8 +43,9 @@ class OffsetMapper(
      */
     @Throws(IOException::class)
     fun grind(model: CoreModel) {
+
         // Model
-        ps.printf("[CoreModel] %s%n", model.source)
+        ps.println("[CoreModel] ${model.source}")
 
         // Output
         if (!outDir.exists()) {
@@ -75,7 +76,7 @@ class OffsetMapper(
                 offsets.keys
                     .asSequence()
                     .sorted()
-                    .forEach { ps.printf("%s %d%n", it, offsets[it]) }
+                    .forEach { ps.println("$it ${offsets[it]}") }
             }
         }
 

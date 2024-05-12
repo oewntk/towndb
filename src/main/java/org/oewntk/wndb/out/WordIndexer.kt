@@ -175,7 +175,7 @@ class WordIndexer(
                     continue
                 } catch (e: IllegalArgumentException) {
                     if (LOG) {
-                        Tracing.psErr.printf("[W] Discarded relation '%s'%n", relationType)
+                        Tracing.psErr.println("[W] Discarded relation '$relationType'")
                     }
                     throw e
                 }
@@ -209,7 +209,7 @@ class WordIndexer(
                         continue
                     } catch (e: IllegalArgumentException) {
                         if (LOG) {
-                            Tracing.psErr.printf("[W] Discarded relation '%s'%n", relationType)
+                            Tracing.psErr.println("[W] Discarded relation '$relationType'")
                         }
                         continue
                     }
@@ -252,7 +252,7 @@ class WordIndexer(
     private fun reportIncompats(incompats: Map<String, Int>) {
         if (incompats.isNotEmpty()) {
             for ((key, value) in incompats) {
-                Tracing.psErr.printf("[W] Incompatibilities '%s': %d%n", key, value)
+                Tracing.psErr.println("[W] Incompatibilities '$key': $value")
             }
         }
     }

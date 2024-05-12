@@ -18,16 +18,14 @@ class TemplateIndexer {
      * @param sensesById senses by id
      */
     fun makeIndex(ps: PrintStream, sensesById: Map<String, Sense>) {
-        var n: Long = 0
-        for ((sensekey, sense) in sensesById) {
-            val verbTemplateIds = sense.verbTemplates
-            if (!verbTemplateIds.isNullOrEmpty()) {
-                val templates = verbTemplateIds.joinToString(",")
+        val n = sensesById
+            .filter { (_, sense) -> !sense.verbTemplates.isNullOrEmpty() }
+            .onEach { (sensekey, sense) ->
+                val templates = sense.verbTemplates!!.joinToString(separator = " ")
                 val line = "$sensekey $templates"
                 ps.println(line)
-                n++
             }
-        }
-        Tracing.psInfo.printf("Verb template references: %d senses%n", n)
+            .count()
+        Tracing.psInfo.println("Verb template references: $n senses")
     }
 }

@@ -53,9 +53,9 @@ object Data {
         init {
             if (lexIdCompat) {
                 this.lexid = lexid % 16 // 16 -> 0
-                if (lexid > 16) // throw new RuntimeException("Out of range lexid" + lemma + " " + lexid);
+                if (lexid > 16) // throw RuntimeException("Out of range lexid for lemma $lemma: $lexid")
                 {
-                    Tracing.psErr.printf("Out of range lexid %s: %d tweaked to %d%n", lemma, lexid, this.lexid)
+                    Tracing.psErr.println("Out of range lexid for lemma $lemma: $lexid tweaked to ${this.lexid}")
                 }
             } else {
                 this.lexid = lexid

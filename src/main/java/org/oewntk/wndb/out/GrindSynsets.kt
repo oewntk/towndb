@@ -43,30 +43,28 @@ class GrindSynsets(
      * @param posFilter   part-of-speech  filter
      * @return number of synsets
      */
-    fun makeData(ps: PrintStream, synsetsById: Map<String, Synset>, posFilter: Char): Long {
+    fun makeData(ps: PrintStream, synsetsById: Map<String, Synset>, posFilter: Char): Int {
         ps.print(Formatter.OEWN_HEADER)
 
         // iterate synsets
         var offset = Formatter.OEWN_HEADER.toByteArray(StandardCharsets.UTF_8).size.toLong()
         var previous: Synset? = null
-        var n: Long = 0
-        for ((id, synset) in synsetsById) {
-            if (synset.partOfSpeech != posFilter) {
-                continue
+        return synsetsById
+            .filter { (_, synset) -> synset.partOfSpeech == posFilter }
+            .onEach { (synsetId, synset) ->
+                val offset0: Long = offsetFunction.invoke(synsetId)
+                if (offset0 != offset) {
+                    checkNotNull(previous)
+                    val line = getData(previous!!, 0)
+                    val line0 = GrindOffsets(lexesByLemma, synsetsById, sensesById, flags).getData(previous!!, 0)
+                    throw RuntimeException("miscomputed offset for $synsetId\n[then]=$line0[now ]=$line")
+                }
+                val line = getData(synset, offset)
+                ps.print(line)
+                offset += line.toByteArray(StandardCharsets.UTF_8).size.toLong()
+                previous = synset
+                1
             }
-            n++
-            val offset0: Long = offsetFunction.invoke(id)
-            if (offset0 != offset) {
-                checkNotNull(previous)
-                val line = getData(previous, 0)
-                val line0 = GrindOffsets(lexesByLemma, synsetsById, sensesById, flags).getData(previous, 0)
-                throw RuntimeException("miscomputed offset for $id\n[then]=$line0[now ]=$line")
-            }
-            val line = getData(synset, offset)
-            ps.print(line)
-            offset += line.toByteArray(StandardCharsets.UTF_8).size.toLong()
-            previous = synset
-        }
-        return n
+            .count()
     }
 }

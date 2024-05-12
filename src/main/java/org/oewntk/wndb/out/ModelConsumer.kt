@@ -23,7 +23,8 @@ class ModelConsumer(
 ) : Consumer<Model> {
 
     override fun accept(model: Model) {
-        Tracing.psInfo.printf("[Model] %s%n", model.sources.contentToString())
+
+        Tracing.psInfo.println("[Model] ${model.sources.contentToString()}")
 
         try {
             grind(model)
@@ -78,10 +79,10 @@ class ModelConsumer(
         sensesById: Map<String, Sense>,
         offsets: Map<String, Long>,
     ) {
-        var nCount: Long
-        var vCount: Long
-        var aCount: Long
-        var rCount: Long
+        var nCount: Int
+        var vCount: Int
+        var aCount: Int
+        var rCount: Int
         val grinder = GrindSynsets(lexesByLemma, synsetsById, sensesById, offsets, flags)
         PrintStream(FileOutputStream(File(dir, "data.noun")), true, StandardCharsets.UTF_8).use { ps ->
             nCount = grinder.makeData(ps, synsetsById, Data.NOUN_POS_FILTER)
@@ -100,7 +101,7 @@ class ModelConsumer(
             grinder.report()
         }
         val sum = nCount + vCount + aCount + rCount
-        Tracing.psInfo.printf("Synsets: %d [n:%d v:%d a:%d r:%d]%n", sum, nCount, vCount, aCount, rCount)
+        Tracing.psInfo.println("Synsets: $sum [n:$nCount v:$vCount a:$aCount r:$rCount]")
     }
 
     /**
@@ -137,7 +138,7 @@ class ModelConsumer(
             rCount = indexer.make(ps, senses, synsetsById, Data.ADV_POS_FILTER)
         }
         val sum = nCount + vCount + aCount + rCount
-        Tracing.psInfo.printf("Indexes: %d [n:%d v:%d a:%d r:%d]%n", sum, nCount, vCount, aCount, rCount)
+        Tracing.psInfo.println("Indexes: $sum [n:$nCount v:$vCount a:$aCount r:$rCount]")
     }
 
     /**
@@ -167,10 +168,11 @@ class ModelConsumer(
                 .toList()
                 .sortedBy { it.value }
                 .forEach {
-                    ps.printf("%02d\t%s\t%d%n", it.value, it.key, posNameToInt(it.key.split("\\.".toRegex()).dropLastWhile { it2 -> it2.isEmpty() }.toTypedArray()[0]))
+                    val posId = posNameToInt(it.key.split("\\.".toRegex()).dropLastWhile { it2 -> it2.isEmpty() }.toTypedArray()[0])
+                    ps.println("${String.format("%02d", it.value)}\t${it.key}\t$posId")
                 }
         }
-        Tracing.psInfo.printf("Lexfiles: %d%n", Coder.LEXFILE_TO_NUM.size)
+        Tracing.psInfo.println("Lexfiles: ${Coder.LEXFILE_TO_NUM.size}")
     }
 
     /**
@@ -186,9 +188,9 @@ class ModelConsumer(
                 .withIndex()
                 .map { (i, vf) -> getVerbFrameNID(vf, i + 1) to vf }
                 .sortedBy { it.first }
-                .forEach { ps.printf("%d %s%n", it.first, it.second.frame) }
+                .forEach { ps.println("${it.first} ${it.second.frame}") }
         }
-        Tracing.psInfo.printf("Verb frames: %d%n", verbFrames.size)
+        Tracing.psInfo.println("Verb frames: ${verbFrames.size}")
     }
 
     companion object {
@@ -220,7 +222,7 @@ class ModelConsumer(
                 rCount = grinder.makeMorph(ps, lexesByLemma, Data.ADV_POS_FILTER)
             }
             val sum = nCount + vCount + aCount + rCount
-            Tracing.psInfo.printf("Morphs: %d [n:%d v:%d a:%d r:%d]%n", sum, nCount, vCount, aCount, rCount)
+            Tracing.psInfo.println("Morphs: $sum [n:$nCount v:$vCount a:$aCount r:$rCount]")
         }
 
         /**

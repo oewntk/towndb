@@ -124,7 +124,7 @@ class TestSenseOrder {
             .map { it to senses - it }
             .forEach {
                 it.second.forEach { alt ->
-                    for (comparator in comparators) {
+                    comparators.forEach { comparator ->
                         testCompareWith(it.first, alt, comparator)
                     }
                 }

@@ -99,7 +99,7 @@ class TestCoder {
 
         val allPointers: MutableSet<String> = TreeSet()
         val toRelations: MutableMap<Char, MutableMap<String, String>> = HashMap()
-        for (pos in mutableListOf('n', 'v', 'a', 'r')) {
+        for (pos in listOf('n', 'v', 'a', 'r')) {
             for (relation in allRelations[pos]!!) {
                 var pointer: String
                 try {
@@ -117,11 +117,11 @@ class TestCoder {
             }
         }
         for (pointer in allPointers) {
-            Tracing.psInfo.printf("%-2s\t", pointer)
-            for (pos in mutableListOf('n', 'v', 'a', 'r')) {
+            Tracing.psInfo.println("${String.format("%-2s", pointer)}\t")
+            for (pos in listOf('n', 'v', 'a', 'r')) {
                 val relation = toRelations[pos]!![pointer]
                 if (relation != null) {
-                    Tracing.psInfo.printf("%s:%s  ", pos, relation)
+                    Tracing.psInfo.print("$pos:$relation ")
                 }
             }
             Tracing.psInfo.println()
