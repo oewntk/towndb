@@ -153,16 +153,10 @@ protected constructor(
         val type = synset.type
 
         // build members ordered set
-        val members: MutableList<Data.Member> = ArrayList()
-        for (lemma in synset.members) {
-            val sense = checkNotNull(
-                synset.findSenseOf(lemma,
-                                   { lexesByLemma[it]!! },
-                                   { sensesById[it]!! })
-            ) { "find sense of '$lemma' in synset $synset" }
-            val member = buildMember(sense)
-            members.add(member)
-        }
+        val members: List<Data.Member> = synset.members
+            .map { member -> synset.findSenseOf(member, { lexesByLemma[member] }, { sensesById[member]!! }) }
+            .map { buildMember(it) }
+            .toList()
 
         // definition and examples
         // allow multiple definitions and join them
