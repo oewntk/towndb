@@ -251,7 +251,7 @@ class WordIndexer(
      */
     private fun reportIncompats(incompats: Map<String, Int>) {
         if (incompats.isNotEmpty()) {
-            for ((key, value) in incompats) {
+            incompats.forEach { (key, value) ->
                 Tracing.psErr.println("[W] Incompatibilities '$key': $value")
             }
         }
