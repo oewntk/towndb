@@ -154,7 +154,7 @@ protected constructor(
 
         // build members ordered set
         val members: List<Data.Member> = synset.members
-            .map { member -> synset.findSenseOf(member, { lexesByLemma[member] }, { sensesById[member]!! }) }
+            .map { member -> synset.findSenseOf(member, { lexesByLemma[it] }, { sensesById[it]!! }) }
             .map { buildMember(it) }
             .toList()
 
@@ -214,18 +214,23 @@ protected constructor(
             val verbFrameCompat = (flags and Flags.VERBFRAME_COMPAT) != 0
 
             // verb frames attribute
-            val verbFrameIds = sense.verbFrames
-            if (!verbFrameIds.isNullOrEmpty()) {
-                for (verbframeId in verbFrameIds) {
-                    try {
-                        val frame = Data.Frame(codeFrameId(verbframeId, verbFrameCompat), sense.findSynsetIndex(synsetsById) + 1)
-                        frames.add(frame)
-                    } catch (e: CompatException) {
-                        val cause = e.cause!!.message!!
-                        val count = incompats.computeIfAbsent(cause) { 0 } + 1
-                        incompats[cause] = count
+            if (!sense.verbFrames.isNullOrEmpty()) {
+                sense.verbFrames!!
+                    .asSequence()
+                    .map { verbframeId ->
+                        try {
+                            val code = codeFrameId(verbframeId, verbFrameCompat)
+                            Data.Frame(code, sense.findSynsetIndex(synsetsById) + 1)
+
+                        } catch (e: CompatException) {
+                            val cause = e.cause!!.message!!
+                            val count = incompats.computeIfAbsent(cause) { 0 } + 1
+                            incompats[cause] = count
+                            null
+                        }
                     }
-                }
+                    .filterNotNull()
+                    .forEach { frames.add(it) }
             }
 
             // sense relations
@@ -242,6 +247,14 @@ protected constructor(
                         }
                     }
                 }
+                val senseRelationDataSet2 = sense.relations!!
+                    .asSequence()
+                    .flatMap { (relationType, targetSynsets) ->
+                        targetSynsets
+                            .asSequence()
+                            .map { targetSenseId -> RelationData(true, relationType, targetSenseId) }
+                    }
+                    .toSet()
 
                 for (relationData in senseRelationDataSet) {
                     val targetSense = sensesById[relationData.target]!!
@@ -329,7 +342,7 @@ protected constructor(
      */
     fun report() {
         if (incompats.isNotEmpty()) {
-            for ((key, value) in incompats) {
+            incompats.forEach { (key, value) ->
                 Tracing.psErr.println("[W] Incompatibilities '$key': $value")
             }
             incompats.clear()
