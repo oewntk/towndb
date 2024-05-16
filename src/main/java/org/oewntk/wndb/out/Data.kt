@@ -6,7 +6,6 @@ package org.oewntk.wndb.out
 import org.oewntk.model.Category
 import org.oewntk.wndb.out.Coder.codeRelation
 import org.oewntk.wndb.out.Formatter.intFormat2
-import org.oewntk.wndb.out.Formatter.intFormatHex2X
 import org.oewntk.wndb.out.Formatter.intFormatHex2x
 import org.oewntk.wndb.out.Formatter.joinToStringWithCount
 import org.oewntk.wndb.out.Formatter.lexidFormat
@@ -116,11 +115,11 @@ object Data {
         private val ptrSymbol: String = codeRelation(type, category, pointerCompat)
 
         fun toWndbString(): String {
-            return "$ptrSymbol ${offsetFormat(targetOffset)} $targetPos ${intFormatHex2X(sourceWordNum)}${intFormatHex2X(targetWordNum)}"
+            return "$ptrSymbol ${offsetFormat(targetOffset)} $targetPos ${intFormatHex2x(sourceWordNum)}${intFormatHex2x(targetWordNum)}"
         }
 
         override fun toString(): String {
-            return "Relation $ptrSymbol ${offsetFormat(targetOffset)} $targetPos ${intFormatHex2X(sourceWordNum)}${intFormatHex2X(targetWordNum)}"
+            return "Relation $ptrSymbol ${offsetFormat(targetOffset)} $targetPos ${intFormatHex2x(sourceWordNum)}${intFormatHex2x(targetWordNum)}"
         }
     }
 
