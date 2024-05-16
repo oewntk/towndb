@@ -157,7 +157,7 @@ object Data {
         /**
          * Join frames. If a frame applies to all words, then frame num is zeroed
          *
-         * @param category          part of speech
+         * @param category     category: part of speech or ss_type
          * @param membersCount synset member count
          * @return formatted verb frames
          */
@@ -169,14 +169,15 @@ object Data {
             if (size < 1) {
                 return "00"
             }
-            val resultFrames: MutableList<Frame> = ArrayList()
-            for ((frameNum, framesWithFrameNum) in entries) {
-                if (framesWithFrameNum.size == membersCount) {
-                    resultFrames.add(Frame(frameNum, 0))
-                } else {
-                    resultFrames.addAll(framesWithFrameNum)
-                }
-            }
+            val allMembersFrames = entries
+                .filter { (_, framesWithFrameNum) -> framesWithFrameNum.size == membersCount }
+                .map { (frameNum, _) -> Frame(frameNum, 0) }
+                .toList()
+            val someMembersFrames = entries
+                .filter { (_, framesWithFrameNum) -> framesWithFrameNum.size != membersCount }
+                .flatMap { (_, framesWithFrameNum) -> framesWithFrameNum.toList() }
+                .toList()
+            val resultFrames = allMembersFrames + someMembersFrames
             return resultFrames.joinToStringWithCount(countFormat = ::intFormat2) { it.toWndbString() }
         }
     }
