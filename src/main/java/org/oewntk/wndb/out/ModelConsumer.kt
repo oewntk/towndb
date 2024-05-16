@@ -209,18 +209,22 @@ class ModelConsumer(
             var aCount: Int
             var rCount: Int
             val grinder = GrindMorphs()
-            PrintStream(FileOutputStream(File(dir, "noun.exc")), true, StandardCharsets.UTF_8).use { ps ->
-                nCount = grinder.makeMorph(ps, lexesByLemma, Data.NOUN_POS_FILTER)
-            }
-            PrintStream(FileOutputStream(File(dir, "verb.exc")), true, StandardCharsets.UTF_8).use { ps ->
-                vCount = grinder.makeMorph(ps, lexesByLemma, Data.VERB_POS_FILTER)
-            }
-            PrintStream(FileOutputStream(File(dir, "adj.exc")), true, StandardCharsets.UTF_8).use { ps ->
-                aCount = grinder.makeMorph(ps, lexesByLemma, Data.ADJ_POS_FILTER)
-            }
-            PrintStream(FileOutputStream(File(dir, "adv.exc")), true, StandardCharsets.UTF_8).use { ps ->
-                rCount = grinder.makeMorph(ps, lexesByLemma, Data.ADV_POS_FILTER)
-            }
+            PrintStream(FileOutputStream(File(dir, "noun.exc")), true, StandardCharsets.UTF_8)
+                .use { ps ->
+                    nCount = grinder.makeMorph(ps, lexesByLemma, Data.NOUN_POS_FILTER)
+                }
+            PrintStream(FileOutputStream(File(dir, "verb.exc")), true, StandardCharsets.UTF_8)
+                .use { ps ->
+                    vCount = grinder.makeMorph(ps, lexesByLemma, Data.VERB_POS_FILTER)
+                }
+            PrintStream(FileOutputStream(File(dir, "adj.exc")), true, StandardCharsets.UTF_8)
+                .use { ps ->
+                    aCount = grinder.makeMorph(ps, lexesByLemma, Data.ADJ_POS_FILTER)
+                }
+            PrintStream(FileOutputStream(File(dir, "adv.exc")), true, StandardCharsets.UTF_8)
+                .use { ps ->
+                    rCount = grinder.makeMorph(ps, lexesByLemma, Data.ADV_POS_FILTER)
+                }
             val sum = nCount + vCount + aCount + rCount
             Tracing.psInfo.println("Morphs: $sum [n:$nCount v:$vCount a:$aCount r:$rCount]")
         }
