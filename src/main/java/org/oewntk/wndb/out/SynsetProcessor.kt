@@ -12,7 +12,7 @@ import org.oewntk.wndb.out.Coder.codeLexFile
 import org.oewntk.wndb.out.Data.AdjMember
 import org.oewntk.wndb.out.Formatter.intFormat2
 import org.oewntk.wndb.out.Formatter.intFormat3
-import org.oewntk.wndb.out.Formatter.intFormatHex2X
+import org.oewntk.wndb.out.Formatter.intFormatHex2x
 import org.oewntk.wndb.out.Formatter.joinToStringWithCount
 import org.oewntk.wndb.out.Formatter.offsetFormat
 import java.util.*
@@ -285,7 +285,7 @@ protected constructor(
 
         // assemble
         val lexIdCompat = (flags and Flags.LEXID_COMPAT) != 0
-        val membersData = members.joinToStringWithCount(separator = " ", countSeparator = " ", countFormat = ::intFormatHex2X) { it.toWndbString(lexIdCompat) }
+        val membersData = members.joinToStringWithCount(separator = " ", countSeparator = " ", countFormat = ::intFormatHex2x) { it.toWndbString(lexIdCompat) }
         val relatedData = relations.joinToStringWithCount(separator = " ", countSeparator = " ", countFormat = ::intFormat3) { it.toWndbString() }
 
         var verbframesData = frames.toWndbString(type, members.size)
@@ -293,7 +293,7 @@ protected constructor(
             verbframesData = " $verbframesData"
         }
         val definitionsData = definitions.joinToString("; ")
-        val examplesData = if (examples.isNullOrEmpty()) "" else "; " + examples.joinToString(" ")
+        val examplesData = if (examples.isNullOrEmpty()) "" else "; " + examples.joinToString(separator = " ") { example -> "\"$example\"" }
         return "${offsetFormat(offset)} ${intFormat2(lexfileNum)} $type $membersData $relatedData$verbframesData | $definitionsData$examplesData  \n"
     }
 
