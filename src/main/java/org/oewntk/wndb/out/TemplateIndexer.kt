@@ -21,7 +21,7 @@ class TemplateIndexer {
         val n = sensesById
             .filter { (_, sense) -> !sense.verbTemplates.isNullOrEmpty() }
             .onEach { (sensekey, sense) ->
-                val templates = sense.verbTemplates!!.joinToString(separator = " ")
+                val templates = sense.verbTemplates!!.joinToString(separator = ",")
                 val line = "$sensekey $templates"
                 ps.println(line)
             }
