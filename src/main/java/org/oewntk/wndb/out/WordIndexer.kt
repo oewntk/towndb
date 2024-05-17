@@ -164,23 +164,21 @@ class WordIndexer(
      */
     private fun collectSynsetRelations(synset: Synset, category: Category, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
         if (!synset.relations.isNullOrEmpty()) {
-            for ((relationType) in synset.relations!!) {
-                var pointer: String
+            for (relation in synset.relations!!.keys) {
                 try {
-                    pointer = Coder.codeRelation(relationType, category, pointerCompat)
+                    val pointer: String = Coder.codeRelation(relation, category, pointerCompat)
+                    pointers.add(pointer)
+
                 } catch (e: CompatException) {
                     val cause = e.cause!!.message!!
                     val count = incompats.computeIfAbsent(cause) { 0 } + 1
                     incompats[cause] = count
-                    continue
                 } catch (e: IllegalArgumentException) {
                     if (LOG) {
-                        Tracing.psErr.println("[W] Discarded relation '$relationType'")
+                        Tracing.psErr.println("[W] Discarded relation '$relation'")
                     }
                     throw e
                 }
-                // collect
-                pointers.add(pointer)
             }
         }
     }
@@ -195,26 +193,21 @@ class WordIndexer(
      * @param incompats     incompatibility log
      */
     private fun collectSenseRelations(senses: List<Sense>, category: Category, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
-        for (lexSense in senses) {
-            val senseRelations = lexSense.relations
-            if (!senseRelations.isNullOrEmpty()) {
-                for ((relationType) in senseRelations) {
-                    var pointer: String
+        for (sense in senses) {
+            if (!sense.relations.isNullOrEmpty()) {
+                for (relation in sense.relations!!.keys) {
                     try {
-                        pointer = Coder.codeRelation(relationType, category, pointerCompat)
+                        val pointer: String = Coder.codeRelation(relation, category, pointerCompat)
+                        pointers.add(pointer)
                     } catch (e: CompatException) {
                         val cause = e.cause!!.message!!
                         val count = incompats.computeIfAbsent(cause) { 0 } + 1
                         incompats[cause] = count
-                        continue
                     } catch (e: IllegalArgumentException) {
                         if (LOG) {
-                            Tracing.psErr.println("[W] Discarded relation '$relationType'")
+                            Tracing.psErr.println("[W] Discarded relation '$relation'")
                         }
-                        continue
                     }
-                    // collect
-                    pointers.add(pointer)
                 }
             }
         }

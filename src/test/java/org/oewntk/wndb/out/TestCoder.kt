@@ -99,26 +99,23 @@ class TestCoder {
 
         val allPointers: MutableSet<String> = TreeSet()
         val toRelations: MutableMap<Char, MutableMap<String, String>> = HashMap()
-        for (pos in listOf('n', 'v', 'a', 'r')) {
+        sequenceOf('n', 'v', 'a', 'r').forEach { pos ->
             for (relation in allRelations[pos]!!) {
-                var pointer: String
                 try {
-                    pointer = codeRelation(relation, pos, pointerCompat)
+                    val pointer: String = codeRelation(relation, pos, pointerCompat)
+                    allPointers.add(pointer)
+                    val pointerToRelation = toRelations.computeIfAbsent(pos) { HashMap() }
+                    pointerToRelation[pointer] = relation
                 } catch (e: CompatException) {
                     Tracing.psErr.println(e.cause!!.message)
-                    continue
                 } catch (e: IllegalArgumentException) {
                     Tracing.psErr.println(relation + " for " + pos + " " + e.cause!!.message)
-                    continue
                 }
-                allPointers.add(pointer)
-                val pointerToRelation = toRelations.computeIfAbsent(pos) { HashMap() }
-                pointerToRelation[pointer] = relation
             }
         }
         for (pointer in allPointers) {
             Tracing.psInfo.println("${String.format("%-2s", pointer)}\t")
-            for (pos in listOf('n', 'v', 'a', 'r')) {
+            sequenceOf('n', 'v', 'a', 'r').forEach { pos ->
                 val relation = toRelations[pos]!![pointer]
                 if (relation != null) {
                     Tracing.psInfo.print("$pos:$relation ")
