@@ -7,7 +7,7 @@ import org.oewntk.model.*
 import org.oewntk.wndb.out.Coder.codeFrameId
 import org.oewntk.wndb.out.Coder.codeLexFile
 import org.oewntk.wndb.out.Data.AdjMember
-import org.oewntk.wndb.out.Data.Frame.Companion.toWndbString
+import org.oewntk.wndb.out.Data.VerbFrame.Companion.toWndbString
 import org.oewntk.wndb.out.Formatter.intFormat2
 import org.oewntk.wndb.out.Formatter.intFormat3
 import org.oewntk.wndb.out.Formatter.intFormatHex2x
@@ -276,7 +276,7 @@ protected constructor(
             .toList()
     }
 
-    private fun getVerbFrames(senses: List<Sense>): Map<Int, List<Data.Frame>> {
+    private fun getVerbFrames(senses: List<Sense>): Map<Int, List<Data.VerbFrame>> {
 
         val verbFrameCompat = (flags and Flags.VERBFRAME_COMPAT) != 0
         return senses
@@ -290,7 +290,7 @@ protected constructor(
             .map { (sense, verbframeId) ->
                 try {
                     val code = codeFrameId(verbframeId, verbFrameCompat)
-                    Data.Frame(code, sense.findSynsetIndex(synsetsById) + 1)
+                    Data.VerbFrame(code, sense.findSynsetIndex(synsetsById) + 1)
                 } catch (e: CompatException) {
                     val cause = e.cause!!.message!!
                     val count = incompats.computeIfAbsent(cause) { 0 } + 1

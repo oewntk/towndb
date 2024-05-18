@@ -87,10 +87,11 @@ object Data {
     /**
      * Semantic or lexical relations
      */
-    data class Relation(
+    internal data class Relation(
         private val ptrSymbol: String,
         private val targetPos: Char,
         private val targetOffset: Long,
+
         /**
          * The source/target field distinguishes lexical and semantic pointers.
          * It is a four byte field, containing two two-digit hexadecimal integers.
@@ -99,6 +100,7 @@ object Data {
          * the current (source) synset and the target synset indicated by synset_offset .
          */
         private val sourceWordNum: Int,
+
         /**
          * The source/target field distinguishes lexical and semantic pointers.
          * It is a four byte field, containing two two-digit hexadecimal integers.
@@ -135,7 +137,7 @@ object Data {
      * @param frameNum  frame number
      * @param memberNum 1-based lemma member number in synset this frame applies to
      */
-    data class Frame(
+    internal data class VerbFrame(
         val frameNum: Int,
         private val memberNum: Int,
     ) {
@@ -157,7 +159,7 @@ object Data {
              * @param membersCount synset member count
              * @return formatted verb frames
              */
-            fun Map<Int, List<Frame>>.toWndbString(category: Category, membersCount: Int): String {
+            fun Map<Int, List<VerbFrame>>.toWndbString(category: Category, membersCount: Int): String {
                 if (category != 'v') {
                     return ""
                 }
@@ -167,7 +169,7 @@ object Data {
                 }
                 val allMembersFrames = entries
                     .filter { (_, framesWithFrameNum) -> framesWithFrameNum.size == membersCount }
-                    .map { (frameNum, _) -> Frame(frameNum, 0) }
+                    .map { (frameNum, _) -> VerbFrame(frameNum, 0) }
                     .toList()
                 val someMembersFrames = entries
                     .filter { (_, framesWithFrameNum) -> framesWithFrameNum.size != membersCount }
