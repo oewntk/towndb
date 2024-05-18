@@ -43,23 +43,14 @@ object Data {
      */
     internal open class Member(
         protected val lemma: String,
-        lexid: Int,
-        lexIdCompat: Boolean,
+        protected val lexid: Int = 0,
     ) {
 
-        protected var lexid: Int = 0
-
-        init {
-            if (lexIdCompat) {
-                this.lexid = lexid % 16 // 16 -> 0
-                if (lexid > 16) // throw RuntimeException("Out of range lexid for lemma $lemma: $lexid")
-                {
-                    Tracing.psErr.println("Out of range lexid for lemma $lemma: $lexid tweaked to ${this.lexid}")
-                }
-            } else {
-                this.lexid = lexid
-            }
-        }
+        constructor (
+            lemma: String,
+            lexid: Int,
+            lexIdCompat: Boolean,
+        ) : this(lemma, computeLexid(lexid, lexIdCompat, lemma))
 
         open fun toWndbString(lexIdCompat: Boolean): String {
             return "$lemma ${lexidFormat(lexid, lexIdCompat)}"
@@ -67,6 +58,26 @@ object Data {
 
         override fun toString(): String {
             return "Member $lemma lexid:${lexidFormat(lexid)}"
+        }
+
+        companion object {
+
+            fun computeLexid(
+                lexid: Int,
+                lexIdCompat: Boolean,
+                lemma: String,
+            ): Int {
+                return if (lexIdCompat) {
+                    val result = lexid % 16 // 16 -> 0
+                    if (lexid > 16) // throw RuntimeException("Out of range lexid for lemma $lemma: $lexid")
+                    {
+                        Tracing.psErr.println("Out of range lexid for lemma $lemma: $lexid tweaked to $lexid")
+                    }
+                    result
+                } else {
+                    lexid
+                }
+            }
         }
     }
 

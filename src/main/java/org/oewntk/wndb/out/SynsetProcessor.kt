@@ -7,6 +7,9 @@ import org.oewntk.model.*
 import org.oewntk.wndb.out.Coder.codeFrameId
 import org.oewntk.wndb.out.Coder.codeLexFile
 import org.oewntk.wndb.out.Data.AdjMember
+import org.oewntk.wndb.out.Data.Member
+import org.oewntk.wndb.out.Data.Relation
+import org.oewntk.wndb.out.Data.VerbFrame
 import org.oewntk.wndb.out.Data.VerbFrame.Companion.toWndbString
 import org.oewntk.wndb.out.Formatter.intFormat2
 import org.oewntk.wndb.out.Formatter.intFormat3
@@ -17,34 +20,21 @@ import java.util.*
 
 /**
  * This abstract class iterates over the synsets to produce a line of data. The real classes implement some functions differently.
+
+ * @property lexesByLemma lexes mapped by lemma
+ * @property synsetsById synsets mapped by id
+ * @property sensesById senses mapped by id
+ * @property offsetFunction function that, when applied to a synsetId, yields the synset offset in the data files. May be dummy constant function.
+ * @property flags flags
  *
  * @author Bernard Bou
  */
-abstract class SynsetProcessor
-protected constructor(
-    /**
-     * Lexes mapped by lemma
-     */
+abstract class SynsetProcessor protected constructor(
+
     protected val lexesByLemma: Map<String, Collection<Lex>>,
-
-    /**
-     * Synsets mapped by id
-     */
     protected val synsetsById: Map<String, Synset>,
-
-    /**
-     * Senses mapped by id
-     */
     protected val sensesById: Map<String, Sense>,
-
-    /**
-     * Function that, when applied to a synsetId, yields the synset offset in the data files. May be dummy constant function.
-     */
     protected val offsetFunction: (String) -> Long,
-
-    /**
-     * Flags
-     */
     protected val flags: Int,
 
     ) {
@@ -107,7 +97,7 @@ protected constructor(
      * @param sense sense
      * @return member
      */
-    private fun buildMember(sense: Sense): Data.Member {
+    private fun buildMember(sense: Sense): Member {
         // lexid
         val lexid = sense.findLexid()
 
@@ -122,7 +112,7 @@ protected constructor(
 
         val escaped = Formatter.escape(lemma)
         val lexIdCompat = (flags and Flags.LEXID_COMPAT) != 0
-        return if (adjPosition.isNullOrEmpty()) Data.Member(escaped, lexid, lexIdCompat) else AdjMember(escaped, lexid, adjPosition, lexIdCompat)
+        return if (adjPosition.isNullOrEmpty()) Member(escaped, lexid, lexIdCompat) else AdjMember(escaped, lexid, adjPosition, lexIdCompat)
     }
 
     /**
@@ -148,7 +138,7 @@ protected constructor(
         val type = synset.type
 
         // build members ordered set
-        val members: List<Data.Member> = synset.members
+        val members: List<Member> = synset.members
             .map { member -> synset.findSenseOf(member, { lexesByLemma[it] }, { sensesById[it]!! }) }
             .map { buildMember(it) }
             .toList()
@@ -191,7 +181,7 @@ protected constructor(
         return "${offsetFormat(offset)} ${intFormat2(lexfileNum)} $type $membersData $relatedData$verbframesData | $definitionsData$examplesData  \n"
     }
 
-    private fun getSynsetRelationData(synset: Synset, offset: Long): List<Data.Relation> {
+    private fun getSynsetRelationData(synset: Synset, offset: Long): List<Relation> {
 
         return if (synset.relations.isNullOrEmpty()) emptyList() else {
             val pointerCompat = (flags and Flags.POINTER_COMPAT) != 0
@@ -211,7 +201,7 @@ protected constructor(
                     val targetOffset = offsetFunction.invoke(relationData.target)
                     val targetType = targetSynset.type
                     try {
-                        Data.Relation(relationData.relation, synset.type, targetType, targetOffset, 0, 0, pointerCompat)
+                        Relation(relationData.relation, synset.type, targetType, targetOffset, 0, 0, pointerCompat)
 
                     } catch (e: CompatException) {
                         val cause = e.cause!!.message!!
@@ -229,17 +219,17 @@ protected constructor(
         }
     }
 
-    private fun getSenseRelationData(synset: Synset, senses: List<Sense>, offset: Long): List<Data.Relation> {
+    private fun getSenseRelationData(synset: Synset, senses: List<Sense>, offset: Long): List<Relation> {
         return senses
             .asSequence()
             .filter { sense -> !sense.relations.isNullOrEmpty() }
             .flatMap { sense ->
                 sense.relations!!
                     .asSequence()
-                    .map { entry: Map.Entry<Relation, MutableSet<SenseKey>> -> sense to entry }
+                    .map { entry -> sense to entry }
             }
-            .flatMap { (sense: Sense, relationEntry: Map.Entry<Relation, MutableSet<SenseKey>>) ->
-                val relation: Relation = relationEntry.key
+            .flatMap { (sense, relationEntry) ->
+                val relation = relationEntry.key
                 val targetSynsets: MutableSet<SenseKey> = relationEntry.value
                 targetSynsets
                     .asSequence()
@@ -276,7 +266,7 @@ protected constructor(
             .toList()
     }
 
-    private fun getVerbFrames(senses: List<Sense>): Map<Int, List<Data.VerbFrame>> {
+    private fun getVerbFrames(senses: List<Sense>): Map<Int, List<VerbFrame>> {
 
         val verbFrameCompat = (flags and Flags.VERBFRAME_COMPAT) != 0
         return senses
@@ -290,7 +280,7 @@ protected constructor(
             .map { (sense, verbframeId) ->
                 try {
                     val code = codeFrameId(verbframeId, verbFrameCompat)
-                    Data.VerbFrame(code, sense.findSynsetIndex(synsetsById) + 1)
+                    VerbFrame(code, sense.findSynsetIndex(synsetsById) + 1)
                 } catch (e: CompatException) {
                     val cause = e.cause!!.message!!
                     val count = incompats.computeIfAbsent(cause) { 0 } + 1
@@ -300,7 +290,7 @@ protected constructor(
             }
             .filterNotNull()
             .groupBy { it.frameNum }
-   }
+    }
 
     /**
      * Build relation
@@ -315,7 +305,7 @@ protected constructor(
      * @throws CompatException when relation is not legacy compatible
      */
     @Throws(CompatException::class)
-    protected open fun buildSenseRelation(type: String, category: Category, sourceMemberNum: Int, targetSense: Sense, targetSynset: Synset, targetSynsetId: String): Data.Relation {
+    protected open fun buildSenseRelation(type: String, category: Category, sourceMemberNum: Int, targetSense: Sense, targetSynset: Synset, targetSynsetId: String): Relation {
         // target lemma
         val targetLemma = targetSense.lemma
 
@@ -324,7 +314,7 @@ protected constructor(
         val targetType = targetSynset.type
         val targetOffset = offsetFunction.invoke(targetSynsetId)
         val pointerCompat = (flags and Flags.POINTER_COMPAT) != 0
-        return Data.Relation(type, category, targetType, targetOffset, sourceMemberNum, targetMemberNum, pointerCompat)
+        return Relation(type, category, targetType, targetOffset, sourceMemberNum, targetMemberNum, pointerCompat)
     }
 
     /**
