@@ -87,7 +87,7 @@ object Data {
     /**
      * Semantic or lexical relations
      */
-    internal data class Relation(
+    data class Relation(
         private val ptrSymbol: String,
         private val targetPos: Char,
         private val targetOffset: Long,
