@@ -135,7 +135,7 @@ object Data {
      * @param frameNum  frame number
      * @param memberNum 1-based lemma member number in synset this frame applies to
      */
-    internal data class Frame(
+    data class Frame(
         val frameNum: Int,
         private val memberNum: Int,
     ) {
@@ -152,38 +152,38 @@ object Data {
     /**
      * Verb (syntactic) frames, a list of frames mapped per given frameNum
      */
-    internal class Frames : HashMap<Int, MutableList<Frame>>() {
+    data class Frames(
+        val frames: Map<Int, List<Frame>>,
+    ) {
 
-        fun add(frame: Frame) {
-            val frames2 = computeIfAbsent(frame.frameNum) { ArrayList() }
-            frames2.add(frame)
-        }
+        companion object {
 
-        /**
-         * Join frames. If a frame applies to all words, then frame num is zeroed
-         *
-         * @param category     category: part of speech or ss_type
-         * @param membersCount synset member count
-         * @return formatted verb frames
-         */
-        fun toWndbString(category: Category, membersCount: Int): String {
-            if (category != 'v') {
-                return ""
+            /**
+             * Join frames. If a frame applies to all words, then frame num is zeroed
+             *
+             * @param category     category: part of speech or ss_type
+             * @param membersCount synset member count
+             * @return formatted verb frames
+             */
+            fun Map<Int, List<Frame>>.toWndbString(category: Category, membersCount: Int): String {
+                if (category != 'v') {
+                    return ""
+                }
+                // compulsory for verbs even if empty
+                if (isEmpty()) {
+                    return "00"
+                }
+                val allMembersFrames = entries
+                    .filter { (_, framesWithFrameNum) -> framesWithFrameNum.size == membersCount }
+                    .map { (frameNum, _) -> Frame(frameNum, 0) }
+                    .toList()
+                val someMembersFrames = entries
+                    .filter { (_, framesWithFrameNum) -> framesWithFrameNum.size != membersCount }
+                    .flatMap { (_, framesWithFrameNum) -> framesWithFrameNum.toList() }
+                    .toList()
+                val resultFrames = allMembersFrames + someMembersFrames
+                return resultFrames.joinToStringWithCount(countFormat = ::intFormat2) { it.toWndbString() }
             }
-            // compulsory for verbs even if empty
-            if (size < 1) {
-                return "00"
-            }
-            val allMembersFrames = entries
-                .filter { (_, framesWithFrameNum) -> framesWithFrameNum.size == membersCount }
-                .map { (frameNum, _) -> Frame(frameNum, 0) }
-                .toList()
-            val someMembersFrames = entries
-                .filter { (_, framesWithFrameNum) -> framesWithFrameNum.size != membersCount }
-                .flatMap { (_, framesWithFrameNum) -> framesWithFrameNum.toList() }
-                .toList()
-            val resultFrames = allMembersFrames + someMembersFrames
-            return resultFrames.joinToStringWithCount(countFormat = ::intFormat2) { it.toWndbString() }
         }
     }
 }

@@ -7,6 +7,7 @@ import org.oewntk.model.*
 import org.oewntk.wndb.out.Coder.codeFrameId
 import org.oewntk.wndb.out.Coder.codeLexFile
 import org.oewntk.wndb.out.Data.AdjMember
+import org.oewntk.wndb.out.Data.Frames.Companion.toWndbString
 import org.oewntk.wndb.out.Formatter.intFormat2
 import org.oewntk.wndb.out.Formatter.intFormat3
 import org.oewntk.wndb.out.Formatter.intFormatHex2x
@@ -162,8 +163,6 @@ protected constructor(
 
         // synset relations
         val synsetRelations = getSynsetRelationData(synset, offset)
-        val synsetRelations0 = getSynsetRelationData0(synset, offset)
-        assert(synsetRelations == synsetRelations0) { "\n$synsetRelations\n$synsetRelations0" }
 
         // senses that have this synset as target in "synset" field
         val senses = synset.findSenses(
@@ -174,8 +173,6 @@ protected constructor(
 
         // sense relations
         val senseRelations = getSenseRelationData(synset, senses, offset)
-        val senseRelations0 = getSenseRelationData0(synset, senses, offset)
-        assert(senseRelations == senseRelations0) { "\n$senseRelations\n$senseRelations0" }
 
         // verb frames
         val verbFrames = getVerbFrames(senses)
@@ -187,7 +184,7 @@ protected constructor(
         val membersData = members.joinToStringWithCount(separator = " ", countSeparator = " ", countFormat = ::intFormatHex2x) { it.toWndbString(lexIdCompat) }
         val allRelations = synsetRelations + senseRelations
         val relatedData = allRelations.joinToStringWithCount(separator = " ", countSeparator = " ", countFormat = ::intFormat3) { it.toWndbString() }
-        var verbframesData = verbFrames.toWndbString(type, members.size)
+        var verbframesData = verbFrames.frames.toWndbString(type, members.size)
         if (verbframesData.isNotEmpty()) {
             verbframesData = " $verbframesData"
         }
@@ -281,132 +278,40 @@ protected constructor(
             .toList()
     }
 
-    private fun getSynsetRelationData0(synset: Synset, offset: Long): List<Data.Relation> {
+    private fun getVerbFrames(senses: List<Sense>): Data.Frames {
 
-        val relations: MutableList<Data.Relation> = ArrayList()
-        if (!synset.relations.isNullOrEmpty()) {
-            val pointerCompat = (flags and Flags.POINTER_COMPAT) != 0
-
-            val relationDataSet: MutableSet<RelationData> = LinkedHashSet()
-            for ((relationType, values) in synset.relations!!) {
-                for (targetSynsetId in values) {
-                    val relation = RelationData(false, relationType, targetSynsetId)
-                    val wasThere = !relationDataSet.add(relation)
-                    if (wasThere && LOG_DUPLICATE_RELATION && log()) {
-                        Tracing.psErr.println("[W] Synset ${synset.synsetId} has duplicate $relation")
-                    }
-                }
+        val verbFrameCompat = (flags and Flags.VERBFRAME_COMPAT) != 0
+        val result = senses
+            .asSequence()
+            .filter { !it.verbFrames.isNullOrEmpty() }
+            .flatMap { sense ->
+                sense.verbFrames!!
+                    .asSequence()
+                    .map { verbFrameId -> sense to verbFrameId }
             }
-            for (relationData in relationDataSet) {
-                val targetSynset = synsetsById[relationData.target]!!
-                val targetOffset = offsetFunction.invoke(relationData.target)
-                val targetType = targetSynset.type
-                var relation: Data.Relation
+            .map { (sense, verbframeId) ->
                 try {
-                    relation = Data.Relation(relationData.relation, synset.type, targetType, targetOffset, 0, 0, pointerCompat)
+                    val code = codeFrameId(verbframeId, verbFrameCompat)
+                    Data.Frame(code, sense.findSynsetIndex(synsetsById) + 1)
                 } catch (e: CompatException) {
                     val cause = e.cause!!.message!!
                     val count = incompats.computeIfAbsent(cause) { 0 } + 1
                     incompats[cause] = count
-                    continue
-                } catch (e: IllegalArgumentException) {
-                    if (LOG_DISCARDED && log()) {
-                        Tracing.psErr.println("[W] Discarded relation '${relationData.relation}' synset=${synset.synsetId} offset=$offset")
-                    }
-                    throw e
-                }
-                relations.add(relation)
-            }
-        }
-        return relations
-    }
-
-    private fun getSenseRelationData0(synset: Synset, senses: List<Sense>, offset: Long): List<Data.Relation> {
-
-        val relations: MutableList<Data.Relation> = ArrayList()
-        for (sense in senses) {
-
-            // sense relations
-            if (!sense.relations.isNullOrEmpty()) {
-                val lemma = sense.lemma
-
-                val senseRelationDataSet = sense.relations!!
-                    .asSequence()
-                    .flatMap { (relationType, targetSynsets) ->
-                        targetSynsets
-                            .asSequence()
-                            .map { targetSenseId -> RelationData(true, relationType, targetSenseId) }
-                    }
-                    .toSetWarnDuplicates { duplicate ->
-                        if (LOG_DUPLICATE_RELATION && log()) {
-                            Tracing.psErr.println("[W] Sense ${sense.senseKey} has duplicate ${duplicate.relation}")
-                        }
-                    }
-
-                for (relationData in senseRelationDataSet) {
-                    val targetSense = sensesById[relationData.target]!!
-                    val targetSynsetId = targetSense.synsetId
-                    val targetSynset = synsetsById[targetSynsetId]!!
-
-                    val memberNum = synset.findIndexOfMember(lemma) + 1
-
-                    try {
-                        val relation = buildSenseRelation(relationData.relation, synset.type, memberNum, targetSense, targetSynset, targetSynsetId)
-                        relations.add(relation)
-
-                    } catch (e: CompatException) {
-                        val cause = e.cause!!.message!!
-                        val count = incompats.computeIfAbsent(cause) { 0 } + 1
-                        incompats[cause] = count
-                    } catch (e: IllegalArgumentException) {
-                        if (LOG_DISCARDED && log()) {
-                            Tracing.psErr.println("[W] Discarded relation '${relationData.relation}' synset=${synset.synsetId} offset=$offset")
-                        }
-                        // throw e;
-                    }
+                    null
                 }
             }
-        }
-        return relations
-    }
+            .filterNotNull()
+            .groupBy { it.frameNum }
 
-    private fun getVerbFrames(senses: List<Sense>): Data.Frames {
-
-        val verbFrameCompat = (flags and Flags.VERBFRAME_COMPAT) != 0
-        val frames = Data.Frames()
-        for (sense in senses) {
-
-            // verb frames attribute
-            if (!sense.verbFrames.isNullOrEmpty()) {
-                sense.verbFrames!!
-                    .asSequence()
-                    .map { verbframeId ->
-                        try {
-                            val code = codeFrameId(verbframeId, verbFrameCompat)
-                            Data.Frame(code, sense.findSynsetIndex(synsetsById) + 1)
-
-                        } catch (e: CompatException) {
-                            val cause = e.cause!!.message!!
-                            val count = incompats.computeIfAbsent(cause) { 0 } + 1
-                            incompats[cause] = count
-                            null
-                        }
-                    }
-                    .filterNotNull()
-                    .forEach { frames.add(it) }
-            }
-        }
+        val frames = Data.Frames(result)
         return frames
     }
 
     private fun getVerbFrames0(senses: List<Sense>): Data.Frames {
 
-        // iterate senses
-        val frames = Data.Frames()
+        val verbFrameCompat = (flags and Flags.VERBFRAME_COMPAT) != 0
+        val frames = HashMap<Int, MutableList<Data.Frame>>()
         for (sense in senses) {
-            val verbFrameCompat = (flags and Flags.VERBFRAME_COMPAT) != 0
-
-            // verb frames attribute
             if (!sense.verbFrames.isNullOrEmpty()) {
                 sense.verbFrames!!
                     .asSequence()
@@ -423,10 +328,13 @@ protected constructor(
                         }
                     }
                     .filterNotNull()
-                    .forEach { frames.add(it) }
+                    .forEach {
+                        val frames2 = frames.computeIfAbsent(it.frameNum) { ArrayList() }
+                        frames2.add(it)
+                    }
             }
         }
-        return frames
+        return Data.Frames(frames)
     }
 
     /**
