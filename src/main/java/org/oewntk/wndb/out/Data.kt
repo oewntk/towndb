@@ -87,9 +87,8 @@ object Data {
     /**
      * Semantic or lexical relations
      */
-    class Relation(
-        type: String,
-        category: Category,
+    data class Relation(
+        private val ptrSymbol: String,
         private val targetPos: Char,
         private val targetOffset: Long,
         /**
@@ -108,11 +107,18 @@ object Data {
          * the current (source) synset and the target synset indicated by synset_offset .
          */
         private val targetWordNum: Int,
-        pointerCompat: Boolean,
 
         ) {
 
-        private val ptrSymbol: String = codeRelation(type, category, pointerCompat)
+        constructor (
+            type: String,
+            category: Category,
+            targetPos: Char,
+            targetOffset: Long,
+            sourceWordNum: Int,
+            targetWordNum: Int,
+            pointerCompat: Boolean,
+        ) : this(codeRelation(type, category, pointerCompat), targetPos, targetOffset, sourceWordNum, targetWordNum)
 
         fun toWndbString(): String {
             return "$ptrSymbol ${offsetFormat(targetOffset)} $targetPos ${intFormatHex2x(sourceWordNum)}${intFormatHex2x(targetWordNum)}"
@@ -129,7 +135,7 @@ object Data {
      * @param frameNum  frame number
      * @param memberNum 1-based lemma member number in synset this frame applies to
      */
-    internal class Frame(
+    internal data class Frame(
         val frameNum: Int,
         private val memberNum: Int,
     ) {
