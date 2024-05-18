@@ -7,7 +7,7 @@ import org.oewntk.model.*
 import org.oewntk.wndb.out.Coder.codeFrameId
 import org.oewntk.wndb.out.Coder.codeLexFile
 import org.oewntk.wndb.out.Data.AdjMember
-import org.oewntk.wndb.out.Data.Frames.Companion.toWndbString
+import org.oewntk.wndb.out.Data.Frame.Companion.toWndbString
 import org.oewntk.wndb.out.Formatter.intFormat2
 import org.oewntk.wndb.out.Formatter.intFormat3
 import org.oewntk.wndb.out.Formatter.intFormatHex2x
@@ -176,15 +176,13 @@ protected constructor(
 
         // verb frames
         val verbFrames = getVerbFrames(senses)
-        val verbFrames0 = getVerbFrames0(senses)
-        assert(verbFrames == verbFrames0) { "\n$verbFrames\n$verbFrames0" }
 
         // assemble
         val lexIdCompat = (flags and Flags.LEXID_COMPAT) != 0
         val membersData = members.joinToStringWithCount(separator = " ", countSeparator = " ", countFormat = ::intFormatHex2x) { it.toWndbString(lexIdCompat) }
         val allRelations = synsetRelations + senseRelations
         val relatedData = allRelations.joinToStringWithCount(separator = " ", countSeparator = " ", countFormat = ::intFormat3) { it.toWndbString() }
-        var verbframesData = verbFrames.frames.toWndbString(type, members.size)
+        var verbframesData = verbFrames.toWndbString(type, members.size)
         if (verbframesData.isNotEmpty()) {
             verbframesData = " $verbframesData"
         }
@@ -278,10 +276,10 @@ protected constructor(
             .toList()
     }
 
-    private fun getVerbFrames(senses: List<Sense>): Data.Frames {
+    private fun getVerbFrames(senses: List<Sense>): Map<Int, List<Data.Frame>> {
 
         val verbFrameCompat = (flags and Flags.VERBFRAME_COMPAT) != 0
-        val result = senses
+        return senses
             .asSequence()
             .filter { !it.verbFrames.isNullOrEmpty() }
             .flatMap { sense ->
@@ -302,40 +300,7 @@ protected constructor(
             }
             .filterNotNull()
             .groupBy { it.frameNum }
-
-        val frames = Data.Frames(result)
-        return frames
-    }
-
-    private fun getVerbFrames0(senses: List<Sense>): Data.Frames {
-
-        val verbFrameCompat = (flags and Flags.VERBFRAME_COMPAT) != 0
-        val frames = HashMap<Int, MutableList<Data.Frame>>()
-        for (sense in senses) {
-            if (!sense.verbFrames.isNullOrEmpty()) {
-                sense.verbFrames!!
-                    .asSequence()
-                    .map { verbframeId ->
-                        try {
-                            val code = codeFrameId(verbframeId, verbFrameCompat)
-                            Data.Frame(code, sense.findSynsetIndex(synsetsById) + 1)
-
-                        } catch (e: CompatException) {
-                            val cause = e.cause!!.message!!
-                            val count = incompats.computeIfAbsent(cause) { 0 } + 1
-                            incompats[cause] = count
-                            null
-                        }
-                    }
-                    .filterNotNull()
-                    .forEach {
-                        val frames2 = frames.computeIfAbsent(it.frameNum) { ArrayList() }
-                        frames2.add(it)
-                    }
-            }
-        }
-        return Data.Frames(frames)
-    }
+   }
 
     /**
      * Build relation

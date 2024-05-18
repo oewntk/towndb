@@ -147,14 +147,6 @@ object Data {
         override fun toString(): String {
             return "Frame ${intFormat2(frameNum)} ${intFormatHex2x(memberNum)}"
         }
-    }
-
-    /**
-     * Verb (syntactic) frames, a list of frames mapped per given frameNum
-     */
-    data class Frames(
-        val frames: Map<Int, List<Frame>>,
-    ) {
 
         companion object {
 
