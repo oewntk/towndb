@@ -65,15 +65,14 @@ class WordIndexer(
             .asSequence()
             .filter { it.key.category == posFilter }
             .sortedBy { it.key.lcLemma.replace(' ', '_') }
-            .forEach {
-                val k = it.key
-                val kSenses = it.value
+            .forEach { (key, senses) ->
+                val kSenses = senses
                     .asSequence()
                     .sortedWith(SenseComparator.WNDB_SENSE_ORDER)
                     .toList()
 
-                val lcLemma = k.lcLemma
-                val pos = k.category
+                val lcLemma = key.lcLemma
+                val pos = key.category
                 val ik = lcLemma.replace(' ', '_')
                 val eik = Formatter.escape(ik)
 
@@ -108,29 +107,23 @@ class WordIndexer(
      * @param synsetIds set to collect to
      */
     private fun collectSynsetIds(senses: List<Sense>, synsetIds: MutableSet<String>) {
-        for (sense in senses) {
-            // synsetid
-            val synsetId = sense.synsetId
-            // collect
-            synsetIds.add(synsetId)
+        senses.forEach {
+            synsetIds.add(it.synsetId)
         }
     }
 
     /**
-     * Collect synset ids
+     * Collect tag counts
      *
      * @param senses     senses
      * @param indexEntry to collect to
      */
     private fun collectTagCounts(senses: List<Sense>, indexEntry: IndexEntry) {
-        for (sense in senses) {
-            // synsetid
-            val tagCount = sense.tagCount ?: continue
-            // collect
-            if (tagCount.count > 0) {
+        senses
+            .filter { it.tagCount != null && it.tagCount!!.count > 0 }
+            .forEach { _ ->
                 indexEntry.incTaggedCount()
             }
-        }
     }
 
     /**
@@ -144,11 +137,8 @@ class WordIndexer(
      * @param incompats     incompatibility log
      */
     private fun collectSynsetRelations(senses: List<Sense>, synsetsById: Map<String, Synset>, category: Category, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
-        for (sense in senses) {
-            // synsetid
-            val synsetId = sense.synsetId
-            // synset relations
-            val synset = synsetsById[synsetId]!!
+        senses.forEach {
+            val synset = synsetsById[it.synsetId]!!
             collectSynsetRelations(synset, category, pointers, pointerCompat, incompats)
         }
     }
@@ -164,7 +154,7 @@ class WordIndexer(
      */
     private fun collectSynsetRelations(synset: Synset, category: Category, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
         if (!synset.relations.isNullOrEmpty()) {
-            for (relation in synset.relations!!.keys) {
+            synset.relations!!.keys.forEach { relation ->
                 try {
                     val pointer: String = Coder.codeRelation(relation, category, pointerCompat)
                     pointers.add(pointer)
@@ -193,24 +183,23 @@ class WordIndexer(
      * @param incompats     incompatibility log
      */
     private fun collectSenseRelations(senses: List<Sense>, category: Category, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
-        for (sense in senses) {
-            if (!sense.relations.isNullOrEmpty()) {
-                for (relation in sense.relations!!.keys) {
-                    try {
-                        val pointer: String = Coder.codeRelation(relation, category, pointerCompat)
-                        pointers.add(pointer)
-                    } catch (e: CompatException) {
-                        val cause = e.cause!!.message!!
-                        val count = incompats.computeIfAbsent(cause) { 0 } + 1
-                        incompats[cause] = count
-                    } catch (e: IllegalArgumentException) {
-                        if (LOG) {
-                            Tracing.psErr.println("[W] Discarded relation '$relation'")
-                        }
+        senses
+            .filter { !it.relations.isNullOrEmpty() }
+            .flatMap { it.relations!!.keys }
+            .forEach { relation ->
+                try {
+                    val pointer: String = Coder.codeRelation(relation, category, pointerCompat)
+                    pointers.add(pointer)
+                } catch (e: CompatException) {
+                    val cause = e.cause!!.message!!
+                    val count = incompats.computeIfAbsent(cause) { 0 } + 1
+                    incompats[cause] = count
+                } catch (e: IllegalArgumentException) {
+                    if (LOG) {
+                        Tracing.psErr.println("[W] Discarded relation '$relation'")
                     }
                 }
             }
-        }
     }
 
     /**
