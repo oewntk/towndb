@@ -212,10 +212,9 @@ protected constructor(
                         Tracing.psErr.println("[W] Synset ${synset.synsetId} has duplicate ${duplicate.relation}")
                     }
                 }.mapNotNull { relationData ->
-                    val targetSynset = synsetsById[relationData.target]
-
+                    val targetSynset = synsetsById[relationData.target]!!
                     val targetOffset = offsetFunction.invoke(relationData.target)
-                    val targetType = targetSynset!!.type
+                    val targetType = targetSynset.type
                     try {
                         Data.Relation(relationData.relation, synset.type, targetType, targetOffset, 0, 0, pointerCompat)
 
@@ -299,10 +298,9 @@ protected constructor(
                 }
             }
             for (relationData in relationDataSet) {
-                val targetSynset = synsetsById[relationData.target]
-
+                val targetSynset = synsetsById[relationData.target]!!
                 val targetOffset = offsetFunction.invoke(relationData.target)
-                val targetType = targetSynset!!.type
+                val targetType = targetSynset.type
                 var relation: Data.Relation
                 try {
                     relation = Data.Relation(relationData.relation, synset.type, targetType, targetOffset, 0, 0, pointerCompat)
