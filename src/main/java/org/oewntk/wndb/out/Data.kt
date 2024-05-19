@@ -163,9 +163,6 @@ object Data {
 
         companion object {
 
-            // TODO sorting of verbframes
-            private const val LEGACY_V1 = false
-
             /**
              * Join frames. If a frame applies to all words, then frame num is zeroed
              *
@@ -174,10 +171,7 @@ object Data {
              * @return formatted verb frames
              */
             fun Map<Int, List<VerbFrame>>.toWndbString(category: Category, membersCount: Int): String {
-                return if (LEGACY_V1) toWndbString1(category, membersCount) else toWndbString2(category, membersCount)
-            }
 
-            private fun Map<Int, List<VerbFrame>>.toWndbString2(category: Category, membersCount: Int): String {
                 if (category != 'v') {
                     return ""
                 }
