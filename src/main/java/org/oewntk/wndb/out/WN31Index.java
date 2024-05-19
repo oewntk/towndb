@@ -45,10 +45,19 @@ public class WN31Index
 
 		Integer i1 = SK2INDEX.get(s1.getSensekey());
 		Integer i2 = SK2INDEX.get(s2.getSensekey());
-		if (i1 == null || i2 == null)
+		if (i1 == null && i2 == null)
 		{
 			return 0; // fail, to be chained with thenCompare
 		}
+		if (i1 != null && i2 == null)
+		{
+			return -1; // non-null before null
+		}
+		if (i1 == null /* && i2 != null */)
+		{
+			return 1; // null after non-null
+		}
+
 		int cmp = i1.compareTo(i2);
 		assert cmp != 0 : String.format("Senses have equal indexes %s %s", s1, s2);
 		return cmp;

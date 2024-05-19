@@ -15,7 +15,7 @@ import java.util.Comparator;
 public class SenseComparator
 {
 	/**
-	 * Tail comparator, after head comparators fail
+	 * Tail comparator, after head comparators (tagcount) fail
 	 */
 	public static final Comparator<Sense> WNDB_SENSE_ORDER_TAIL = (s1, s2) -> {
 
@@ -24,16 +24,6 @@ public class SenseComparator
 		{
 			return 0;
 		}
-
-		// same tag count, possibly zero
-		String lemma1 = s1.getLemma();
-		String lemma2 = s2.getLemma();
-		/*
-		if (!lemma1.equalsIgnoreCase(lemma2))
-		{
-			throw new IllegalArgumentException(lemma1 + "-"+ lemma2);
-		}
-		*/
 
 		// type a before s
 		if (s1.getType() != s2.getType())
@@ -49,12 +39,23 @@ public class SenseComparator
 			return cmpLexIndex;
 		}
 
-		// different lemmas, upper-case first
+		String lemma1 = s1.getLemma();
+		String lemma2 = s2.getLemma();
+
+		// lemmas, regardless of case
+		int cmpLowerCase = lemma1.compareToIgnoreCase(lemma2);
+		if (cmpLowerCase != 0)
+		{
+			// different lemmas, regardless of case
+			return cmpLowerCase;
+		}
+
+		// lemmas, cased
 		int cmpCase = lemma1.compareTo(lemma2);
 		if (cmpCase != 0)
 		{
-			// different lemmas, upper-case first
-			return cmpCase;
+			// different cased lemmas, upper-case last
+			return -cmpCase;
 		}
 
 		// compare sensekey
