@@ -5,8 +5,9 @@
 package org.oewntk.wndb.out;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 /**
  * Intermediate data, that are usually accumulated, not Pojos
@@ -207,7 +208,7 @@ public class Data
 	/**
 	 * Verb (syntactic) frames, a list of frames mapped per given frameNum
 	 */
-	static class Frames extends HashMap<Integer, List<Frame>>
+	static class Frames extends TreeMap<Integer, List<Frame>>
 	{
 		private static final long serialVersionUID = -3313309054723217964L;
 
