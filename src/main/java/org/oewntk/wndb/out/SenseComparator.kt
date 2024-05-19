@@ -47,13 +47,23 @@ object SenseComparator {
         if (cmpSensekey != 0) {
             return@Comparator cmpSensekey
         }
+        // total order defined above, so this should not be reached
         throw IllegalArgumentException("$s1-$s2")
     }
+
+    //TODO
+    private const val V1_LEGACY = true
 
     /**
      * Define a total order of senses
      */
-    val WNDB_SENSE_ORDER: Comparator<Sense> = SenseGroupings.BY_DECREASING_TAGCOUNT
+    val WNDB_SENSE_ORDER2: Comparator<Sense> = SenseGroupings.BY_DECREASING_TAGCOUNT
         .thenComparing(WN31Index.SENSE_ORDER)
         .thenComparing(WNDB_SENSE_ORDER_TAIL)
+
+    private val WNDB_SENSE_ORDER1: Comparator<Sense> = SenseGroupings.BY_DECREASING_TAGCOUNT
+        .thenComparing(WN31Index.SENSE_ORDER1)
+        .thenComparing(WNDB_SENSE_ORDER_TAIL)
+
+    val WNDB_SENSE_ORDER = if (V1_LEGACY) WNDB_SENSE_ORDER1 else WNDB_SENSE_ORDER2
 }
