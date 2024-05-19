@@ -164,7 +164,7 @@ object Data {
         companion object {
 
             // TODO sorting of verbframes
-            private const val LEGACY_V1 = true
+            private const val LEGACY_V1 = false
 
             /**
              * Join frames. If a frame applies to all words, then frame num is zeroed
