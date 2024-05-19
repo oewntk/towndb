@@ -45,7 +45,7 @@ class OffsetMapper(
     fun grind(model: CoreModel) {
 
         // Model
-        ps.println("[CoreModel] ${model.source}")
+        ps.println("[CoreModel] map ${model.source}")
 
         // Output
         if (!outDir.exists()) {

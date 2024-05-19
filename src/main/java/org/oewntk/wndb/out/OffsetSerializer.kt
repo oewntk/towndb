@@ -41,7 +41,7 @@ class OffsetSerializer(
     fun grind(model: CoreModel) {
 
         // Model
-        ps.println("[CoreModel] ${model.source}")
+        ps.println("[CoreModel] serialize ${model.source}")
 
         // Output
         if (!outDir.exists()) {
