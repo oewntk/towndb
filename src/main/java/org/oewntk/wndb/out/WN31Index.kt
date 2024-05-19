@@ -24,7 +24,7 @@ object WN31Index {
     /**
      * Sensekey comparator based on the sensekey-to-index map
      */
-    private val WN31_SK_COMPARATOR: Comparator<String> = Comparator.comparing { SK2INDEX[it]!! }
+    val WN31_SK_COMPARATOR: Comparator<String> = Comparator.comparing { SK2INDEX[it]!! }
 
     /**
      * Sense comparator based on the sensekey-to-index map
@@ -51,7 +51,11 @@ object WN31Index {
         cmp
     }
 
-    val SENSE_ORDER_NULL: Comparator<Sense> = Comparator { s1: Sense, s2: Sense ->
+    /**
+     * Used in version 1
+     * Flawed if one is null, the other is not
+     */
+    val SENSE_ORDER1: Comparator<Sense> = Comparator { s1: Sense, s2: Sense ->
         val i1 = SK2INDEX[s1.senseKey]
         val i2 = SK2INDEX[s2.senseKey]
         if (i1 == null || i2 == null) {
@@ -102,18 +106,5 @@ object WN31Index {
 
     fun getWN31SenseIndex(sense: Sense): Int? {
         return SK2INDEX[sense.senseKey]
-    }
-
-    /**
-     * Main
-     *
-     * @param ignoredArgs command-line arguments
-     */
-    @JvmStatic
-    fun main(ignoredArgs: Array<String>) {
-        val list = listOf("eight%1:06:00::", "eight%1:14:00::", "eight%1:23:00::")
-        list
-            .sortedWith(WN31_SK_COMPARATOR)
-            .forEach { println(it) }
     }
 }
