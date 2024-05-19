@@ -51,7 +51,7 @@ object SenseComparator {
         throw IllegalArgumentException("$s1-$s2")
     }
 
-    //TODO
+    // TODO sorting of senses
     private const val V1_LEGACY = true
 
     /**

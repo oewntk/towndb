@@ -163,7 +163,7 @@ object Data {
 
         companion object {
 
-            // TODO
+            // TODO sorting of verbframes
             private const val LEGACY_V1 = true
 
             /**
