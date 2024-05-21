@@ -230,7 +230,7 @@ abstract class SynsetProcessor protected constructor(
             }
             .flatMap { (sense, relationEntry) ->
                 val relation = relationEntry.key
-                val targetSynsets: MutableSet<SenseKey> = relationEntry.value
+                val targetSynsets: Set<SenseKey> = relationEntry.value
                 targetSynsets
                     .asSequence()
                     .map { targetSenseId: SenseKey -> sense to RelationData(true, relation, targetSenseId) }
