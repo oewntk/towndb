@@ -4,6 +4,7 @@
 package org.oewntk.wndb.out
 
 import org.oewntk.model.Category
+import org.oewntk.model.Relation
 
 /**
  * This class maps information to a documented code
@@ -83,7 +84,7 @@ object Coder {
      * @return code
      */
     @Throws(CompatException::class)
-    fun codeRelation(type: String, category: Category, pointerCompat: Boolean): String {
+    fun codeRelation(type: Relation, category: Category, pointerCompat: Boolean): String {
         when (category) {
             'n'      -> when (type) {
                 ANTONYM           -> return "!"
@@ -178,6 +179,57 @@ object Coder {
         }
         throw IllegalArgumentException("pos=$category relType=$type")
     }
+
+    private val relationOrder = mapOf(
+        HYPERNYM to 1,
+        HYPONYM to 2,
+        INSTANCE_HYPERNYM to 3,
+        INSTANCE_HYPONYM to 4,
+        HOLO_PART to 11,
+        MERO_PART to 12,
+        HOLO_MEMBER to 13,
+        MERO_MEMBER to 14,
+        HOLO_SUBSTANCE to 15,
+        MERO_SUBSTANCE to 16,
+        ENTAILS to 21,
+        IS_ENTAILED to 22,
+        CAUSES to 23,
+        IS_CAUSED to 24,
+        ANTONYM to 30,
+        SIMILAR to 40,
+        ALSO to 50,
+        ATTRIBUTE to 60,
+        VERB_GROUP to 70,
+        PARTICIPLE to 71,
+        PERTAINYM to 80,
+        DERIVATION to 81,
+        DOMAIN_TOPIC to 91,
+        HAS_DOMAIN_TOPIC to 92,
+        DOMAIN_REGION to 93,
+        HAS_DOMAIN_REGION to 94,
+        DOMAIN_USAGE to 95,  // DOMAIN USAGE == EXEMPLIFIES
+        HAS_DOMAIN_USAGE to 96,  // DOMAIN MEMBER USAGE == HAS DOMAIN USAGE == IS_EXEMPLIFIED_BY
+        // DOMAIN to 97,
+        // MEMBER to 98,
+        // OTHER to 99,
+
+        // STATE to 100,
+        // RESULT to 101,
+        // EVENT to 102,
+        // PROPERTY to 110,
+        // LOCATION to 120,
+        // DESTINATION to 121,
+        // AGENT to 130,
+        // UNDERGOER to 131,
+        // USES to 140,
+        // INSTRUMENT to 141,
+        // BY_MEANS_OF to 142,
+        // MATERIAL to 150,
+        // VEHICLE to 160,  //,
+        // BODY_PART to 170,
+    )
+
+    val relationComparator: Comparator<Relation> = Comparator.comparingInt { relation -> relationOrder[relation]!! }
 
     // V E R B F R A M E
 
