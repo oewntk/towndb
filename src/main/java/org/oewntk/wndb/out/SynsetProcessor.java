@@ -222,23 +222,9 @@ public abstract class SynsetProcessor
 
 		// synset relations
 		Map<String, Set<String>> modelSynsetRelations = synset.getRelations();
-		if (modelSynsetRelations != null && modelSynsetRelations.size() > 0)
+		if (modelSynsetRelations != null && !modelSynsetRelations.isEmpty())
 		{
-			Set<RelationData> relationDataSet = new LinkedHashSet<>();
-			for (Map.Entry<String, Set<String>> entry : modelSynsetRelations.entrySet())
-			{
-				String relationType = entry.getKey();
-				Set<String> values = entry.getValue();
-				for (String targetSynsetId : values)
-				{
-					RelationData relation = new RelationData(false, relationType, targetSynsetId);
-					boolean wasThere = !relationDataSet.add(relation);
-					if (wasThere && LOG_DUPLICATE_RELATION && log())
-					{
-						Tracing.psErr.printf("[W] Synset %s has duplicate %s%n", synset.getSynsetId(), relation);
-					}
-				}
-			}
+			Set<RelationData> relationDataSet = getSynsetRelationData(synset, modelSynsetRelations);
 			boolean pointerCompat = (flags & Flags.pointerCompat) != 0;
 			for (RelationData relationData : relationDataSet)
 			{
@@ -278,50 +264,13 @@ public abstract class SynsetProcessor
 		// iterate senses
 		for (Sense sense : senses)
 		{
-			boolean verbFrameCompat = (flags & Flags.verbFrameCompat) != 0;
-
-			// verb frames attribute
-			String[] verbFrameIds = sense.getVerbFrames();
-			if (verbFrameIds != null && verbFrameIds.length > 0)
-			{
-				for (String verbframeId : verbFrameIds)
-				{
-					try
-					{
-						Frame frame = new Frame(Coder.codeFrameId(verbframeId, verbFrameCompat), sense.findSynsetIndex(synsetsById) + 1);
-						frames.add(frame);
-					}
-					catch (CompatException e)
-					{
-						String cause = e.getCause().getMessage();
-						int count = this.incompats.computeIfAbsent(cause, c -> 0) + 1;
-						this.incompats.put(cause, count);
-					}
-				}
-			}
-
 			// sense relations
 			Map<String, Set<String>> modelSenseRelations = sense.getRelations();
-			if (modelSenseRelations != null && modelSenseRelations.size() > 0)
+			if (modelSenseRelations != null && !modelSenseRelations.isEmpty())
 			{
 				String lemma = sense.getLemma();
 
-				Set<RelationData> senseRelationDataSet = new LinkedHashSet<>();
-				for (Map.Entry<String, Set<String>> entry : modelSenseRelations.entrySet())
-				{
-					String relationType = entry.getKey();
-					Set<String> values = entry.getValue();
-					for (String targetSenseId : values)
-					{
-						RelationData relation = new RelationData(true, relationType, targetSenseId);
-						boolean wasThere = !senseRelationDataSet.add(relation);
-						if (wasThere && LOG_DUPLICATE_RELATION && log())
-						{
-							Tracing.psErr.printf("[W] Sense %s has duplicate %s%n", sense.getSensekey(), relation);
-						}
-					}
-				}
-
+				Set<RelationData> senseRelationDataSet = getSenseRelationData(sense, modelSenseRelations);
 				for (RelationData relationData : senseRelationDataSet)
 				{
 					Sense targetSense = sensesById.get(relationData.target);
@@ -355,6 +304,27 @@ public abstract class SynsetProcessor
 					relations.add(relation);
 				}
 			}
+
+			// verb frames attribute
+			boolean verbFrameCompat = (flags & Flags.verbFrameCompat) != 0;
+			String[] verbFrameIds = sense.getVerbFrames();
+			if (verbFrameIds != null && verbFrameIds.length > 0)
+			{
+				for (String verbframeId : verbFrameIds)
+				{
+					try
+					{
+						Frame frame = new Frame(Coder.codeFrameId(verbframeId, verbFrameCompat), sense.findSynsetIndex(synsetsById) + 1);
+						frames.add(frame);
+					}
+					catch (CompatException e)
+					{
+						String cause = e.getCause().getMessage();
+						int count = this.incompats.computeIfAbsent(cause, c -> 0) + 1;
+						this.incompats.put(cause, count);
+					}
+				}
+			}
 		}
 
 		// assemble
@@ -370,6 +340,52 @@ public abstract class SynsetProcessor
 		String definitionsData = Formatter.join(definitions, "; ");
 		String examplesData = examples == null || examples.length == 0 ? "" : "; " + Formatter.joinAndQuote(examples, " ", false, null);
 		return String.format(SYNSET_FORMAT, offset, lexfileNum, type, membersData, relatedData, verbframesData, definitionsData, examplesData);
+	}
+
+	private Set<RelationData> getSynsetRelationData(Synset synset, Map<String, Set<String>> modelSynsetRelations)
+	{
+		Set<RelationData> relationDataSet = new LinkedHashSet<>();
+		modelSynsetRelations.keySet()
+				.stream()
+				.filter(relationType -> Coder.relationOrder.containsKey(relationType))
+				.sorted(Coder.relationComparator)
+				.forEach(relationType ->
+				{
+					Set<String> values = modelSynsetRelations.get(relationType);
+					for (String targetSynsetId : values)
+					{
+						RelationData relation = new RelationData(false, relationType, targetSynsetId);
+						boolean wasThere = !relationDataSet.add(relation);
+						if (wasThere && LOG_DUPLICATE_RELATION && log())
+						{
+							Tracing.psErr.printf("[W] Synset %s has duplicate %s%n", synset.getSynsetId(), relation);
+						}
+					}
+				});
+		return relationDataSet;
+	}
+
+	private Set<RelationData> getSenseRelationData(Sense sense, Map<String, Set<String>> modelSenseRelations)
+	{
+		Set<RelationData> senseRelationDataSet = new LinkedHashSet<>();
+		modelSenseRelations.keySet()
+				.stream()
+				.filter(relationType -> Coder.relationOrder.containsKey(relationType))
+				.sorted(Coder.relationComparator)
+				.forEach(relationType ->
+				{
+					Set<String> values = modelSenseRelations.get(relationType);
+					for (String targetSenseId : values)
+					{
+						RelationData relation = new RelationData(true, relationType, targetSenseId);
+						boolean wasThere = !senseRelationDataSet.add(relation);
+						if (wasThere && LOG_DUPLICATE_RELATION && log())
+						{
+							Tracing.psErr.printf("[W] Sense %s has duplicate %s%n", sense.getSensekey(), relation);
+						}
+					}
+				});
+		return senseRelationDataSet;
 	}
 
 	/**
@@ -421,7 +437,7 @@ public abstract class SynsetProcessor
 	 */
 	public void report()
 	{
-		if (this.incompats.size() > 0)
+		if (!this.incompats.isEmpty())
 		{
 			for (Map.Entry<String, Integer> entry : incompats.entrySet())
 			{

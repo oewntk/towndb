@@ -4,6 +4,7 @@
 
 package org.oewntk.wndb.out;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -322,6 +323,61 @@ public class Coder
 		}
 		throw new IllegalArgumentException("pos=" + pos + " relType=" + type);
 	}
+
+	static Map<String, Integer> relationOrder = new HashMap<>();
+
+	static
+	{
+		relationOrder.put(HYPERNYM, 1);
+		relationOrder.put(HYPONYM, 2);
+		relationOrder.put(INSTANCE_HYPERNYM, 3);
+		relationOrder.put(INSTANCE_HYPONYM, 4);
+		relationOrder.put(HOLO_PART, 11);
+		relationOrder.put(MERO_PART, 12);
+		relationOrder.put(HOLO_MEMBER, 13);
+		relationOrder.put(MERO_MEMBER, 14);
+		relationOrder.put(HOLO_SUBSTANCE, 15);
+		relationOrder.put(MERO_SUBSTANCE, 16);
+		relationOrder.put(ENTAILS, 21);
+		relationOrder.put(IS_ENTAILED, 22);
+		relationOrder.put(CAUSES, 23);
+		relationOrder.put(IS_CAUSED, 24);
+		relationOrder.put(ANTONYM, 30);
+		relationOrder.put(SIMILAR, 40);
+		relationOrder.put(ALSO, 50);
+		relationOrder.put(ATTRIBUTE, 60);
+		relationOrder.put(VERB_GROUP, 70);
+		relationOrder.put(PARTICIPLE, 71);
+		relationOrder.put(PERTAINYM, 80);
+		relationOrder.put(DERIVATION, 81);
+		relationOrder.put(DOMAIN_TOPIC, 91);
+		relationOrder.put(HAS_DOMAIN_TOPIC, 92);
+		relationOrder.put(DOMAIN_REGION, 93);
+		relationOrder.put(HAS_DOMAIN_REGION, 94);
+		relationOrder.put(DOMAIN_USAGE, 95);  // DOMAIN USAGE == EXEMPLIFIES
+		relationOrder.put(HAS_DOMAIN_USAGE, 96);  // DOMAIN MEMBER USAGE == HAS DOMAIN USAGE == IS_EXEMPLIFIED_BY
+
+		// relationOrder.put(DOMAIN , 97);
+		// relationOrder.put(MEMBER , 98);
+		// relationOrder.put(OTHER , 99);
+
+		// relationOrder.put(STATE , 100);
+		// relationOrder.put(RESULT , 101);
+		// relationOrder.put(EVENT , 102);
+		// relationOrder.put(PROPERTY , 110);
+		// relationOrder.put(LOCATION , 120);
+		// relationOrder.put(DESTINATION , 121);
+		// relationOrder.put( AGENT , 130);
+		// relationOrder.put(UNDERGOER , 131);
+		// relationOrder.put(USES , 140);
+		// relationOrder.put(INSTRUMENT , 141);
+		// relationOrder.put(BY_MEANS_OF , 142);
+		// relationOrder.put(MATERIAL , 150);
+		// relationOrder.put(VEHICLE , 160);  //,
+		// relationOrder.put(BODY_PART , 170);
+	}
+
+	static public Comparator<String> relationComparator = Comparator.comparingInt(relation -> relationOrder.get(relation));
 
 	// V E R B F R A M E
 
