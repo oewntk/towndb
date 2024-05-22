@@ -180,7 +180,7 @@ object Coder {
         throw IllegalArgumentException("pos=$category relType=$type")
     }
 
-    private val relationOrder = mapOf(
+    val relationOrder = mapOf(
         HYPERNYM to 1,
         HYPONYM to 2,
         INSTANCE_HYPERNYM to 3,

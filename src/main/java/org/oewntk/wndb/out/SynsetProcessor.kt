@@ -6,6 +6,8 @@ package org.oewntk.wndb.out
 import org.oewntk.model.*
 import org.oewntk.wndb.out.Coder.codeFrameId
 import org.oewntk.wndb.out.Coder.codeLexFile
+import org.oewntk.wndb.out.Coder.relationComparator
+import org.oewntk.wndb.out.Coder.relationOrder
 import org.oewntk.wndb.out.Data.AdjMember
 import org.oewntk.wndb.out.Data.Member
 import org.oewntk.wndb.out.Data.Relation
@@ -187,6 +189,8 @@ abstract class SynsetProcessor protected constructor(
             val pointerCompat = (flags and Flags.POINTER_COMPAT) != 0
             synset.relations!!
                 .asSequence()
+                .filter { relationOrder.containsKey(it.key) }
+                .sortedWith(compareBy(relationComparator) { it.key })
                 .flatMap { (relationType, targetSynsets) ->
                     targetSynsets
                         .asSequence()
@@ -226,6 +230,8 @@ abstract class SynsetProcessor protected constructor(
             .flatMap { sense ->
                 sense.relations!!
                     .asSequence()
+                    .filter { relationOrder.containsKey(it.key) }
+                    .sortedWith(compareBy(relationComparator) { it.key })
                     .map { entry -> sense to entry }
             }
             .flatMap { (sense, relationEntry) ->
