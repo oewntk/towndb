@@ -3,6 +3,8 @@
  */
 package org.oewntk.wndb.out
 
+import java.time.LocalDate
+
 /**
  * Format utilities
  *
@@ -90,11 +92,13 @@ object Formatter {
                 "  28 any associated documentation shall at all times remain with  \n" +
                 "  29 Princeton University and LICENSEE agrees to preserve same.  \n"
 
-    const val OEWN_HEADER: String =
+    private val OEWN_YEAR: String = LocalDate.now().year.toString()
+
+    val OEWN_HEADER: String =
         "  1 This software and database is being provided to you, the LICENSEE, by  \n" +
                 "  2 the Open English Wordnet team under the Creative Commons Attribution 4.0  \n" +
                 "  3 International License (CC-BY 4.0).  \n" +
-                "  4 Open English Wordnet 2021 Copyright 2021 by the Open English Wordnet team.  \n" +
+                "  4 Open English Wordnet $OEWN_YEAR Copyright 2021 by the Open English Wordnet team.  \n" +
                 "  5 \n" +
                 "  6 Permission to use, copy, modify and distribute this software and  \n" +
                 "  7 database and its documentation for any purpose and without fee or  \n" +
