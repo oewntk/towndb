@@ -19,4 +19,4 @@ Project [towndb](https://github.com/oewntk/towndb)
 
 		<groupId>io.github.oewntk</groupId>
 		<artifactId>towndb</artifactId>
-		<version>2.1.2</version>
+		<version>2.1.3</version>
