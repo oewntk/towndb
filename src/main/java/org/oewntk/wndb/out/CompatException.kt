@@ -8,8 +8,10 @@ package org.oewntk.wndb.out
  */
 class CompatException : Exception {
 
+    @Suppress("unused")
     constructor(message: String) : super(message)
 
+    @Suppress("unused")
     constructor(message: String, cause: Throwable?) : super(message, cause)
 
     constructor(cause: Throwable) : super(cause)

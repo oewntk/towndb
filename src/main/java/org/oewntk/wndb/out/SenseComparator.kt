@@ -60,6 +60,7 @@ object SenseComparator {
     /**
      * Tail comparator, after head comparators fail
      */
+    @Suppress("unused")
     val WNDB_SENSE_ORDER_TAIL1: Comparator<Sense> = Comparator { s1: Sense, s2: Sense ->
 
         // senses are equal

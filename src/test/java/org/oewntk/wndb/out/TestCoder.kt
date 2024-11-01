@@ -19,6 +19,7 @@ class TestCoder {
         testCoder(true)
     }
 
+    @Suppress("SameParameterValue")
     private fun testCoder(pointerCompat: Boolean) {
         val allRelations: MutableMap<Char, MutableSet<String>> = HashMap()
         val nSet = allRelations.computeIfAbsent('n') { HashSet() }

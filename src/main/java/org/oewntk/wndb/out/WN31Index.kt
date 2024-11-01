@@ -29,6 +29,7 @@ object WN31Index {
     /**
      * Sense comparator based on the sensekey-to-index map
      */
+    @Suppress("unused")
     private val WN31_SENSE_ORDER: Comparator<Sense> = Comparator.comparing(Sense::senseKey, WN31_SK_COMPARATOR)
 
     /**
@@ -55,6 +56,7 @@ object WN31Index {
      * Used in version 1
      * Flawed if one is null, the other is not
      */
+    @Suppress("unused")
     val SENSE_ORDER1: Comparator<Sense> = Comparator { s1: Sense, s2: Sense ->
         val i1 = SK2INDEX[s1.senseKey]
         val i2 = SK2INDEX[s2.senseKey]
