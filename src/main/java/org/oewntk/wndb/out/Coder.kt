@@ -5,7 +5,6 @@ package org.oewntk.wndb.out
 
 import org.oewntk.model.Category
 import org.oewntk.model.Relation
-import kotlin.Throws
 
 /**
  * This class maps information to a documented code
