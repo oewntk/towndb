@@ -44,7 +44,8 @@ class TestCoder {
                 Coder.DOMAIN_REGION,
                 Coder.HAS_DOMAIN_REGION,
                 Coder.DOMAIN_USAGE,
-                Coder.HAS_DOMAIN_USAGE
+                Coder.HAS_DOMAIN_USAGE,
+                Coder.COLLOCATION,
             )
         )
         val vSet = allRelations.computeIfAbsent('v') { HashSet() }
@@ -62,7 +63,8 @@ class TestCoder {
                 Coder.DERIVATION,
                 Coder.DOMAIN_TOPIC,
                 Coder.DOMAIN_REGION,
-                Coder.DOMAIN_USAGE
+                Coder.DOMAIN_USAGE,
+                Coder.COLLOCATION,
             )
         )
         val aSet = allRelations.computeIfAbsent('a') { HashSet() }
@@ -80,7 +82,8 @@ class TestCoder {
                 Coder.DOMAIN_USAGE,
                 Coder.HAS_DOMAIN_TOPIC,
                 Coder.HAS_DOMAIN_REGION,
-                Coder.HAS_DOMAIN_USAGE
+                Coder.HAS_DOMAIN_USAGE,
+                Coder.COLLOCATION,
             )
         )
         val rSet = allRelations.computeIfAbsent('r') { HashSet() }
@@ -94,7 +97,8 @@ class TestCoder {
                 Coder.DOMAIN_USAGE,
                 Coder.HAS_DOMAIN_TOPIC,
                 Coder.HAS_DOMAIN_REGION,
-                Coder.HAS_DOMAIN_USAGE
+                Coder.HAS_DOMAIN_USAGE,
+                Coder.COLLOCATION,
             )
         )
 

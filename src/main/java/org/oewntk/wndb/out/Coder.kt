@@ -5,6 +5,7 @@ package org.oewntk.wndb.out
 
 import org.oewntk.model.Category
 import org.oewntk.model.Relation
+import kotlin.Throws
 
 /**
  * This class maps information to a documented code
@@ -16,6 +17,8 @@ object Coder {
     private const val IS_ENTAILED_PTR = "*^"
 
     private const val IS_CAUSED_PTR = ">^"
+
+    private const val COLLOCATION_PTR = "`"
 
     // R E L A T I O N
 
@@ -75,6 +78,8 @@ object Coder {
 
     const val IS_CAUSED: String = "is_caused_by"
 
+    const val COLLOCATION: String = "collocation"
+
     /**
      * Code relation
      *
@@ -108,6 +113,13 @@ object Coder {
                 HAS_DOMAIN_REGION -> return "-r"
                 DOMAIN_USAGE      -> return ";u"
                 HAS_DOMAIN_USAGE  -> return "-u"
+                COLLOCATION       -> {
+                    if (pointerCompat) {
+                        throw CompatException(IllegalArgumentException(type)) // NOT DEFINED IN PWN
+                    }
+                    return COLLOCATION_PTR
+                }
+
                 else              -> {}
             }
 
@@ -137,6 +149,13 @@ object Coder {
                     return IS_CAUSED_PTR
                 }
 
+                COLLOCATION         -> {
+                    if (pointerCompat) {
+                        throw CompatException(IllegalArgumentException(type)) // NOT DEFINED IN PWN
+                    }
+                    return COLLOCATION_PTR
+                }
+
                 else                -> {}
             }
 
@@ -148,14 +167,19 @@ object Coder {
                 ATTRIBUTE         -> return "="
                 ALSO              -> return "^" // NOT DEFINED IN PWN
                 DERIVATION        -> return "+" // NOT DEFINED IN PWN
-
                 DOMAIN_TOPIC      -> return ";c"
                 DOMAIN_REGION     -> return ";r"
                 DOMAIN_USAGE      -> return ";u"
-
                 HAS_DOMAIN_TOPIC  -> return "-c" // NS
                 HAS_DOMAIN_REGION -> return "-r" // NS
                 HAS_DOMAIN_USAGE  -> return "-u" // NS
+                COLLOCATION       -> {
+                    if (pointerCompat) {
+                        throw CompatException(IllegalArgumentException(type)) // NOT DEFINED IN PWN
+                    }
+                    return COLLOCATION_PTR
+                }
+
                 else              -> {}
             }
 
@@ -164,14 +188,19 @@ object Coder {
                 PERTAINYM         -> return "\\" // NS
                 ALSO              -> return "^"
                 DERIVATION        -> return "+"
-
                 DOMAIN_TOPIC      -> return ";c"
                 DOMAIN_REGION     -> return ";r"
                 DOMAIN_USAGE      -> return ";u"
-
                 HAS_DOMAIN_TOPIC  -> return "-c" // NS
                 HAS_DOMAIN_REGION -> return "-r" // NS
                 HAS_DOMAIN_USAGE  -> return "-u" // NS
+                COLLOCATION       -> {
+                    if (pointerCompat) {
+                        throw CompatException(IllegalArgumentException(type)) // NOT DEFINED IN PWN
+                    }
+                    return COLLOCATION_PTR
+                }
+
                 else              -> {}
             }
 
@@ -227,6 +256,7 @@ object Coder {
         // MATERIAL to 150,
         // VEHICLE to 160,  //,
         // BODY_PART to 170,
+        COLLOCATION to 200,
     )
 
     val relationComparator: Comparator<Relation> = Comparator.comparingInt { relation -> relationOrder[relation]!! }
