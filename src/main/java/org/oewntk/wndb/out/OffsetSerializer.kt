@@ -49,7 +49,7 @@ class OffsetSerializer(
         }
 
         // Compute synset offsets
-        val offsets = GrindOffsets(model.lexesByLemma!!, model.synsetsById!!, model.sensesById!!, flags).compute()
+        val offsets = GrindOffsets(model.synsets, model.lexResolver, model.synsetResolver, model.senseResolver, flags).compute()
 
         // Serialize offsets
         serializeOffsets(offsets, File(outDir, FILE_OFFSET_MAP))

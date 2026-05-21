@@ -23,9 +23,9 @@ import java.util.*
 /**
  * This abstract class iterates over the synsets to produce a line of data. The real classes implement some functions differently.
 
- * @property lexesByLemma lexes mapped by lemma
- * @property synsetsById synsets mapped by id
- * @property sensesById senses mapped by id
+ * @property lexResolver lexes resolved from lemma
+ * @property synsetResolver synsets resolver from id
+ * @property senseResolver sense resolver from id
  * @property offsetFunction function that, when applied to a synsetId, yields the synset offset in the data files. May be dummy constant function.
  * @property flags flags
  *
@@ -33,9 +33,9 @@ import java.util.*
  */
 abstract class SynsetProcessor protected constructor(
 
-    protected val lexesByLemma: Map<String, Collection<Lex>>,
-    protected val synsetsById: Map<String, Synset>,
-    protected val sensesById: Map<String, Sense>,
+    protected val lexResolver: (Lemma) -> Collection<Lex>,
+    protected val synsetResolver: (SynsetId) -> Synset,
+    protected val senseResolver: (SenseKey) -> Sense,
     protected val offsetFunction: (String) -> Long,
     protected val flags: Int,
 
@@ -141,7 +141,7 @@ abstract class SynsetProcessor protected constructor(
 
         // build members ordered set
         val members: List<Member> = synset.members
-            .map { member -> synset.findSenseOf(member, { lexesByLemma[it]!! }, { sensesById[it]!! }) }
+            .map { member -> synset.findSenseOf(member, lexResolver, senseResolver) }
             .map { buildMember(it) }
             .toList()
 
@@ -157,10 +157,7 @@ abstract class SynsetProcessor protected constructor(
         val synsetRelations = getSynsetRelationData(synset, offset)
 
         // senses that have this synset as target in "synset" field
-        val senses = synset.findSenses(
-            { lemma -> lexesByLemma[lemma]!! },
-            { senseKey -> sensesById[senseKey]!! },
-        )
+        val senses = synset.findSenses(lexResolver, senseResolver)
         assert(senses.isNotEmpty())
 
         // sense relations
@@ -201,7 +198,7 @@ abstract class SynsetProcessor protected constructor(
                         Tracing.psErr.println("[W] Synset ${synset.synsetId} has duplicate ${duplicate.relation}")
                     }
                 }.mapNotNull { relationData ->
-                    val targetSynset = synsetsById[relationData.target]!!
+                    val targetSynset = synsetResolver(relationData.target)
                     val targetOffset = offsetFunction.invoke(relationData.target)
                     val targetType = targetSynset.type
                     try {
@@ -247,9 +244,9 @@ abstract class SynsetProcessor protected constructor(
                 }
             }
             .mapNotNull { (sense: Sense, relationData: RelationData) ->
-                val targetSense = sensesById[relationData.target]!!
+                val targetSense = senseResolver(relationData.target)
                 val targetSynsetId = targetSense.synsetId
-                val targetSynset = synsetsById[targetSynsetId]!!
+                val targetSynset = synsetResolver(targetSynsetId)
 
                 val memberNum = synset.findIndexOfMember(sense.lemma) + 1
 
@@ -261,7 +258,7 @@ abstract class SynsetProcessor protected constructor(
                     val count = incompats.computeIfAbsent(cause) { 0 } + 1
                     incompats[cause] = count
                     null
-                } catch (e: IllegalArgumentException) {
+                } catch (_: IllegalArgumentException) {
                     if (LOG_DISCARDED && log()) {
                         Tracing.psErr.println("[W] Discarded relation '${relationData.relation}' synset=${synset.synsetId} offset=$offset")
                     }
@@ -282,11 +279,10 @@ abstract class SynsetProcessor protected constructor(
                 sense.verbFrames!!
                     .asSequence()
                     .map { verbFrameId -> sense to verbFrameId }
-            }
-            .map { (sense, verbframeId) ->
+            }.mapNotNull { (sense, verbframeId) ->
                 try {
                     val code = codeFrameId(verbframeId, verbFrameCompat)
-                    VerbFrame(code, sense.findSynsetIndex(synsetsById) + 1)
+                    VerbFrame(code, sense.findSynsetIndex(synsetResolver) + 1)
                 } catch (e: CompatException) {
                     val cause = e.cause!!.message!!
                     val count = incompats.computeIfAbsent(cause) { 0 } + 1
@@ -294,7 +290,6 @@ abstract class SynsetProcessor protected constructor(
                     null
                 }
             }
-            .filterNotNull()
             .groupBy { it.frameNum }
     }
 
@@ -333,7 +328,7 @@ abstract class SynsetProcessor protected constructor(
         val lexfile = synset.lexfile
         try {
             return codeLexFile(lexfile!!)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             throw IllegalArgumentException("Lexfile '$lexfile' in ${synset.synsetId}")
         }
     }

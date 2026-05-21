@@ -19,7 +19,7 @@ class LineProducer(
     override fun invoke(model: CoreModel, synsetId: SynsetId): String {
 
         // Compute synset offsets
-        val offsets = GrindOffsets(model.lexesByLemma!!, model.synsetsById!!, model.sensesById!!, flags).compute()
+        val offsets = GrindOffsets(model.synsets, model.lexResolver, model.synsetResolver, model.senseResolver, flags).compute()
 
         // Get synset
         val synset = model.synsetResolver(synsetId)
@@ -27,7 +27,7 @@ class LineProducer(
         require(offsets.containsValue(offset)) { "$offset is not a valid offset" }
 
         // Produce line
-        return data(synset, offset, model.lexesByLemma!!, model.synsetsById!!, model.sensesById!!, offsets, flags)
+        return data(synset, offset, model.synsets, model.lexResolver, model.synsetResolver, model.senseResolver, offsets, flags)
     }
 
     companion object {
@@ -35,23 +35,25 @@ class LineProducer(
         /**
          * Grind data for this synset
          *
-         * @param synset       synset
-         * @param offset       offset
-         * @param lexesByLemma lexes mapped by lemma
-         * @param synsetsById  synset elements mapped by id
-         * @param sensesById   sense elements mapped by id
-         * @param offsets      offsets mapped by synsetId
-         * @param flags        flags
+         * @param synset synset
+         * @param synsets all synsets
+         * @param offset offset
+         * @param lexResolver lex resolver from lemma
+         * @param synsetResolver synset resolver from id
+         * @param senseResolver sense resolver from id
+         * @param offsets offsets mapped by synsetId
+         * @param flags flags
          * @return line
          */
         fun data(
             synset: Synset, offset: Long,
-            lexesByLemma: Map<String, Collection<Lex>>,
-            synsetsById: Map<String, Synset>,
-            sensesById: Map<String, Sense>,
+            synsets: Collection<Synset>,
+            lexResolver: (Lemma) -> Collection<Lex>,
+            synsetResolver: (SynsetId) -> Synset,
+            senseResolver: (SenseKey) -> Sense,
             offsets: Map<String, Long>, flags: Int,
         ): String {
-            val factory = GrindSynsets(lexesByLemma, synsetsById, sensesById, offsets, flags)
+            val factory = GrindSynsets(synsets, lexResolver, synsetResolver, senseResolver, offsets, flags)
             return factory.getData(synset, offset)
         }
     }

@@ -47,10 +47,10 @@ class ModelConsumer(
         }
 
         // Compute synset offsets
-        val offsets = GrindOffsets(model.lexesByLemma!!, model.synsetsById!!, model.sensesById!!, flags).compute()
+        val offsets = GrindOffsets(model.synsets, model.lexResolver, model.synsetResolver, model.senseResolver, flags).compute()
 
         // Process
-        data(outDir, model.lexesByLemma!!, model.synsetsById!!, model.sensesById!!, offsets)
+        data(outDir, model.synsets, model.lexResolver, model.synsetResolver, model.senseResolver, offsets)
         indexWords(outDir, model.senses, model.synsetsById!!, offsets)
         indexSenses(outDir, model.senses, offsets)
         morphs(outDir, model.lexesByLemma!!)
@@ -64,40 +64,42 @@ class ModelConsumer(
     /**
      * Grind data.{noun|verb|adj|adv}
      *
-     * @param dir          output directory
-     * @param lexesByLemma lexes mapped by lemma
-     * @param synsetsById  synsets mapped by synset id
-     * @param sensesById   senses mapped by sense id
+     * @param dir output directory
+     * @param synsets all synsets
+     * @param lexResolver lexes mapped by lemma
+     * @param synsetResolver  synsets mapped by synset id
+     * @param senseResolver   senses mapped by sense id
      * @param offsets      offsets mapped by synset id
      * @throws IOException io
      */
     @Throws(IOException::class)
     fun data(
         dir: File,
-        lexesByLemma: Map<String, Collection<Lex>>,
-        synsetsById: Map<String, Synset>,
-        sensesById: Map<String, Sense>,
+        synsets: Collection<Synset>,
+        lexResolver: (Lemma) -> Collection<Lex>,
+        synsetResolver: (SynsetId) -> Synset,
+        senseResolver: (SenseKey) -> Sense,
         offsets: Map<String, Long>,
     ) {
         var nCount: Int
         var vCount: Int
         var aCount: Int
         var rCount: Int
-        val grinder = GrindSynsets(lexesByLemma, synsetsById, sensesById, offsets, flags)
+        val grinder = GrindSynsets(synsets, lexResolver, synsetResolver, senseResolver, offsets, flags)
         PrintStream(FileOutputStream(File(dir, "data.noun")), true, StandardCharsets.UTF_8).use { ps ->
-            nCount = grinder.makeData(ps, synsetsById, Data.NOUN_POS_FILTER)
+            nCount = grinder.makeData(ps, synsets, synsetResolver, Data.NOUN_POS_FILTER)
             grinder.report()
         }
         PrintStream(FileOutputStream(File(dir, "data.verb")), true, StandardCharsets.UTF_8).use { ps ->
-            vCount = grinder.makeData(ps, synsetsById, Data.VERB_POS_FILTER)
+            vCount = grinder.makeData(ps, synsets, synsetResolver, Data.VERB_POS_FILTER)
             grinder.report()
         }
         PrintStream(FileOutputStream(File(dir, "data.adj")), true, StandardCharsets.UTF_8).use { ps ->
-            aCount = grinder.makeData(ps, synsetsById, Data.ADJ_POS_FILTER)
+            aCount = grinder.makeData(ps, synsets, synsetResolver, Data.ADJ_POS_FILTER)
             grinder.report()
         }
         PrintStream(FileOutputStream(File(dir, "data.adv")), true, StandardCharsets.UTF_8).use { ps ->
-            rCount = grinder.makeData(ps, synsetsById, Data.ADV_POS_FILTER)
+            rCount = grinder.makeData(ps, synsets, synsetResolver, Data.ADV_POS_FILTER)
             grinder.report()
         }
         val sum = nCount + vCount + aCount + rCount
@@ -287,8 +289,8 @@ class ModelConsumer(
             when (posName) {
                 "noun" -> return 1
                 "verb" -> return 2
-                "adj"  -> return 3
-                "adv"  -> return 4
+                "adj" -> return 3
+                "adv" -> return 4
             }
             return 0
         }
@@ -339,9 +341,7 @@ class ModelConsumer(
         /**
          * Map frame id (via, ...) to numeric id
          */
-        private val VERB_FRAME_ID_TO_NIDS = sequenceOf(*VERBFRAME_VALUES)
-            .map { it.first to it.second }
-            .toMap()
+        private val VERB_FRAME_ID_TO_NIDS = sequenceOf(*VERBFRAME_VALUES).associate { it.first to it.second }
 
         /**
          * Get verb frame nid

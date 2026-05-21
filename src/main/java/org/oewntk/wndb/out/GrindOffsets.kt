@@ -3,30 +3,29 @@
  */
 package org.oewntk.wndb.out
 
-import org.oewntk.model.Category
-import org.oewntk.model.Lex
-import org.oewntk.model.Sense
-import org.oewntk.model.Synset
+import org.oewntk.model.*
 import java.nio.charset.StandardCharsets
 
 /**
  * This class computes file offsets that serve as synset id in the WNDB format. It does so by iterating over synsets and yielding a dummy line string of
  * the same length as the final string. The offset counter is moved by the line's length.
  *
- * @param lexesByLemma lexes mapped by lemma
- * @param synsetsById  synsets mapped by id
- * @param sensesById   senses mapped by id
+ * @property synsets synsets
+ * @param lexResolver lex resolver from lemma
+ * @param synsetResolver  synset resolver from  id
+ * @param senseResolver   sens resolver from  id
  * @param flags        flags
  *
  * @author Bernard Bou
  */
 class GrindOffsets(
-    lexesByLemma: Map<String, Collection<Lex>>,
-    synsetsById: Map<String, Synset>,
-    sensesById: Map<String, Sense>,
+    val synsets: Collection<Synset>,
+    lexResolver: (Lemma) -> Collection<Lex>,
+    synsetResolver: (SynsetId) -> Synset,
+    senseResolver: (SenseKey) -> Sense,
     flags: Int,
 ) :
-    SynsetProcessor(lexesByLemma, synsetsById, sensesById, { 0L }, flags) {
+    SynsetProcessor(lexResolver, synsetResolver, senseResolver, { 0L }, flags) {
 
     /**
      * Log things on the first pass
@@ -45,11 +44,11 @@ class GrindOffsets(
         var offset = Formatter.OEWN_HEADER.toByteArray(StandardCharsets.UTF_8).size.toLong()
 
         // iterate synsets
-        synsetsById
-            .filter { (_, synset) -> synset.partOfSpeech == posFilter }
-            .forEach { (synsetId, synset) ->
+        synsets
+            .filter { it.partOfSpeech == posFilter }
+            .forEach { synset ->
                 val data = getData(synset, dummyOfs)
-                offsets[synsetId] = offset
+                offsets[synset.synsetId] = offset
                 offset += data.toByteArray(StandardCharsets.UTF_8).size.toLong()
             }
     }
