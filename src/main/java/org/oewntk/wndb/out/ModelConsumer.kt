@@ -51,13 +51,13 @@ class ModelConsumer(
 
         // Process
         data(outDir, model.synsets, model.lexResolver, model.synsetResolver, model.senseResolver, offsets)
-        indexWords(outDir, model.senses, model.synsetsById!!, offsets)
+        indexWords(outDir, model.senses, model.synsetResolver, offsets)
         indexSenses(outDir, model.senses, offsets)
-        morphs(outDir, model.lexesByLemma!!)
+        morphs(outDir, model.lexEntries)
         templates(outDir, model.verbTemplatesById!!)
-        indexTemplates(outDir, model.sensesById!!)
+        indexTemplates(outDir, model.senses)
         verbFrames(outDir, model.verbFrames)
-        tagcounts(outDir, model.sensesById!!)
+        tagcounts(outDir, model.senses)
         domains(outDir)
     }
 
@@ -109,17 +109,17 @@ class ModelConsumer(
     /**
      * Make word index
      *
-     * @param dir         output directory
-     * @param senses      senses
-     * @param synsetsById synsets mapped by synset id
-     * @param offsets     offsets mapped by synset id
-     * @throws IOException io
+     * @param dir            output directory
+     * @param senses         senses
+     * @param synsetResolver synsets mapped by synset id
+     * @param offsets        offsets mapped by synset id
+     * @throws IOException   io
      */
     @Throws(IOException::class)
     fun indexWords(
         dir: File,
         senses: Collection<Sense>,
-        synsetsById: Map<String, Synset>,
+        synsetResolver: (SynsetId) -> Synset,
         offsets: Map<String, Long>,
     ) {
         var nCount: Long
@@ -128,16 +128,16 @@ class ModelConsumer(
         var rCount: Long
         val indexer = WordIndexer(offsets, flags)
         PrintStream(FileOutputStream(File(dir, "index.noun")), true, StandardCharsets.UTF_8).use { ps ->
-            nCount = indexer.make(ps, senses, synsetsById, Data.NOUN_POS_FILTER)
+            nCount = indexer.make(ps, senses, synsetResolver, Data.NOUN_POS_FILTER)
         }
         PrintStream(FileOutputStream(File(dir, "index.verb")), true, StandardCharsets.UTF_8).use { ps ->
-            vCount = indexer.make(ps, senses, synsetsById, Data.VERB_POS_FILTER)
+            vCount = indexer.make(ps, senses, synsetResolver, Data.VERB_POS_FILTER)
         }
         PrintStream(FileOutputStream(File(dir, "index.adj")), true, StandardCharsets.UTF_8).use { ps ->
-            aCount = indexer.make(ps, senses, synsetsById, Data.ADJ_POS_FILTER)
+            aCount = indexer.make(ps, senses, synsetResolver, Data.ADJ_POS_FILTER)
         }
         PrintStream(FileOutputStream(File(dir, "index.adv")), true, StandardCharsets.UTF_8).use { ps ->
-            rCount = indexer.make(ps, senses, synsetsById, Data.ADV_POS_FILTER)
+            rCount = indexer.make(ps, senses, synsetResolver, Data.ADV_POS_FILTER)
         }
         val sum = nCount + vCount + aCount + rCount
         Tracing.psInfo.println("Indexes: $sum [n:$nCount v:$vCount a:$aCount r:$rCount]")
@@ -200,12 +200,12 @@ class ModelConsumer(
         /**
          * Grind {noun|verb|adj|adv}.exc
          *
-         * @param lexesByLemma lexes mapped by lemma
-         * @param dir          output directory
+         * @param lexEntries lexes mapped by lemma
+         * @param dir output directory
          * @throws IOException io
          */
         @Throws(IOException::class)
-        fun morphs(dir: File, lexesByLemma: Map<String, Collection<Lex>>) {
+        fun morphs(dir: File, lexEntries: Sequence<LexEntry>) {
             var nCount: Int
             var vCount: Int
             var aCount: Int
@@ -213,19 +213,19 @@ class ModelConsumer(
             val grinder = GrindMorphs()
             PrintStream(FileOutputStream(File(dir, "noun.exc")), true, StandardCharsets.UTF_8)
                 .use { ps ->
-                    nCount = grinder.makeMorph(ps, lexesByLemma, Data.NOUN_POS_FILTER)
+                    nCount = grinder.makeMorph(ps, lexEntries, Data.NOUN_POS_FILTER)
                 }
             PrintStream(FileOutputStream(File(dir, "verb.exc")), true, StandardCharsets.UTF_8)
                 .use { ps ->
-                    vCount = grinder.makeMorph(ps, lexesByLemma, Data.VERB_POS_FILTER)
+                    vCount = grinder.makeMorph(ps, lexEntries, Data.VERB_POS_FILTER)
                 }
             PrintStream(FileOutputStream(File(dir, "adj.exc")), true, StandardCharsets.UTF_8)
                 .use { ps ->
-                    aCount = grinder.makeMorph(ps, lexesByLemma, Data.ADJ_POS_FILTER)
+                    aCount = grinder.makeMorph(ps, lexEntries, Data.ADJ_POS_FILTER)
                 }
             PrintStream(FileOutputStream(File(dir, "adv.exc")), true, StandardCharsets.UTF_8)
                 .use { ps ->
-                    rCount = grinder.makeMorph(ps, lexesByLemma, Data.ADV_POS_FILTER)
+                    rCount = grinder.makeMorph(ps, lexEntries, Data.ADV_POS_FILTER)
                 }
             val sum = nCount + vCount + aCount + rCount
             Tracing.psInfo.println("Morphs: $sum [n:$nCount v:$vCount a:$aCount r:$rCount]")
@@ -234,15 +234,15 @@ class ModelConsumer(
         /**
          * Grind sentidx.vrb
          *
-         * @param dir        output directory
-         * @param sensesById senses mapped by id
+         * @param dir          output directory
+         * @param senses       senses
          * @throws IOException io
          */
         @Throws(IOException::class)
-        fun indexTemplates(dir: File, sensesById: Map<String, Sense>) {
+        fun indexTemplates(dir: File, senses: Collection<Sense>) {
             val indexer = TemplateIndexer()
             PrintStream(FileOutputStream(File(dir, "sentidx.vrb")), true, StandardCharsets.UTF_8).use { ps ->
-                indexer.makeIndex(ps, sensesById)
+                indexer.makeIndex(ps, senses)
             }
         }
 
@@ -264,18 +264,18 @@ class ModelConsumer(
         /**
          * Grind cntlist cntlist.rev
          *
-         * @param dir        output directory
-         * @param sensesById senses mapped by id
+         * @param dir    output directory
+         * @param senses senses
          * @throws IOException io
          */
         @Throws(IOException::class)
-        fun tagcounts(dir: File, sensesById: Map<String, Sense>) {
+        fun tagcounts(dir: File, senses: Collection<Sense>) {
             val grinder = GrindTagCounts()
             PrintStream(FileOutputStream(File(dir, "cntlist")), true, StandardCharsets.UTF_8).use { ps ->
-                grinder.makeTagCount(ps, sensesById)
+                grinder.makeTagCount(ps, senses)
             }
             PrintStream(FileOutputStream(File(dir, "cntlist.rev")), true, StandardCharsets.UTF_8).use { ps ->
-                grinder.makeTagCountRev(ps, sensesById)
+                grinder.makeTagCountRev(ps, senses)
             }
         }
 

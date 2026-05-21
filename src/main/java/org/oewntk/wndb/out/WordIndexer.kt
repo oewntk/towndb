@@ -7,6 +7,7 @@ import org.oewntk.model.Category
 import org.oewntk.model.Sense
 import org.oewntk.model.SenseGroupings.sensesByLCLemmaAndPos
 import org.oewntk.model.Synset
+import org.oewntk.model.SynsetId
 import org.oewntk.wndb.out.Formatter.joinToStringWithCount
 import org.oewntk.wndb.out.Formatter.offsetFormat
 import java.io.PrintStream
@@ -44,13 +45,18 @@ class WordIndexer(
     /**
      * Make index
      *
-     * @param ps          print stream
-     * @param senses      senses
-     * @param synsetsById synsets mapped by id
-     * @param posFilter   part-of-speech filter for lexes
+     * @param ps             print stream
+     * @param senses         senses
+     * @param synsetResolver synset resolver from id
+     * @param posFilter      part-of-speech filter for lexes
      * @return number of indexes
      */
-    fun make(ps: PrintStream, senses: Collection<Sense>, synsetsById: Map<String, Synset>, posFilter: Char): Long {
+    fun make(
+        ps: PrintStream,
+        senses: Collection<Sense>,
+        synsetResolver: (SynsetId) -> Synset,
+        posFilter: Char
+    ): Long {
         val incompats: MutableMap<String, Int> = HashMap()
 
         // file header
@@ -86,7 +92,7 @@ class WordIndexer(
                 collectTagCounts(kSenses, indexEntry)
 
                 // synset relations
-                collectSynsetRelations(kSenses, synsetsById, pos, indexEntry.relationPointers, pointerCompat, incompats)
+                collectSynsetRelations(kSenses, synsetResolver, pos, indexEntry.relationPointers, pointerCompat, incompats)
 
                 // sense relations
                 collectSenseRelations(kSenses, pos, indexEntry.relationPointers, pointerCompat, incompats)
@@ -129,16 +135,23 @@ class WordIndexer(
     /**
      * Collect synset relations
      *
-     * @param senses        senses
-     * @param synsetsById   synsets by id
-     * @param category           pos
-     * @param pointers      set of pointers to collect to
-     * @param pointerCompat pointer compatibility flag
-     * @param incompats     incompatibility log
+     * @param senses         senses
+     * @param synsetResolver synset resolver from id
+     * @param category       pos
+     * @param pointers       set of pointers to collect to
+     * @param pointerCompat  pointer compatibility flag
+     * @param incompats      incompatibility log
      */
-    private fun collectSynsetRelations(senses: List<Sense>, synsetsById: Map<String, Synset>, category: Category, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
+    private fun collectSynsetRelations(
+        senses: List<Sense>,
+        synsetResolver: (SynsetId) -> Synset,
+        category: Category,
+        pointers: MutableSet<String>,
+        pointerCompat: Boolean,
+        incompats: MutableMap<String, Int>
+    ) {
         senses.forEach {
-            val synset = synsetsById[it.synsetId]!!
+            val synset = synsetResolver(it.synsetId)
             collectSynsetRelations(synset, category, pointers, pointerCompat, incompats)
         }
     }
@@ -194,7 +207,7 @@ class WordIndexer(
                     val cause = e.cause!!.message!!
                     val count = incompats.computeIfAbsent(cause) { 0 } + 1
                     incompats[cause] = count
-                } catch (e: IllegalArgumentException) {
+                } catch (_: IllegalArgumentException) {
                     if (LOG) {
                         Tracing.psErr.println("[W] Discarded relation '$relation'")
                     }

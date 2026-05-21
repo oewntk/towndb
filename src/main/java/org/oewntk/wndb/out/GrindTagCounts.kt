@@ -14,14 +14,14 @@ class GrindTagCounts {
     /**
      * Grind tag count backward
      *
-     * @param ps         print stream
-     * @param sensesById senses by id
+     * @param ps     print stream
+     * @param senses senses
      */
-    fun makeTagCountRev(ps: PrintStream, sensesById: Map<String, Sense>) {
-        val n = sensesById
-            .filter { (_, sense) -> sense.tagCount != null }
-            .onEach { (sensekey, sense) ->
-                val line = "$sensekey ${sense.lexIndex} ${sense.tagCount!!.count}"
+    fun makeTagCountRev(ps: PrintStream, senses: Collection<Sense>) {
+        val n = senses
+            .filter { sense -> sense.tagCount != null }
+            .onEach { sense ->
+                val line = "${sense.senseKey} ${sense.lexIndex} ${sense.tagCount!!.count}"
                 ps.println(line)
             }
             .count()
@@ -31,14 +31,14 @@ class GrindTagCounts {
     /**
      * Grind tag count forward
      *
-     * @param ps         print stream
-     * @param sensesById senses by id
+     * @param ps      print stream
+     * @param senses  senses
      */
-    fun makeTagCount(ps: PrintStream, sensesById: Map<String, Sense>) {
-        val n = sensesById
+    fun makeTagCount(ps: PrintStream, senses: Collection<Sense>) {
+        val n = senses
             .asSequence()
-            .filter { (_, sense) -> sense.tagCount != null }
-            .map { (sensekey, sense) -> "${sense.tagCount!!.count} $sensekey ${sense.lexIndex}" }
+            .filter { sense -> sense.tagCount != null }
+            .map { sense -> "${sense.tagCount!!.count} ${sense.senseKey} ${sense.lexIndex}" }
             .sortedWith { l1: String, l2: String ->
                 val field1 = l1.split("\\s".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
                 val field2 = l2.split("\\s".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]

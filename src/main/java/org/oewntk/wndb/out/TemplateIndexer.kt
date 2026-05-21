@@ -14,15 +14,15 @@ class TemplateIndexer {
     /**
      * Make index
      *
-     * @param ps         print stream
-     * @param sensesById senses by id
+     * @param ps     print stream
+     * @param senses senses by id
      */
-    fun makeIndex(ps: PrintStream, sensesById: Map<String, Sense>) {
-        val n = sensesById
-            .filter { (_, sense) -> !sense.verbTemplates.isNullOrEmpty() }
-            .onEach { (sensekey, sense) ->
+    fun makeIndex(ps: PrintStream, senses: Collection<Sense>) {
+        val n = senses
+            .filter { sense -> !sense.verbTemplates.isNullOrEmpty() }
+            .onEach { sense ->
                 val templates = sense.verbTemplates!!.joinToString(separator = ",")
-                val line = "$sensekey $templates"
+                val line = "${sense.senseKey} $templates"
                 ps.println(line)
             }
             .count()

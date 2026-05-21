@@ -3,7 +3,7 @@
  */
 package org.oewntk.wndb.out
 
-import org.oewntk.model.Lex
+import org.oewntk.model.LexEntry
 import java.io.PrintStream
 
 /**
@@ -17,14 +17,13 @@ class GrindMorphs {
      * Make morph files
      *
      * @param ps           print stream
-     * @param lexesByLemma lexes mapped by lemma
+     * @param lexEntries   lex entries
      * @param posFilter    filter selecting lexes
      * @return count
      */
-    fun makeMorph(ps: PrintStream, lexesByLemma: Map<String, Collection<Lex>>, posFilter: Char): Int {
+    fun makeMorph(ps: PrintStream, lexEntries: Sequence<LexEntry>, posFilter: Char): Int {
 
-        return lexesByLemma.entries
-            .asSequence()
+        return lexEntries
             .flatMap { (lemma, lexes) ->
                 lexes.asSequence()
                     .map { lex -> lemma to lex }
