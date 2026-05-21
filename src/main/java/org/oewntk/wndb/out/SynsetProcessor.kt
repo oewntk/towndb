@@ -31,7 +31,6 @@ import java.util.*
  *
  * @author Bernard Bou
  */
-@Suppress("KotlinConstantConditions")
 abstract class SynsetProcessor protected constructor(
 
     protected val lexesByLemma: Map<String, Collection<Lex>>,
