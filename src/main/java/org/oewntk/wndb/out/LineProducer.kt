@@ -22,7 +22,7 @@ class LineProducer(
         val offsets = GrindOffsets(model.lexesByLemma!!, model.synsetsById!!, model.sensesById!!, flags).compute()
 
         // Get synset
-        val synset = model.synsetsById!![synsetId]!!
+        val synset = model.synsetResolver(synsetId)
         val offset = offsets[synsetId]!!
         require(offsets.containsValue(offset)) { "$offset is not a valid offset" }
 
