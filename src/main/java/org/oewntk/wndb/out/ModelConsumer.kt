@@ -86,19 +86,19 @@ class ModelConsumer(
         var aCount: Int
         var rCount: Int
         val grinder = GrindSynsets(synsets, lexResolver, synsetResolver, senseResolver, offsets, flags)
-        PrintStream(FileOutputStream(File(dir, "data.noun")), true, StandardCharsets.UTF_8).use { ps ->
+        PrintStream(FileOutputStream(File(dir, "data.${Data.NOUN_POS_FILTER.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
             nCount = grinder.makeData(ps, synsets, synsetResolver, Data.NOUN_POS_FILTER)
             grinder.report()
         }
-        PrintStream(FileOutputStream(File(dir, "data.verb")), true, StandardCharsets.UTF_8).use { ps ->
+        PrintStream(FileOutputStream(File(dir, "data.${Data.VERB_POS_FILTER.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
             vCount = grinder.makeData(ps, synsets, synsetResolver, Data.VERB_POS_FILTER)
             grinder.report()
         }
-        PrintStream(FileOutputStream(File(dir, "data.adj")), true, StandardCharsets.UTF_8).use { ps ->
+        PrintStream(FileOutputStream(File(dir, "data.${Data.ADJ_POS_FILTER.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
             aCount = grinder.makeData(ps, synsets, synsetResolver, Data.ADJ_POS_FILTER)
             grinder.report()
         }
-        PrintStream(FileOutputStream(File(dir, "data.adv")), true, StandardCharsets.UTF_8).use { ps ->
+        PrintStream(FileOutputStream(File(dir, "data.${Data.ADV_POS_FILTER.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
             rCount = grinder.makeData(ps, synsets, synsetResolver, Data.ADV_POS_FILTER)
             grinder.report()
         }
@@ -127,16 +127,16 @@ class ModelConsumer(
         var aCount: Long
         var rCount: Long
         val indexer = WordIndexer(offsets, flags)
-        PrintStream(FileOutputStream(File(dir, "index.noun")), true, StandardCharsets.UTF_8).use { ps ->
+        PrintStream(FileOutputStream(File(dir, "index.${Data.NOUN_POS_FILTER.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
             nCount = indexer.make(ps, senses, synsetResolver, Data.NOUN_POS_FILTER)
         }
-        PrintStream(FileOutputStream(File(dir, "index.verb")), true, StandardCharsets.UTF_8).use { ps ->
+        PrintStream(FileOutputStream(File(dir, "index.${Data.VERB_POS_FILTER.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
             vCount = indexer.make(ps, senses, synsetResolver, Data.VERB_POS_FILTER)
         }
-        PrintStream(FileOutputStream(File(dir, "index.adj")), true, StandardCharsets.UTF_8).use { ps ->
+        PrintStream(FileOutputStream(File(dir, "index.${Data.ADJ_POS_FILTER.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
             aCount = indexer.make(ps, senses, synsetResolver, Data.ADJ_POS_FILTER)
         }
-        PrintStream(FileOutputStream(File(dir, "index.adv")), true, StandardCharsets.UTF_8).use { ps ->
+        PrintStream(FileOutputStream(File(dir, "index.${Data.ADJ_POS_FILTER.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
             rCount = indexer.make(ps, senses, synsetResolver, Data.ADV_POS_FILTER)
         }
         val sum = nCount + vCount + aCount + rCount
@@ -211,19 +211,19 @@ class ModelConsumer(
             var aCount: Int
             var rCount: Int
             val grinder = GrindMorphs()
-            PrintStream(FileOutputStream(File(dir, "noun.exc")), true, StandardCharsets.UTF_8)
+            PrintStream(FileOutputStream(File(dir, "${Data.NOUN_POS_FILTER.fullName}.exc")), true, StandardCharsets.UTF_8)
                 .use { ps ->
                     nCount = grinder.makeMorph(ps, lexEntries, Data.NOUN_POS_FILTER)
                 }
-            PrintStream(FileOutputStream(File(dir, "verb.exc")), true, StandardCharsets.UTF_8)
+            PrintStream(FileOutputStream(File(dir, "${Data.VERB_POS_FILTER.fullName}.exc")), true, StandardCharsets.UTF_8)
                 .use { ps ->
                     vCount = grinder.makeMorph(ps, lexEntries, Data.VERB_POS_FILTER)
                 }
-            PrintStream(FileOutputStream(File(dir, "adj.exc")), true, StandardCharsets.UTF_8)
+            PrintStream(FileOutputStream(File(dir, "${Data.ADJ_POS_FILTER.fullName}.exc")), true, StandardCharsets.UTF_8)
                 .use { ps ->
                     aCount = grinder.makeMorph(ps, lexEntries, Data.ADJ_POS_FILTER)
                 }
-            PrintStream(FileOutputStream(File(dir, "adv.exc")), true, StandardCharsets.UTF_8)
+            PrintStream(FileOutputStream(File(dir, "${Data.ADV_POS_FILTER.fullName}.exc")), true, StandardCharsets.UTF_8)
                 .use { ps ->
                     rCount = grinder.makeMorph(ps, lexEntries, Data.ADV_POS_FILTER)
                 }
@@ -286,13 +286,7 @@ class ModelConsumer(
          * @return integer code
          */
         private fun posNameToInt(posName: String): Int {
-            when (posName) {
-                "noun" -> return 1
-                "verb" -> return 2
-                "adj" -> return 3
-                "adv" -> return 4
-            }
-            return 0
+            return PartOfSpeech.fromFullName(posName).ordinal + 1
         }
 
         // name, frameid
