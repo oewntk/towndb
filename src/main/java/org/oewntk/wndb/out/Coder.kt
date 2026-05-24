@@ -83,7 +83,7 @@ object Coder {
      * Code relation
      *
      * @param type          relation type
-     * @param category      part-of-speech
+     * @param category      category
      * @param pointerCompat pointer compatibility
      * @return code
      */
@@ -205,7 +205,7 @@ object Coder {
 
             else     -> {}
         }
-        throw IllegalArgumentException("pos=$category relType=$type")
+        throw IllegalArgumentException("category=$category relType=$type")
     }
 
     val relationOrder = mapOf(
