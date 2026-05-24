@@ -5,7 +5,6 @@ package org.oewntk.wndb.out
 
 import org.oewntk.model.PartOfSpeech
 import org.oewntk.model.Relation
-import org.oewntk.model.SynsetType
 
 /**
  * This class maps information to a documented code
@@ -203,10 +202,8 @@ object Coder {
 
                 else -> {}
             }
-
-            else -> {}
         }
-        throw IllegalArgumentException("category=$pos relType=$rel")
+        throw IllegalArgumentException("category=${pos.value} relType=$rel")
     }
 
     val relationOrder = mapOf(

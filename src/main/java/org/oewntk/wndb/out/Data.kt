@@ -135,7 +135,7 @@ object Data {
         ) : this(codeRelation(rel, pos.toPartOfSpeech(), pointerCompat), targetPos, targetOffset, sourceWordNum, targetWordNum)
 
         fun toWndbString(): String {
-            return "$ptrSymbol ${offsetFormat(targetOffset)} $targetPos ${intFormatHex2x(sourceWordNum)}${intFormatHex2x(targetWordNum)}"
+            return "$ptrSymbol ${offsetFormat(targetOffset)} ${targetPos.value} ${intFormatHex2x(sourceWordNum)}${intFormatHex2x(targetWordNum)}"
         }
 
         override fun toString(): String {

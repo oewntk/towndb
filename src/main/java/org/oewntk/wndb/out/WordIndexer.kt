@@ -235,7 +235,7 @@ class WordIndexer(
         val nSenses = indexEntry.synsetIds.size
         val ptrs = indexEntry.relationPointers.joinToStringWithCount(countFormat = Int::toString)
         val ofs = indexEntry.synsetIds.joinToString(separator = " ") { offsetFormat(offsets[it]!!) }
-        val line = "$key ${indexEntry.partOfSpeech} $nSenses $ptrs $nSenses ${indexEntry.taggedSensesCount} $ofs  "
+        val line = "$key ${indexEntry.partOfSpeech.value} $nSenses $ptrs $nSenses ${indexEntry.taggedSensesCount} $ofs  "
         ps.println(line)
     }
 
