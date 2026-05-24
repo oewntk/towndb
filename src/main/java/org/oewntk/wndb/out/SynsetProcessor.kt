@@ -297,7 +297,7 @@ abstract class SynsetProcessor protected constructor(
      * Build relation
      *
      * @param type            relation type
-     * @param category             part of speech
+     * @param category        part of speech
      * @param sourceMemberNum 1-based index of source member in source synset
      * @param targetSense     target sense
      * @param targetSynset    target synset
