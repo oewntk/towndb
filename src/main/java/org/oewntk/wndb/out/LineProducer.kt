@@ -19,7 +19,7 @@ class LineProducer(
     override fun invoke(model: CoreModel, synsetId: SynsetId): String {
 
         // Compute synset offsets
-        val offsets = GrindOffsets(model.synsets, model.lexResolver, model.synsetResolver, model.senseResolver, flags).compute()
+        val offsets = GrindOffsets(model.synsets, model.lexResolver, model.synsetResolver, model.senseResolver, flags,).compute()
 
         // Get synset
         val synset = model.synsetResolver(synsetId)
@@ -53,7 +53,7 @@ class LineProducer(
             senseResolver: (SenseKey) -> Sense,
             offsets: Map<String, Long>, flags: Int,
         ): String {
-            val factory = GrindSynsets(synsets, lexResolver, synsetResolver, senseResolver, offsets, flags)
+            val factory = GrindSynsets(synsets, lexResolver, synsetResolver, senseResolver, offsets, flags,)
             return factory.getData(synset, offset)
         }
     }

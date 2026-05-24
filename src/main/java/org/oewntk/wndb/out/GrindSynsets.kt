@@ -4,7 +4,6 @@
 package org.oewntk.wndb.out
 
 import org.oewntk.model.*
-import org.oewntk.model.SynsetType
 import java.io.PrintStream
 import java.nio.charset.StandardCharsets
 
@@ -27,7 +26,8 @@ class GrindSynsets(
     senseResolver: (SenseKey) -> Sense,
     offsetMap: Map<String, Long>,
     flags: Int,
-) : SynsetProcessor(lexResolver, synsetResolver, senseResolver, { offsetMap[it]!! }, flags) {
+    val verbose: Boolean = false,
+) : SynsetProcessor(lexResolver, synsetResolver, senseResolver, { offsetMap[it]!! }, flags, verbose = verbose) {
 
     /**
      * Derived classes diverge here to log things on the second pass only
@@ -58,7 +58,7 @@ class GrindSynsets(
                 if (offset0 != offset) {
                     checkNotNull(previous)
                     val line = getData(previous, 0)
-                    val line0 = GrindOffsets(synsets, lexResolver, synsetResolver, senseResolver, flags).getData(previous, 0)
+                    val line0 = GrindOffsets(synsets, lexResolver, synsetResolver, senseResolver, flags, verbose = verbose,).getData(previous, 0)
                     throw RuntimeException("miscomputed offset for ${synset.synsetId}\n[then]=$line0[now ]=$line")
                 }
                 val line = getData(synset, offset)

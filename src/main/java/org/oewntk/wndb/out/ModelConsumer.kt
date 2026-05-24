@@ -20,6 +20,7 @@ import java.util.function.Consumer
 class ModelConsumer(
     private val outDir: File,
     private val flags: Int,
+    private val verbose: Boolean = false,
 ) : Consumer<Model> {
 
     override fun accept(model: Model) {
@@ -47,7 +48,7 @@ class ModelConsumer(
         }
 
         // Compute synset offsets
-        val offsets = GrindOffsets(model.synsets, model.lexResolver, model.synsetResolver, model.senseResolver, flags).compute()
+        val offsets = GrindOffsets(model.synsets, model.lexResolver, model.synsetResolver, model.senseResolver, flags, verbose = verbose).compute()
 
         // Process
         data(outDir, model.synsets, model.lexResolver, model.synsetResolver, model.senseResolver, offsets)
@@ -85,7 +86,7 @@ class ModelConsumer(
         var vCount: Int
         var aCount: Int
         var rCount: Int
-        val grinder = GrindSynsets(synsets, lexResolver, synsetResolver, senseResolver, offsets, flags)
+        val grinder = GrindSynsets(synsets, lexResolver, synsetResolver, senseResolver, offsets, flags, verbose = verbose)
         PrintStream(FileOutputStream(File(dir, "data.${PartOfSpeech.N.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
             nCount = grinder.makeData(ps, synsets, synsetResolver, PartOfSpeech.N)
             grinder.report()
