@@ -40,7 +40,7 @@ class GrindOffsets(
      * @param posFilter     selection of synsets
      * @param offsets       result map
      */
-    private fun compute(posFilter: Char, offsets: MutableMap<String, Long>) {
+    private fun compute(posFilter: PartOfSpeech, offsets: MutableMap<String, Long>) {
         var offset = Formatter.OEWN_HEADER.toByteArray(StandardCharsets.UTF_8).size.toLong()
 
         // iterate synsets
@@ -72,10 +72,10 @@ class GrindOffsets(
     private val dummyOfs = offsetFunction.invoke("")
 
     @Throws(CompatException::class)
-    override fun buildSenseRelation(type: String, category: Category, sourceMemberNum: Int, targetSense: Sense, targetSynset: Synset, targetSynsetId: String): Data.Relation {
+    override fun buildSenseRelation(rel: String, type: SynsetType, sourceMemberNum: Int, targetSense: Sense, targetSynset: Synset, targetSynsetId: String): Data.Relation {
         val targetType = targetSynset.type
         val pointerCompat = (flags and Flags.POINTER_COMPAT) != 0
-        return Data.Relation(type, category, targetType, dummyOfs, DUMMY_NUM, DUMMY_NUM, pointerCompat)
+        return Data.Relation(rel, type, targetType, dummyOfs, DUMMY_NUM, DUMMY_NUM, pointerCompat)
     }
 
     override fun buildLexfileNum(synset: Synset): Int {

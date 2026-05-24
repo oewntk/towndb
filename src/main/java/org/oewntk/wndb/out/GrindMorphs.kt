@@ -4,6 +4,7 @@
 package org.oewntk.wndb.out
 
 import org.oewntk.model.LexEntry
+import org.oewntk.model.PartOfSpeech
 import java.io.PrintStream
 
 /**
@@ -21,7 +22,7 @@ class GrindMorphs {
      * @param posFilter    filter selecting lexes
      * @return count
      */
-    fun makeMorph(ps: PrintStream, lexEntries: Sequence<LexEntry>, posFilter: Char): Int {
+    fun makeMorph(ps: PrintStream, lexEntries: Sequence<LexEntry>, posFilter: PartOfSpeech): Int {
 
         return lexEntries
             .flatMap { (lemma, lexes) ->

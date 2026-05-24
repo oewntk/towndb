@@ -4,6 +4,8 @@
 package org.oewntk.wndb.out
 
 import org.junit.Test
+import org.oewntk.model.PartOfSpeech
+import org.oewntk.model.PartOfSpeechImpl
 import org.oewntk.wndb.out.Coder.codeRelation
 import java.util.*
 
@@ -21,8 +23,8 @@ class TestCoder {
 
     @Suppress("SameParameterValue")
     private fun testCoder(pointerCompat: Boolean) {
-        val allRelations: MutableMap<Char, MutableSet<String>> = HashMap()
-        val nSet = allRelations.computeIfAbsent('n') { HashSet() }
+        val allRelations: MutableMap<PartOfSpeech, MutableSet<String>> = EnumMap(PartOfSpeechImpl::class.java)
+        val nSet = allRelations.computeIfAbsent(PartOfSpeech.N) { HashSet() }
         nSet.addAll(
             listOf(
                 Coder.ANTONYM,
@@ -48,7 +50,7 @@ class TestCoder {
                 Coder.COLLOCATION,
             )
         )
-        val vSet = allRelations.computeIfAbsent('v') { HashSet() }
+        val vSet = allRelations.computeIfAbsent(PartOfSpeech.V) { HashSet() }
         vSet.addAll(
             listOf(
                 Coder.ANTONYM,
@@ -67,7 +69,7 @@ class TestCoder {
                 Coder.COLLOCATION,
             )
         )
-        val aSet = allRelations.computeIfAbsent('a') { HashSet() }
+        val aSet = allRelations.computeIfAbsent(PartOfSpeech.A) { HashSet() }
         aSet.addAll(
             listOf(
                 Coder.ANTONYM,
@@ -86,7 +88,7 @@ class TestCoder {
                 Coder.COLLOCATION,
             )
         )
-        val rSet = allRelations.computeIfAbsent('r') { HashSet() }
+        val rSet = allRelations.computeIfAbsent(PartOfSpeech.R) { HashSet() }
         rSet.addAll(
             listOf(
                 Coder.ANTONYM,
@@ -103,8 +105,8 @@ class TestCoder {
         )
 
         val allPointers: MutableSet<String> = TreeSet()
-        val toRelations: MutableMap<Char, MutableMap<String, String>> = HashMap()
-        sequenceOf('n', 'v', 'a', 'r').forEach { pos ->
+        val toRelations: MutableMap<PartOfSpeech, MutableMap<String, String>> = EnumMap(PartOfSpeechImpl::class.java)
+        PartOfSpeech.entries.forEach { pos ->
             allRelations[pos]!!.forEach {
                 try {
                     val pointer: String = codeRelation(it, pos, pointerCompat)
@@ -120,7 +122,7 @@ class TestCoder {
         }
         allPointers.forEach { pointer ->
             Tracing.psInfo.println("${String.format("%-2s", pointer)}\t")
-            sequenceOf('n', 'v', 'a', 'r').forEach { pos ->
+            PartOfSpeech.entries.forEach { pos ->
                 val relation = toRelations[pos]!![pointer]
                 if (relation != null) {
                     Tracing.psInfo.print("$pos:$relation ")

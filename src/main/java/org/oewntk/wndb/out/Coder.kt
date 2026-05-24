@@ -3,8 +3,9 @@
  */
 package org.oewntk.wndb.out
 
-import org.oewntk.model.Category
+import org.oewntk.model.PartOfSpeech
 import org.oewntk.model.Relation
+import org.oewntk.model.SynsetType
 
 /**
  * This class maps information to a documented code
@@ -82,130 +83,130 @@ object Coder {
     /**
      * Code relation
      *
-     * @param type          relation type
-     * @param category      category
+     * @param rel           relation type
+     * @param pos           part-of-speech
      * @param pointerCompat pointer compatibility
      * @return code
      */
     @Throws(CompatException::class)
-    fun codeRelation(type: Relation, category: Category, pointerCompat: Boolean): String {
-        when (category) {
-            'n'      -> when (type) {
-                ANTONYM           -> return "!"
-                HYPERNYM          -> return "@"
+    fun codeRelation(rel: Relation, pos: PartOfSpeech, pointerCompat: Boolean): String {
+        when (pos) {
+            PartOfSpeech.N -> when (rel) {
+                ANTONYM -> return "!"
+                HYPERNYM -> return "@"
                 INSTANCE_HYPERNYM -> return "@i"
-                HYPONYM           -> return "~"
-                INSTANCE_HYPONYM  -> return "~i"
-                HOLO_MEMBER       -> return "#m"
-                HOLO_SUBSTANCE    -> return "#s"
-                HOLO_PART         -> return "#p"
-                MERO_MEMBER       -> return "%m"
-                MERO_SUBSTANCE    -> return "%s"
-                MERO_PART         -> return "%p"
-                ATTRIBUTE         -> return "="
-                PERTAINYM         -> return "\\" // NOT DEFINED IN PWN
-                ALSO              -> return "^" // NOT DEFINED IN PWN
-                DERIVATION        -> return "+"
-                DOMAIN_TOPIC      -> return ";c"
-                HAS_DOMAIN_TOPIC  -> return "-c"
-                DOMAIN_REGION     -> return ";r"
+                HYPONYM -> return "~"
+                INSTANCE_HYPONYM -> return "~i"
+                HOLO_MEMBER -> return "#m"
+                HOLO_SUBSTANCE -> return "#s"
+                HOLO_PART -> return "#p"
+                MERO_MEMBER -> return "%m"
+                MERO_SUBSTANCE -> return "%s"
+                MERO_PART -> return "%p"
+                ATTRIBUTE -> return "="
+                PERTAINYM -> return "\\" // NOT DEFINED IN PWN
+                ALSO -> return "^" // NOT DEFINED IN PWN
+                DERIVATION -> return "+"
+                DOMAIN_TOPIC -> return ";c"
+                HAS_DOMAIN_TOPIC -> return "-c"
+                DOMAIN_REGION -> return ";r"
                 HAS_DOMAIN_REGION -> return "-r"
-                DOMAIN_USAGE      -> return ";u"
-                HAS_DOMAIN_USAGE  -> return "-u"
-                COLLOCATION       -> {
+                DOMAIN_USAGE -> return ";u"
+                HAS_DOMAIN_USAGE -> return "-u"
+                COLLOCATION -> {
                     if (pointerCompat) {
-                        throw CompatException(IllegalArgumentException(type)) // NOT DEFINED IN PWN
+                        throw CompatException(IllegalArgumentException(rel)) // NOT DEFINED IN PWN
                     }
                     return COLLOCATION_PTR
                 }
 
-                else              -> {}
+                else -> {}
             }
 
-            'v'      -> when (type) {
-                ANTONYM             -> return "!"
-                HYPERNYM            -> return "@"
-                HYPONYM             -> return "~"
-                ENTAILS             -> return "*"
-                CAUSES              -> return ">"
-                ALSO                -> return "^"
+            PartOfSpeech.V -> when (rel) {
+                ANTONYM -> return "!"
+                HYPERNYM -> return "@"
+                HYPONYM -> return "~"
+                ENTAILS -> return "*"
+                CAUSES -> return ">"
+                ALSO -> return "^"
                 VERB_GROUP, SIMILAR -> return "$" // verb group
-                DERIVATION          -> return "+"
-                DOMAIN_TOPIC        -> return ";c"
-                DOMAIN_REGION       -> return ";r"
-                DOMAIN_USAGE        -> return ";u"
-                IS_ENTAILED         -> {
+                DERIVATION -> return "+"
+                DOMAIN_TOPIC -> return ";c"
+                DOMAIN_REGION -> return ";r"
+                DOMAIN_USAGE -> return ";u"
+                IS_ENTAILED -> {
                     if (pointerCompat) {
-                        throw CompatException(IllegalArgumentException(type)) // NOT DEFINED IN PWN
+                        throw CompatException(IllegalArgumentException(rel)) // NOT DEFINED IN PWN
                     }
                     return IS_ENTAILED_PTR
                 }
 
-                IS_CAUSED           -> {
+                IS_CAUSED -> {
                     if (pointerCompat) {
-                        throw CompatException(IllegalArgumentException(type)) // NOT DEFINED IN PWN
+                        throw CompatException(IllegalArgumentException(rel)) // NOT DEFINED IN PWN
                     }
                     return IS_CAUSED_PTR
                 }
 
-                COLLOCATION         -> {
+                COLLOCATION -> {
                     if (pointerCompat) {
-                        throw CompatException(IllegalArgumentException(type)) // NOT DEFINED IN PWN
+                        throw CompatException(IllegalArgumentException(rel)) // NOT DEFINED IN PWN
                     }
                     return COLLOCATION_PTR
                 }
 
-                else                -> {}
+                else -> {}
             }
 
-            'a', 's' -> when (type) {
-                ANTONYM           -> return "!"
-                SIMILAR           -> return "&"
-                PARTICIPLE        -> return "<"
-                PERTAINYM         -> return "\\"
-                ATTRIBUTE         -> return "="
-                ALSO              -> return "^" // NOT DEFINED IN PWN
-                DERIVATION        -> return "+" // NOT DEFINED IN PWN
-                DOMAIN_TOPIC      -> return ";c"
-                DOMAIN_REGION     -> return ";r"
-                DOMAIN_USAGE      -> return ";u"
-                HAS_DOMAIN_TOPIC  -> return "-c" // NS
+            PartOfSpeech.A -> when (rel) {
+                ANTONYM -> return "!"
+                SIMILAR -> return "&"
+                PARTICIPLE -> return "<"
+                PERTAINYM -> return "\\"
+                ATTRIBUTE -> return "="
+                ALSO -> return "^" // NOT DEFINED IN PWN
+                DERIVATION -> return "+" // NOT DEFINED IN PWN
+                DOMAIN_TOPIC -> return ";c"
+                DOMAIN_REGION -> return ";r"
+                DOMAIN_USAGE -> return ";u"
+                HAS_DOMAIN_TOPIC -> return "-c" // NS
                 HAS_DOMAIN_REGION -> return "-r" // NS
-                HAS_DOMAIN_USAGE  -> return "-u" // NS
-                COLLOCATION       -> {
+                HAS_DOMAIN_USAGE -> return "-u" // NS
+                COLLOCATION -> {
                     if (pointerCompat) {
-                        throw CompatException(IllegalArgumentException(type)) // NOT DEFINED IN PWN
+                        throw CompatException(IllegalArgumentException(rel)) // NOT DEFINED IN PWN
                     }
                     return COLLOCATION_PTR
                 }
 
-                else              -> {}
+                else -> {}
             }
 
-            'r'      -> when (type) {
-                ANTONYM           -> return "!"
-                PERTAINYM         -> return "\\" // NS
-                ALSO              -> return "^"
-                DERIVATION        -> return "+"
-                DOMAIN_TOPIC      -> return ";c"
-                DOMAIN_REGION     -> return ";r"
-                DOMAIN_USAGE      -> return ";u"
-                HAS_DOMAIN_TOPIC  -> return "-c" // NS
+            PartOfSpeech.R -> when (rel) {
+                ANTONYM -> return "!"
+                PERTAINYM -> return "\\" // NS
+                ALSO -> return "^"
+                DERIVATION -> return "+"
+                DOMAIN_TOPIC -> return ";c"
+                DOMAIN_REGION -> return ";r"
+                DOMAIN_USAGE -> return ";u"
+                HAS_DOMAIN_TOPIC -> return "-c" // NS
                 HAS_DOMAIN_REGION -> return "-r" // NS
-                HAS_DOMAIN_USAGE  -> return "-u" // NS
-                COLLOCATION       -> {
+                HAS_DOMAIN_USAGE -> return "-u" // NS
+                COLLOCATION -> {
                     if (pointerCompat) {
-                        throw CompatException(IllegalArgumentException(type)) // NOT DEFINED IN PWN
+                        throw CompatException(IllegalArgumentException(rel)) // NOT DEFINED IN PWN
                     }
                     return COLLOCATION_PTR
                 }
 
-                else              -> {}
+                else -> {}
             }
 
-            else     -> {}
+            else -> {}
         }
-        throw IllegalArgumentException("category=$category relType=$type")
+        throw IllegalArgumentException("category=$pos relType=$rel")
     }
 
     val relationOrder = mapOf(

@@ -4,6 +4,7 @@
 package org.oewntk.wndb.out
 
 import org.oewntk.model.*
+import org.oewntk.model.SynsetType
 import java.io.PrintStream
 import java.nio.charset.StandardCharsets
 
@@ -44,7 +45,7 @@ class GrindSynsets(
      * @param posFilter part-of-speech filter
      * @return number of synsets
      */
-    fun makeData(ps: PrintStream, synsets: Collection<Synset>, synsetResolver: (SynsetId) -> Synset, posFilter: Char): Int {
+    fun makeData(ps: PrintStream, synsets: Collection<Synset>, synsetResolver: (SynsetId) -> Synset, posFilter: PartOfSpeech): Int {
         ps.print(Formatter.OEWN_HEADER)
 
         // iterate synsets

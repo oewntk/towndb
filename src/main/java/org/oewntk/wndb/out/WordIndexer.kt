@@ -55,7 +55,7 @@ class WordIndexer(
         ps: PrintStream,
         senses: Collection<Sense>,
         synsetResolver: (SynsetId) -> Synset,
-        posFilter: Char
+        posFilter: PartOfSpeech
     ): Long {
         val incompats: MutableMap<String, Int> = HashMap()
 
@@ -69,7 +69,7 @@ class WordIndexer(
         val groupedSenses = sensesByLCLemmaAndPos(senses)
         groupedSenses.entries
             .asSequence()
-            .filter { it.key.category == posFilter }
+            .filter { it.key.category == posFilter.toCategory() }
             .sortedBy { it.key.lcLemma.replace(' ', '_') }
             .forEach { (key, senses) ->
                 val kSenses = senses
@@ -78,7 +78,7 @@ class WordIndexer(
                     .toList()
 
                 val lcLemma = key.lcLemma
-                val pos = key.category
+                val pos = key.category.toPartOfSpeech()
                 val ik = lcLemma.replace(' ', '_')
                 val eik = Formatter.escape(ik)
 

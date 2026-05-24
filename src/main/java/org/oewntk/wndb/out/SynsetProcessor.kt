@@ -171,7 +171,7 @@ abstract class SynsetProcessor protected constructor(
         val membersData = members.joinToStringWithCount(separator = " ", countSeparator = " ", countFormat = ::intFormatHex2x) { it.toWndbString(lexIdCompat) }
         val allRelations = synsetRelations + senseRelations
         val relatedData = allRelations.joinToStringWithCount(separator = " ", countSeparator = " ", countFormat = ::intFormat3) { it.toWndbString() }
-        var verbframesData = verbFrames.toWndbString(type, members.size)
+        var verbframesData = verbFrames.toWndbString(type.toPartOfSpeech(), members.size)
         if (verbframesData.isNotEmpty()) {
             verbframesData = " $verbframesData"
         }
@@ -296,8 +296,8 @@ abstract class SynsetProcessor protected constructor(
     /**
      * Build relation
      *
-     * @param type            relation type
-     * @param category        part of speech
+     * @param rel             relation name
+     * @param type            type
      * @param sourceMemberNum 1-based index of source member in source synset
      * @param targetSense     target sense
      * @param targetSynset    target synset
@@ -306,7 +306,7 @@ abstract class SynsetProcessor protected constructor(
      * @throws CompatException when relation is not legacy compatible
      */
     @Throws(CompatException::class)
-    protected open fun buildSenseRelation(type: String, category: Category, sourceMemberNum: Int, targetSense: Sense, targetSynset: Synset, targetSynsetId: String): Relation {
+    protected open fun buildSenseRelation(rel: String, type: SynsetType, sourceMemberNum: Int, targetSense: Sense, targetSynset: Synset, targetSynsetId: String): Relation {
         // target lemma
         val targetLemma = targetSense.lemma
 
@@ -315,7 +315,7 @@ abstract class SynsetProcessor protected constructor(
         val targetType = targetSynset.type
         val targetOffset = offsetFunction.invoke(targetSynsetId)
         val pointerCompat = (flags and Flags.POINTER_COMPAT) != 0
-        return Relation(type, category, targetType, targetOffset, sourceMemberNum, targetMemberNum, pointerCompat)
+        return Relation(rel, type, targetType, targetOffset, sourceMemberNum, targetMemberNum, pointerCompat)
     }
 
     /**

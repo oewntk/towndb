@@ -4,6 +4,8 @@
 package org.oewntk.wndb.out
 
 import org.oewntk.model.Category
+import org.oewntk.model.PartOfSpeech
+import org.oewntk.model.SynsetType
 import org.oewntk.wndb.out.Coder.codeRelation
 import org.oewntk.wndb.out.Formatter.intFormat2
 import org.oewntk.wndb.out.Formatter.intFormatHex2x
@@ -21,22 +23,22 @@ object Data {
     /**
      * Filter for noun synset pos
      */
-    const val NOUN_POS_FILTER: Char = 'n'
+    val NOUN_POS_FILTER: PartOfSpeech = PartOfSpeech.N
 
     /**
      * Filter for verb synset pos
      */
-    const val VERB_POS_FILTER: Char = 'v'
+    val VERB_POS_FILTER: PartOfSpeech = PartOfSpeech.V
 
     /**
      * Filter for adj synset pos
      */
-    const val ADJ_POS_FILTER: Char = 'a'
+    val ADJ_POS_FILTER: PartOfSpeech = PartOfSpeech.A
 
     /**
      * Filter for adv synset pos
      */
-    const val ADV_POS_FILTER: Char = 'r'
+    val ADV_POS_FILTER: PartOfSpeech = PartOfSpeech.R
 
     /**
      * Synset member lemma. Members are ordered lemmas. Lexid (from lexicographer file should not exceed 15 in compat mode)
@@ -100,7 +102,7 @@ object Data {
      */
     data class Relation(
         private val ptrSymbol: String,
-        private val targetPos: Char,
+        private val targetPos: SynsetType,
         private val targetOffset: Long,
 
         /**
@@ -124,14 +126,14 @@ object Data {
         ) {
 
         constructor (
-            type: String,
-            category: Category,
-            targetPos: Char,
+            rel: String,
+            pos: SynsetType,
+            targetPos: SynsetType,
             targetOffset: Long,
             sourceWordNum: Int,
             targetWordNum: Int,
             pointerCompat: Boolean,
-        ) : this(codeRelation(type, category, pointerCompat), targetPos, targetOffset, sourceWordNum, targetWordNum)
+        ) : this(codeRelation(rel, pos.toPartOfSpeech(), pointerCompat), targetPos, targetOffset, sourceWordNum, targetWordNum)
 
         fun toWndbString(): String {
             return "$ptrSymbol ${offsetFormat(targetOffset)} $targetPos ${intFormatHex2x(sourceWordNum)}${intFormatHex2x(targetWordNum)}"
@@ -166,13 +168,13 @@ object Data {
             /**
              * Join frames. If a frame applies to all words, then frame num is zeroed
              *
-             * @param category     category: part of speech or ss_type
+             * @param pos part of speech
              * @param membersCount synset member count
              * @return formatted verb frames
              */
-            fun Map<Int, List<VerbFrame>>.toWndbString(category: Category, membersCount: Int): String {
+            fun Map<Int, List<VerbFrame>>.toWndbString(pos: PartOfSpeech, membersCount: Int): String {
 
-                if (category != 'v') {
+                if (pos != PartOfSpeech.V) {
                     return ""
                 }
                 // compulsory for verbs even if empty
@@ -194,7 +196,7 @@ object Data {
             }
 
             private fun Map<Int, List<VerbFrame>>.toWndbString1(category: Category, membersCount: Int): String {
-                if (category != 'v') {
+                if (category != Category.V) {
                     return ""
                 }
                 // compulsory for verbs even if empty
