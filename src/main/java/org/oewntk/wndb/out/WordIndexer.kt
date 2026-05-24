@@ -3,7 +3,7 @@
  */
 package org.oewntk.wndb.out
 
-import org.oewntk.model.Category
+import org.oewntk.model.PartOfSpeech
 import org.oewntk.model.Sense
 import org.oewntk.model.SenseGroupings.sensesByLCLemmaAndPos
 import org.oewntk.model.Synset
@@ -28,7 +28,7 @@ class WordIndexer(
     /**
      * This represents what is needed for a line in index.(noun|verb|adj|adv)
      */
-    private class IndexEntry(val category: Category) {
+    private class IndexEntry(val partOfSpeech: PartOfSpeech) {
 
         var taggedSensesCount: Int = 0
             private set
@@ -137,7 +137,7 @@ class WordIndexer(
      *
      * @param senses         senses
      * @param synsetResolver synset resolver from id
-     * @param category       pos
+     * @param partOfSpeech   pos
      * @param pointers       set of pointers to collect to
      * @param pointerCompat  pointer compatibility flag
      * @param incompats      incompatibility log
@@ -145,14 +145,14 @@ class WordIndexer(
     private fun collectSynsetRelations(
         senses: List<Sense>,
         synsetResolver: (SynsetId) -> Synset,
-        category: Category,
+        partOfSpeech: PartOfSpeech,
         pointers: MutableSet<String>,
         pointerCompat: Boolean,
         incompats: MutableMap<String, Int>
     ) {
         senses.forEach {
             val synset = synsetResolver(it.synsetId)
-            collectSynsetRelations(synset, category, pointers, pointerCompat, incompats)
+            collectSynsetRelations(synset, partOfSpeech, pointers, pointerCompat, incompats)
         }
     }
 
@@ -160,16 +160,16 @@ class WordIndexer(
      * Collect sense relations
      *
      * @param synset        synset
-     * @param category           pos
+     * @param partOfSpeech  pos
      * @param pointers      set of pointers to collect to
      * @param pointerCompat pointer compatibility flag
      * @param incompats     incompatibility log
      */
-    private fun collectSynsetRelations(synset: Synset, category: Category, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
+    private fun collectSynsetRelations(synset: Synset, partOfSpeech: PartOfSpeech, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
         if (!synset.relations.isNullOrEmpty()) {
             synset.relations!!.keys.forEach { relation ->
                 try {
-                    val pointer: String = Coder.codeRelation(relation, category, pointerCompat)
+                    val pointer: String = Coder.codeRelation(relation, partOfSpeech, pointerCompat)
                     pointers.add(pointer)
 
                 } catch (e: CompatException) {
@@ -190,12 +190,12 @@ class WordIndexer(
      * Collect sense relations
      *
      * @param senses        senses
-     * @param category           pos
+     * @param category      pos
      * @param pointers      set of pointers to collect to
      * @param pointerCompat pointer compatibility flag
      * @param incompats     incompatibility log
      */
-    private fun collectSenseRelations(senses: List<Sense>, category: Category, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
+    private fun collectSenseRelations(senses: List<Sense>, category: PartOfSpeech, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
         senses
             .filter { !it.relations.isNullOrEmpty() }
             .flatMap { it.relations!!.keys }
@@ -235,7 +235,7 @@ class WordIndexer(
         val nSenses = indexEntry.synsetIds.size
         val ptrs = indexEntry.relationPointers.joinToStringWithCount(countFormat = Int::toString)
         val ofs = indexEntry.synsetIds.joinToString(separator = " ") { offsetFormat(offsets[it]!!) }
-        val line = "$key ${indexEntry.category} $nSenses $ptrs $nSenses ${indexEntry.taggedSensesCount} $ofs  "
+        val line = "$key ${indexEntry.partOfSpeech} $nSenses $ptrs $nSenses ${indexEntry.taggedSensesCount} $ofs  "
         ps.println(line)
     }
 
