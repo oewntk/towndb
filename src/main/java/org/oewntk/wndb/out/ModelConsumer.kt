@@ -86,20 +86,20 @@ class ModelConsumer(
         var aCount: Int
         var rCount: Int
         val grinder = GrindSynsets(synsets, lexResolver, synsetResolver, senseResolver, offsets, flags)
-        PrintStream(FileOutputStream(File(dir, "data.${Data.NOUN_POS_FILTER.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
-            nCount = grinder.makeData(ps, synsets, synsetResolver, Data.NOUN_POS_FILTER)
+        PrintStream(FileOutputStream(File(dir, "data.${PartOfSpeech.N.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
+            nCount = grinder.makeData(ps, synsets, synsetResolver, PartOfSpeech.N)
             grinder.report()
         }
-        PrintStream(FileOutputStream(File(dir, "data.${Data.VERB_POS_FILTER.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
-            vCount = grinder.makeData(ps, synsets, synsetResolver, Data.VERB_POS_FILTER)
+        PrintStream(FileOutputStream(File(dir, "data.${PartOfSpeech.V.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
+            vCount = grinder.makeData(ps, synsets, synsetResolver, PartOfSpeech.V)
             grinder.report()
         }
-        PrintStream(FileOutputStream(File(dir, "data.${Data.ADJ_POS_FILTER.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
-            aCount = grinder.makeData(ps, synsets, synsetResolver, Data.ADJ_POS_FILTER)
+        PrintStream(FileOutputStream(File(dir, "data.${PartOfSpeech.A.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
+            aCount = grinder.makeData(ps, synsets, synsetResolver, PartOfSpeech.A)
             grinder.report()
         }
-        PrintStream(FileOutputStream(File(dir, "data.${Data.ADV_POS_FILTER.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
-            rCount = grinder.makeData(ps, synsets, synsetResolver, Data.ADV_POS_FILTER)
+        PrintStream(FileOutputStream(File(dir, "data.${PartOfSpeech.R.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
+            rCount = grinder.makeData(ps, synsets, synsetResolver, PartOfSpeech.R)
             grinder.report()
         }
         val sum = nCount + vCount + aCount + rCount
@@ -127,17 +127,17 @@ class ModelConsumer(
         var aCount: Long
         var rCount: Long
         val indexer = WordIndexer(offsets, flags)
-        PrintStream(FileOutputStream(File(dir, "index.${Data.NOUN_POS_FILTER.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
-            nCount = indexer.make(ps, senses, synsetResolver, Data.NOUN_POS_FILTER)
+        PrintStream(FileOutputStream(File(dir, "index.${PartOfSpeech.N.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
+            nCount = indexer.make(ps, senses, synsetResolver, PartOfSpeech.N)
         }
-        PrintStream(FileOutputStream(File(dir, "index.${Data.VERB_POS_FILTER.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
-            vCount = indexer.make(ps, senses, synsetResolver, Data.VERB_POS_FILTER)
+        PrintStream(FileOutputStream(File(dir, "index.${PartOfSpeech.V.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
+            vCount = indexer.make(ps, senses, synsetResolver, PartOfSpeech.V)
         }
-        PrintStream(FileOutputStream(File(dir, "index.${Data.ADJ_POS_FILTER.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
-            aCount = indexer.make(ps, senses, synsetResolver, Data.ADJ_POS_FILTER)
+        PrintStream(FileOutputStream(File(dir, "index.${PartOfSpeech.A.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
+            aCount = indexer.make(ps, senses, synsetResolver, PartOfSpeech.A)
         }
-        PrintStream(FileOutputStream(File(dir, "index.${Data.ADJ_POS_FILTER.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
-            rCount = indexer.make(ps, senses, synsetResolver, Data.ADV_POS_FILTER)
+        PrintStream(FileOutputStream(File(dir, "index.${PartOfSpeech.R.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
+            rCount = indexer.make(ps, senses, synsetResolver, PartOfSpeech.R)
         }
         val sum = nCount + vCount + aCount + rCount
         Tracing.psInfo.println("Indexes: $sum [n:$nCount v:$vCount a:$aCount r:$rCount]")
@@ -211,21 +211,21 @@ class ModelConsumer(
             var aCount: Int
             var rCount: Int
             val grinder = GrindMorphs()
-            PrintStream(FileOutputStream(File(dir, "${Data.NOUN_POS_FILTER.fullName}.exc")), true, StandardCharsets.UTF_8)
+            PrintStream(FileOutputStream(File(dir, "${PartOfSpeech.N.fullName}.exc")), true, StandardCharsets.UTF_8)
                 .use { ps ->
-                    nCount = grinder.makeMorph(ps, lexEntries, Data.NOUN_POS_FILTER)
+                    nCount = grinder.makeMorph(ps, lexEntries, PartOfSpeech.N)
                 }
-            PrintStream(FileOutputStream(File(dir, "${Data.VERB_POS_FILTER.fullName}.exc")), true, StandardCharsets.UTF_8)
+            PrintStream(FileOutputStream(File(dir, "${PartOfSpeech.V.fullName}.exc")), true, StandardCharsets.UTF_8)
                 .use { ps ->
-                    vCount = grinder.makeMorph(ps, lexEntries, Data.VERB_POS_FILTER)
+                    vCount = grinder.makeMorph(ps, lexEntries, PartOfSpeech.V)
                 }
-            PrintStream(FileOutputStream(File(dir, "${Data.ADJ_POS_FILTER.fullName}.exc")), true, StandardCharsets.UTF_8)
+            PrintStream(FileOutputStream(File(dir, "${PartOfSpeech.A.fullName}.exc")), true, StandardCharsets.UTF_8)
                 .use { ps ->
-                    aCount = grinder.makeMorph(ps, lexEntries, Data.ADJ_POS_FILTER)
+                    aCount = grinder.makeMorph(ps, lexEntries, PartOfSpeech.A)
                 }
-            PrintStream(FileOutputStream(File(dir, "${Data.ADV_POS_FILTER.fullName}.exc")), true, StandardCharsets.UTF_8)
+            PrintStream(FileOutputStream(File(dir, "${PartOfSpeech.R.fullName}.exc")), true, StandardCharsets.UTF_8)
                 .use { ps ->
-                    rCount = grinder.makeMorph(ps, lexEntries, Data.ADV_POS_FILTER)
+                    rCount = grinder.makeMorph(ps, lexEntries, PartOfSpeech.R)
                 }
             val sum = nCount + vCount + aCount + rCount
             Tracing.psInfo.println("Morphs: $sum [n:$nCount v:$vCount a:$aCount r:$rCount]")

@@ -60,10 +60,10 @@ class GrindOffsets(
      */
     fun compute(): Map<String, Long> {
         val offsets: MutableMap<String, Long> = HashMap()
-        compute(Data.NOUN_POS_FILTER, offsets)
-        compute(Data.VERB_POS_FILTER, offsets)
-        compute(Data.ADJ_POS_FILTER, offsets)
-        compute(Data.ADV_POS_FILTER, offsets)
+        compute(PartOfSpeech.N, offsets)
+        compute(PartOfSpeech.V, offsets)
+        compute(PartOfSpeech.A, offsets)
+        compute(PartOfSpeech.R, offsets)
         return offsets
     }
 

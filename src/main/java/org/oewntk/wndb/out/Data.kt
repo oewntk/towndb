@@ -20,26 +20,6 @@ import org.oewntk.wndb.out.Formatter.offsetFormat
 object Data {
 
     /**
-     * Filter for noun synset pos
-     */
-    val NOUN_POS_FILTER: PartOfSpeech = PartOfSpeech.N
-
-    /**
-     * Filter for verb synset pos
-     */
-    val VERB_POS_FILTER: PartOfSpeech = PartOfSpeech.V
-
-    /**
-     * Filter for adj synset pos
-     */
-    val ADJ_POS_FILTER: PartOfSpeech = PartOfSpeech.A
-
-    /**
-     * Filter for adv synset pos
-     */
-    val ADV_POS_FILTER: PartOfSpeech = PartOfSpeech.R
-
-    /**
      * Synset member lemma. Members are ordered lemmas. Lexid (from lexicographer file should not exceed 15 in compat mode)
      */
     internal open class Member(
