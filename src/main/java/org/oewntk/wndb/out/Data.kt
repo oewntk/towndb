@@ -3,7 +3,6 @@
  */
 package org.oewntk.wndb.out
 
-import org.oewntk.model.Category
 import org.oewntk.model.PartOfSpeech
 import org.oewntk.model.SynsetType
 import org.oewntk.wndb.out.Coder.codeRelation
@@ -195,8 +194,8 @@ object Data {
                     .joinToStringWithCount(countFormat = ::intFormat2) { it.toWndbString() }
             }
 
-            private fun Map<Int, List<VerbFrame>>.toWndbString1(category: Category, membersCount: Int): String {
-                if (category != Category.V) {
+            private fun Map<Int, List<VerbFrame>>.toWndbString1(pos: PartOfSpeech, membersCount: Int): String {
+                if (pos != PartOfSpeech.V) {
                     return ""
                 }
                 // compulsory for verbs even if empty
