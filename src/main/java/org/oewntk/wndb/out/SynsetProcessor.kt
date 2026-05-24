@@ -177,7 +177,7 @@ abstract class SynsetProcessor protected constructor(
         }
         val definitionsData = definitions.joinToString("; ")
         val examplesData = if (examples.isNullOrEmpty()) "" else "; " + examples.map { it.first }.joinToString(separator = " ") { example -> "\"$example\"" }
-        return "${offsetFormat(offset)} ${intFormat2(lexfileNum)} $type $membersData $relatedData$verbframesData | $definitionsData$examplesData  \n"
+        return "${offsetFormat(offset)} ${intFormat2(lexfileNum)} ${type.value} $membersData $relatedData$verbframesData | $definitionsData$examplesData  \n"
     }
 
     private fun getSynsetRelationData(synset: Synset, offset: Long): List<Relation> {
