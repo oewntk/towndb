@@ -125,7 +125,7 @@ class TestCoder {
             PartOfSpeech.entries.forEach { pos ->
                 val relation = toRelations[pos]!![pointer]
                 if (relation != null) {
-                    Tracing.psInfo.print("$pos:$relation ")
+                    Tracing.psInfo.print("${pos.value}:$relation ")
                 }
             }
             Tracing.psInfo.println()
