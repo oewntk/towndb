@@ -355,5 +355,9 @@ abstract class SynsetProcessor protected constructor(
         private const val LOG_DISCARDED = false
 
         private const val LOG_DUPLICATE_RELATION = false
+
+        val comparator = compareBy<Synset> { it.partOfSpeech }
+            .thenBy { it.domain }
+            .thenBy { it.synsetId }
     }
 }
