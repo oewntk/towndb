@@ -38,9 +38,13 @@ abstract class SynsetProcessor protected constructor(
     protected val senseResolver: (SenseKey) -> Sense,
     protected val offsetFunction: (String) -> Long,
     protected val flags: Int,
-    verbose: Boolean = false,
+    protected val verbose: Boolean = false,
+) {
 
-    ) {
+    init {
+        if (verbose)
+            Tracing.psInfo.println("Running SynsetProcessor")
+    }
 
     /**
      * Report incompatibility counts (indexed by cause)
