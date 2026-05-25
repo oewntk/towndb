@@ -332,7 +332,7 @@ abstract class SynsetProcessor protected constructor(
     protected open fun buildLexfileNum(synset: Synset): Int {
         val lexfile = synset.lexfile
         try {
-            return codeLexFile(lexfile!!)
+            return codeLexFile(lexfile)
         } catch (_: Exception) {
             throw IllegalArgumentException("Lexfile '$lexfile' in ${synset.synsetId}")
         }
