@@ -24,7 +24,7 @@ class GrindOffsets(
     synsetResolver: (SynsetId) -> Synset,
     senseResolver: (SenseKey) -> Sense,
     flags: Int,
-    val verbose: Boolean = false,
+    verbose: Boolean = false,
 ) :
     SynsetProcessor(lexResolver, synsetResolver, senseResolver, { 0L }, flags,) {
 
