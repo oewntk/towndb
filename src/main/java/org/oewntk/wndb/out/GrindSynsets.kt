@@ -26,8 +26,8 @@ class GrindSynsets(
     senseResolver: (SenseKey) -> Sense,
     offsetMap: Map<String, Long>,
     flags: Int,
-    val verbose: Boolean = false,
-) : SynsetProcessor(lexResolver, synsetResolver, senseResolver, { offsetMap[it]!! }, flags, verbose = verbose) {
+    verbose: Boolean = false,
+) : SynsetProcessor(synsets, lexResolver, synsetResolver, senseResolver, { offsetMap[it]!! }, flags, verbose = verbose) {
 
     /**
      * Derived classes diverge here to log things on the second pass only
