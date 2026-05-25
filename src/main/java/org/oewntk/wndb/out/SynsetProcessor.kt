@@ -41,12 +41,6 @@ abstract class SynsetProcessor protected constructor(
     protected val flags: Int,
     protected val verbose: Boolean = false,
 ) {
-
-    init {
-        if (verbose)
-            Tracing.psInfo.println("Running SynsetProcessor")
-    }
-
     /**
      * Report incompatibility counts (indexed by cause)
      */

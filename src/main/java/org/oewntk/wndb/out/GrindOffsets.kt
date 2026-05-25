@@ -28,6 +28,11 @@ class GrindOffsets(
 ) :
     SynsetProcessor(synsets, lexResolver, synsetResolver, senseResolver, { 0L }, flags, verbose = verbose) {
 
+    init {
+        if (verbose)
+            Tracing.psInfo.println("computing offsets")
+    }
+
     /**
      * Log things on the first pass
      */
@@ -42,10 +47,13 @@ class GrindOffsets(
      * @param offsets       result map
      */
     private fun compute(posFilter: PartOfSpeech, offsets: MutableMap<String, Long>) {
+        if (verbose)
+            Tracing.psInfo.println("-computing offsets for ${posFilter.fullName}")
+
         var offset = Formatter.OEWN_HEADER.toByteArray(StandardCharsets.UTF_8).size.toLong()
 
         // iterate synsets
-        synsets
+        synsets.asSequence()
             .filter { it.partOfSpeech == posFilter }
             .forEach { synset ->
                 val data = getData(synset, dummyOfs)

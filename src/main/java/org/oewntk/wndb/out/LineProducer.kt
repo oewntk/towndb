@@ -19,7 +19,8 @@ class LineProducer(
     override fun invoke(model: CoreModel, synsetId: SynsetId): String {
 
         // Compute synset offsets
-        val offsets = GrindOffsets(model.synsets, model.lexResolver, model.synsetResolver, model.senseResolver, flags,).compute()
+        val sortedSynsets = model.synsets.sortedWith(comparator = SynsetProcessor.comparator)
+        val offsets = GrindOffsets(sortedSynsets, model.lexResolver, model.synsetResolver, model.senseResolver, flags,).compute()
 
         // Get synset
         val synset = model.synsetResolver(synsetId)
@@ -27,7 +28,7 @@ class LineProducer(
         require(offsets.containsValue(offset)) { "$offset is not a valid offset" }
 
         // Produce line
-        return data(synset, offset, model.synsets, model.lexResolver, model.synsetResolver, model.senseResolver, offsets, flags)
+        return data(synset, offset, sortedSynsets, model.lexResolver, model.synsetResolver, model.senseResolver, offsets, flags)
     }
 
     companion object {

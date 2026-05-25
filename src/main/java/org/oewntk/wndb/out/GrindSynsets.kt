@@ -29,6 +29,11 @@ class GrindSynsets(
     verbose: Boolean = false,
 ) : SynsetProcessor(synsets, lexResolver, synsetResolver, senseResolver, { offsetMap[it]!! }, flags, verbose = verbose) {
 
+    init {
+        if (verbose)
+            Tracing.psInfo.println("generating data")
+    }
+
     /**
      * Derived classes diverge here to log things on the second pass only
      */
@@ -40,25 +45,27 @@ class GrindSynsets(
      * Make data
      *
      * @param ps print stream
-     * @param synsets all synsets
      * @param synsetResolver from id
      * @param posFilter part-of-speech filter
      * @return number of synsets
      */
-    fun makeData(ps: PrintStream, synsets: Collection<Synset>, synsetResolver: (SynsetId) -> Synset, posFilter: PartOfSpeech): Int {
+    fun makeData(ps: PrintStream, synsetResolver: (SynsetId) -> Synset, posFilter: PartOfSpeech): Int {
+         if (verbose)
+            Tracing.psInfo.println("-generating data for ${posFilter.fullName}")
+
         ps.print(Formatter.OEWN_HEADER)
 
         // iterate synsets
         var offset = Formatter.OEWN_HEADER.toByteArray(StandardCharsets.UTF_8).size.toLong()
         var previous: Synset? = null
-        return synsets
-            .filter { synset -> synset.partOfSpeech == posFilter }
+        return synsets.asSequence()
+            .filter { it.partOfSpeech == posFilter }
             .onEach { synset ->
                 val offset0: Long = offsetFunction.invoke(synset.synsetId)
                 if (offset0 != offset) {
-                    checkNotNull(previous)
-                    val line = getData(previous, 0)
-                    val line0 = GrindOffsets(synsets, lexResolver, synsetResolver, senseResolver, flags, verbose = verbose,).getData(previous, 0)
+                    val synset = checkNotNull(previous)
+                    val line = getData(synset, 0)
+                    val line0 = GrindOffsets(synsets, lexResolver, synsetResolver, senseResolver, flags, verbose = verbose).getData(synset, 0)
                     throw RuntimeException("miscomputed offset for ${synset.synsetId}\n[then]=$line0[now ]=$line")
                 }
                 val line = getData(synset, offset)

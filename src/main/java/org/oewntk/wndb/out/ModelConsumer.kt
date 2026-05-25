@@ -48,10 +48,17 @@ class ModelConsumer(
         }
 
         // Compute synset offsets
-        val offsets = GrindOffsets(model.synsets, model.lexResolver, model.synsetResolver, model.senseResolver, flags, verbose = verbose).compute()
+        val sortedSynsets = model.synsets.sortedWith(comparator = SynsetProcessor.comparator)
+        val offsets = GrindOffsets(
+            sortedSynsets,
+            model.lexResolver,
+            model.synsetResolver,
+            model.senseResolver,
+            flags, verbose = verbose
+        ).compute()
 
         // Process
-        data(outDir, model.synsets, model.lexResolver, model.synsetResolver, model.senseResolver, offsets)
+        data(outDir, sortedSynsets, model.lexResolver, model.synsetResolver, model.senseResolver, offsets)
         indexWords(outDir, model.senses, model.synsetResolver, offsets)
         indexSenses(outDir, model.senses, offsets)
         morphs(outDir, model.lexEntries)
@@ -88,19 +95,19 @@ class ModelConsumer(
         var rCount: Int
         val grinder = GrindSynsets(synsets, lexResolver, synsetResolver, senseResolver, offsets, flags, verbose = verbose)
         PrintStream(FileOutputStream(File(dir, "data.${PartOfSpeech.N.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
-            nCount = grinder.makeData(ps, synsets, synsetResolver, PartOfSpeech.N)
+            nCount = grinder.makeData(ps, synsetResolver, PartOfSpeech.N)
             grinder.report()
         }
         PrintStream(FileOutputStream(File(dir, "data.${PartOfSpeech.V.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
-            vCount = grinder.makeData(ps, synsets, synsetResolver, PartOfSpeech.V)
+            vCount = grinder.makeData(ps, synsetResolver, PartOfSpeech.V)
             grinder.report()
         }
         PrintStream(FileOutputStream(File(dir, "data.${PartOfSpeech.A.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
-            aCount = grinder.makeData(ps, synsets, synsetResolver, PartOfSpeech.A)
+            aCount = grinder.makeData(ps, synsetResolver, PartOfSpeech.A)
             grinder.report()
         }
         PrintStream(FileOutputStream(File(dir, "data.${PartOfSpeech.R.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
-            rCount = grinder.makeData(ps, synsets, synsetResolver, PartOfSpeech.R)
+            rCount = grinder.makeData(ps, synsetResolver, PartOfSpeech.R)
             grinder.report()
         }
         val sum = nCount + vCount + aCount + rCount
