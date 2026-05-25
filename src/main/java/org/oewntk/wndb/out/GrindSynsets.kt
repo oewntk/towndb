@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets
 /**
  * This class produces the 'data.{noun|verb|adj|adv}' files
  *
- * @property synsets synsets
+ * @param synsets synsets
  * @param lexResolver lex resolver from lemma
  * @param synsetResolver synset resolver from id
  * @param senseResolver sense resolver from id
@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets
  * @author Bernard Bou
  */
 class GrindSynsets(
-    val synsets: Collection<Synset>,
+    synsets: Collection<Synset>,
     lexResolver: (Lemma) -> Collection<Lex>,
     synsetResolver: (SynsetId) -> Synset,
     senseResolver: (SenseKey) -> Sense,

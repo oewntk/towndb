@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets
  * This class computes file offsets that serve as synset id in the WNDB format. It does so by iterating over synsets and yielding a dummy line string of
  * the same length as the final string. The offset counter is moved by the line's length.
  *
- * @property synsets synsets
+ * @param synsets synsets
  * @param lexResolver lex resolver from lemma
  * @param synsetResolver  synset resolver from  id
  * @param senseResolver   sens resolver from  id
@@ -19,14 +19,14 @@ import java.nio.charset.StandardCharsets
  * @author Bernard Bou
  */
 class GrindOffsets(
-    val synsets: Collection<Synset>,
+    synsets: Collection<Synset>,
     lexResolver: (Lemma) -> Collection<Lex>,
     synsetResolver: (SynsetId) -> Synset,
     senseResolver: (SenseKey) -> Sense,
     flags: Int,
     verbose: Boolean = false,
 ) :
-    SynsetProcessor(lexResolver, synsetResolver, senseResolver, { 0L }, flags,) {
+    SynsetProcessor(synsets, lexResolver, synsetResolver, senseResolver, { 0L }, flags, verbose = verbose) {
 
     /**
      * Log things on the first pass

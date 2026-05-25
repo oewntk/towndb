@@ -23,6 +23,7 @@ import java.util.*
 /**
  * This abstract class iterates over the synsets to produce a line of data. The real classes implement some functions differently.
 
+ * @property synsets synsets (if multiple passes they must have the same iteration order)
  * @property lexResolver lexes resolved from lemma
  * @property synsetResolver synsets resolver from id
  * @property senseResolver sense resolver from id
@@ -32,7 +33,7 @@ import java.util.*
  * @author Bernard Bou
  */
 abstract class SynsetProcessor protected constructor(
-
+    protected val synsets: Collection<Synset>,
     protected val lexResolver: (Lemma) -> Collection<Lex>,
     protected val synsetResolver: (SynsetId) -> Synset,
     protected val senseResolver: (SenseKey) -> Sense,
