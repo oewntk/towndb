@@ -24,6 +24,10 @@ class OffsetSerializer(
 ) : Consumer<Model> {
 
     override fun accept(model: Model) {
+        Tracing.psInfo.println("[Model] ${model.sources.contentToString()}")
+        if (!outDir.exists()) {
+            outDir.mkdirs()
+        }
         try {
             grind(model)
         } catch (e: IOException) {
@@ -39,14 +43,6 @@ class OffsetSerializer(
      */
     @Throws(IOException::class)
     fun grind(model: CoreModel) {
-
-        // Model
-        ps.println("[CoreModel] serialize ${model.source}")
-
-        // Output
-        if (!outDir.exists()) {
-            outDir.mkdirs()
-        }
 
         // Compute synset offsets
         val offsets = GrindOffsets(model.synsets, model.lexResolver, model.synsetResolver, model.senseResolver, flags,).compute()

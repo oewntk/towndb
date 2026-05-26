@@ -24,9 +24,10 @@ class ModelConsumer(
 ) : Consumer<Model> {
 
     override fun accept(model: Model) {
-
         Tracing.psInfo.println("[Model] ${model.sources.contentToString()}")
-
+        if (!outDir.exists()) {
+            outDir.mkdirs()
+        }
         try {
             grind(model)
         } catch (e: IOException) {
@@ -42,11 +43,6 @@ class ModelConsumer(
      */
     @Throws(IOException::class)
     fun grind(model: Model) {
-        // Output
-        if (!outDir.exists()) {
-            outDir.mkdirs()
-        }
-
         // Compute synset offsets
         val sortedSynsets = model.synsets.sortedWith(comparator = SynsetProcessor.comparator)
         val offsets = GrindOffsets(

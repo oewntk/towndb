@@ -28,6 +28,10 @@ class OffsetMapper(
 ) : Consumer<Model> {
 
     override fun accept(model: Model) {
+        Tracing.psInfo.println("[Model] ${model.sources.contentToString()}")
+        if (!outDir.exists()) {
+            outDir.mkdirs()
+        }
         try {
             grind(model)
         } catch (e: IOException) {
@@ -43,14 +47,6 @@ class OffsetMapper(
      */
     @Throws(IOException::class)
     fun grind(model: CoreModel) {
-
-        // Model
-        ps.println("[CoreModel] map ${model.source}")
-
-        // Output
-        if (!outDir.exists()) {
-            outDir.mkdirs()
-        }
 
         // Compute synset offsets
         val offsets = GrindOffsets(model.synsets, model.lexResolver, model.synsetResolver, model.senseResolver, flags,).compute()
