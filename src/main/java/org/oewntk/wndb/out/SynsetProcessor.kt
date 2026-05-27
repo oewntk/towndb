@@ -141,7 +141,7 @@ abstract class SynsetProcessor protected constructor(
 
         // build members ordered set
         val members: List<Member> = synset.members
-            .map { member -> synset.findSenseOf(member, lexResolver, senseResolver) }
+            .map { member -> synset.resolveSenseOf(member, lexResolver, senseResolver) }
             .map { buildMember(it) }
             .toList()
 
