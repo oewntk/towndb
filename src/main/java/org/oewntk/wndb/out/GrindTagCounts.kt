@@ -20,6 +20,7 @@ class GrindTagCounts {
     fun makeTagCountRev(ps: PrintStream, senses: Collection<Sense>) {
         val n = senses
             .filter { sense -> sense.tagCount != null }
+            .sortedBy(Sense::senseKey)
             .onEach { sense ->
                 val line = "${sense.senseKey} ${sense.lexIndex} ${sense.tagCount!!.count}"
                 ps.println(line)
@@ -40,11 +41,19 @@ class GrindTagCounts {
             .filter { sense -> sense.tagCount != null }
             .map { sense -> "${sense.tagCount!!.count} ${sense.senseKey} ${sense.lexIndex}" }
             .sortedWith { l1: String, l2: String ->
-                val field1 = l1.split("\\s".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
-                val field2 = l2.split("\\s".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
+                val fields1 = l1.split("\\s".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                val fields2 = l2.split("\\s".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                val field1 = fields1[0]
+                val field2 = fields2[0]
                 val i1 = field1.toInt()
                 val i2 = field2.toInt()
-                -i1.compareTo(i2)
+                if (i1 == i2) {
+                    val field21 = fields1[1]
+                    val field22 = fields2[1]
+                    field21.compareTo(field22)
+                } else {
+                    -i1.compareTo(i2)
+                }
             }
             .onEach { ps.println(it) }
             .count()
