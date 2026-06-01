@@ -12,8 +12,8 @@ class TestHeaders {
     fun testHeaders() {
         val pwnHeader = Formatter.PRINCETON_HEADER.length
         val oewnHeader = Formatter.OEWN_HEADER.length
-        println("PWN $pwnHeader")
-        println("OEWN $oewnHeader")
+        Tracing.psInfo.println("PWN $pwnHeader")
+        Tracing.psInfo.println("OEWN $oewnHeader")
         Assert.assertEquals(pwnHeader.toLong(), oewnHeader.toLong())
     }
 }
