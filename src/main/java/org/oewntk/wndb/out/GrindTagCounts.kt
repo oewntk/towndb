@@ -16,17 +16,17 @@ class GrindTagCounts {
      *
      * @param ps     print stream
      * @param senses senses
+     * @return count
      */
-    fun makeTagCountRev(ps: PrintStream, senses: Collection<Sense>) {
-        val n = senses
+    fun makeTagCountRev(ps: PrintStream, senses: Collection<Sense>): Int {
+        return senses
             .filter { sense -> sense.tagCount != null }
             .sortedBy(Sense::senseKey)
             .onEach { sense ->
-                val line = "${sense.senseKey} ${sense.lexIndex} ${sense.tagCount!!.count}"
+                val line = "${sense.senseKey} ${sense.lexIndex + 1} ${sense.tagCount!!.count}"
                 ps.println(line)
             }
             .count()
-        Tracing.psInfo.println("Tag counts reverse: $n")
     }
 
     /**
@@ -34,12 +34,13 @@ class GrindTagCounts {
      *
      * @param ps      print stream
      * @param senses  senses
+     * @return count
      */
-    fun makeTagCount(ps: PrintStream, senses: Collection<Sense>) {
-        val n = senses
+    fun makeTagCount(ps: PrintStream, senses: Collection<Sense>): Int {
+        return senses
             .asSequence()
             .filter { sense -> sense.tagCount != null }
-            .map { sense -> "${sense.tagCount!!.count} ${sense.senseKey} ${sense.lexIndex}" }
+            .map { sense -> "${sense.tagCount!!.count} ${sense.senseKey} ${sense.lexIndex + 1}" }
             .sortedWith { l1: String, l2: String ->
                 val fields1 = l1.split("\\s".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
                 val fields2 = l2.split("\\s".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
@@ -57,6 +58,5 @@ class GrindTagCounts {
             }
             .onEach { ps.println(it) }
             .count()
-        Tracing.psInfo.println("Tag counts: $n")
     }
 }

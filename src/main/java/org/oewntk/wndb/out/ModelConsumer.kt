@@ -57,7 +57,7 @@ class ModelConsumer(
         data(outDir, sortedSynsets, model.lexResolver, model.synsetResolver, model.senseResolver, offsets)
         indexWords(outDir, model.senses, model.synsetResolver, offsets)
         indexSenses(outDir, model.senses, offsets)
-        morphs(outDir, model.lexEntries)
+        morphs(outDir, model.lexes)
         templates(outDir, model.verbTemplatesById!!)
         indexTemplates(outDir, model.senses)
         verbFrames(outDir, model.verbFrames)
@@ -85,10 +85,10 @@ class ModelConsumer(
         senseResolver: (SenseKey) -> Sense,
         offsets: Map<String, Long>,
     ) {
-        var nCount: Int
-        var vCount: Int
-        var aCount: Int
-        var rCount: Int
+        var nCount = 0
+        var vCount = 0
+        var aCount = 0
+        var rCount = 0
         val grinder = GrindSynsets(synsets, lexResolver, synsetResolver, senseResolver, offsets, flags, verbose = verbose)
         PrintStream(FileOutputStream(File(dir, "data.${PartOfSpeech.N.fullName}")), true, StandardCharsets.UTF_8).use { ps ->
             nCount = grinder.makeData(ps, synsetResolver, PartOfSpeech.N)
@@ -204,12 +204,12 @@ class ModelConsumer(
         /**
          * Grind {noun|verb|adj|adv}.exc
          *
-         * @param lexEntries lexes mapped by lemma
+         * @param lexes lexes
          * @param dir output directory
          * @throws IOException io
          */
         @Throws(IOException::class)
-        fun morphs(dir: File, lexEntries: Sequence<LexEntry>) {
+        fun morphs(dir: File, lexes: Collection<Lex>) {
             var nCount: Int
             var vCount: Int
             var aCount: Int
@@ -217,19 +217,19 @@ class ModelConsumer(
             val grinder = GrindMorphs()
             PrintStream(FileOutputStream(File(dir, "${PartOfSpeech.N.fullName}.exc")), true, StandardCharsets.UTF_8)
                 .use { ps ->
-                    nCount = grinder.makeMorph(ps, lexEntries, PartOfSpeech.N)
+                    nCount = grinder.makeMorph(ps, lexes, PartOfSpeech.N)
                 }
             PrintStream(FileOutputStream(File(dir, "${PartOfSpeech.V.fullName}.exc")), true, StandardCharsets.UTF_8)
                 .use { ps ->
-                    vCount = grinder.makeMorph(ps, lexEntries, PartOfSpeech.V)
+                    vCount = grinder.makeMorph(ps, lexes, PartOfSpeech.V)
                 }
             PrintStream(FileOutputStream(File(dir, "${PartOfSpeech.A.fullName}.exc")), true, StandardCharsets.UTF_8)
                 .use { ps ->
-                    aCount = grinder.makeMorph(ps, lexEntries, PartOfSpeech.A)
+                    aCount = grinder.makeMorph(ps, lexes, PartOfSpeech.A)
                 }
             PrintStream(FileOutputStream(File(dir, "${PartOfSpeech.R.fullName}.exc")), true, StandardCharsets.UTF_8)
                 .use { ps ->
-                    rCount = grinder.makeMorph(ps, lexEntries, PartOfSpeech.R)
+                    rCount = grinder.makeMorph(ps, lexes, PartOfSpeech.R)
                 }
             val sum = nCount + vCount + aCount + rCount
             Tracing.psInfo.println("Morphs: $sum [n:$nCount v:$vCount a:$aCount r:$rCount]")
@@ -276,10 +276,12 @@ class ModelConsumer(
         fun tagcounts(dir: File, senses: Collection<Sense>) {
             val grinder = GrindTagCounts()
             PrintStream(FileOutputStream(File(dir, "cntlist")), true, StandardCharsets.UTF_8).use { ps ->
-                grinder.makeTagCount(ps, senses)
+                val n = grinder.makeTagCount(ps, senses)
+                Tracing.psInfo.println("Tag counts: $n")
             }
             PrintStream(FileOutputStream(File(dir, "cntlist.rev")), true, StandardCharsets.UTF_8).use { ps ->
-                grinder.makeTagCountRev(ps, senses)
+                val n = grinder.makeTagCountRev(ps, senses)
+                Tracing.psInfo.println("Reverse tag counts: $n")
             }
         }
 

@@ -3,7 +3,7 @@
  */
 package org.oewntk.wndb.out
 
-import org.oewntk.model.LexEntry
+import org.oewntk.model.Lex
 import org.oewntk.model.PartOfSpeech
 import java.io.PrintStream
 
@@ -18,27 +18,23 @@ class GrindMorphs {
      * Make morph files
      *
      * @param ps           print stream
-     * @param lexEntries   lex entries
+     * @param lexes        lexes
      * @param posFilter    filter selecting lexes
      * @return count
      */
-    fun makeMorph(ps: PrintStream, lexEntries: Sequence<LexEntry>, posFilter: PartOfSpeech): Int {
+    fun makeMorph(ps: PrintStream, lexes: Collection<Lex>, posFilter: PartOfSpeech): Int {
 
-        return lexEntries
-            .flatMap { (lemma, lexes) ->
-                lexes.asSequence()
-                    .map { lex -> lemma to lex }
-            }
-            .filter { (_, lex) -> lex.partOfSpeech == posFilter }
-            .filter { (_, lex) -> lex.forms != null }
-            .flatMap { (lemma, lex) ->
+        return lexes
+            .asSequence()
+            .filter { lex -> lex.partOfSpeech == posFilter }
+            .filter { lex -> lex.forms != null }
+            .onEach { lex ->
                 lex.forms!!
                     .asSequence()
-                    .map { form -> "$form $lemma" }
+                    .map { form -> "$form ${lex.lemma}" }
+                    .sorted()
+                    .forEach { ps.println(it) }
             }
-            .sorted()
-            .distinct()
-            .onEach { ps.println(it) }
             .count()
     }
 }
