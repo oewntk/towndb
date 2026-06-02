@@ -11,6 +11,7 @@ import org.oewntk.model.Tracing
 import org.oewntk.wndb.out.SenseComparator.WNDB_SENSE_ORDER
 import org.oewntk.wndb.out.SenseComparator.WNDB_SENSE_ORDER_TAIL
 import org.oewntk.wndb.out.WN31Index.WN31_SK_COMPARATOR
+import java.io.PrintStream
 
 class TestSenseOrder {
 
@@ -226,7 +227,11 @@ class TestSenseOrder {
 
     companion object {
 
-        private val ps = if (!System.getProperties().containsKey("SILENT")) Tracing.psInfo else Tracing.psNull
+        private val silent = if (System.getProperties().containsKey("VERBOSE")) false
+        else if (System.getProperties().containsKey("SILENT")) true
+        else true
+
+        private val ps: PrintStream = if (!silent) Tracing.psInfo else Tracing.psNull
 
         private val WNDB_SENSE_ORDER_BY_TAGCOUNT: Comparator<Sense> = SenseGroupings.BY_DECREASING_TAGCOUNT
 
