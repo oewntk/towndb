@@ -25,6 +25,7 @@ class OffsetMapper(
     private val outDir: File,
     private val flags: Int,
     private val ps: PrintStream,
+    private val verbose: Boolean = false,
 ) : Consumer<Model> {
 
     override fun accept(model: Model) {

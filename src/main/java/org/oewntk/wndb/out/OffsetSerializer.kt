@@ -21,6 +21,7 @@ class OffsetSerializer(
     private val outDir: File,
     private val flags: Int,
     private val ps: PrintStream,
+    private val verbose: Boolean = false,
 ) : Consumer<Model> {
 
     override fun accept(model: Model) {
@@ -45,7 +46,7 @@ class OffsetSerializer(
     fun grind(model: CoreModel) {
 
         // Compute synset offsets
-        val offsets = GrindOffsets(model.synsets, model.lexResolver, model.synsetResolver, model.senseResolver, flags,).compute()
+        val offsets = GrindOffsets(model.synsets, model.lexResolver, model.synsetResolver, model.senseResolver, flags).compute()
 
         // Serialize offsets
         serializeOffsets(offsets, File(outDir, FILE_OFFSET_MAP))
