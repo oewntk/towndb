@@ -106,11 +106,8 @@ abstract class SynsetProcessor protected constructor(
         // adjPosition
         val adjPosition = sense.adjPosition
 
-        // lex
-        val lex = sense.lex
-
         // lemma
-        val lemma = lex.lemma
+        val lemma = sense.lemma
 
         val escaped = Formatter.escape(lemma)
         val lexIdCompat = (flags and Flags.LEXID_COMPAT) != 0
