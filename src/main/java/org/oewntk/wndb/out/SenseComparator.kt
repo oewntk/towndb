@@ -27,7 +27,7 @@ object SenseComparator {
         }
 
         // index in lex
-        val cmpLexIndex = s1.lexIndex.compareTo(s2.lexIndex)
+        val cmpLexIndex = s1.indexInLex.compareTo(s2.indexInLex)
         if (cmpLexIndex != 0) {
             // lex indexes differ
             return@Comparator cmpLexIndex
@@ -74,7 +74,7 @@ object SenseComparator {
         }
 
         // index in lex
-        val cmpLexIndex = s1.lexIndex.compareTo(s2.lexIndex)
+        val cmpLexIndex = s1.indexInLex.compareTo(s2.indexInLex)
         if (cmpLexIndex != 0) {
             // lex indexes differ
             return@Comparator cmpLexIndex

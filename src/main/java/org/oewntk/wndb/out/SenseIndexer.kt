@@ -59,7 +59,7 @@ class SenseIndexer(
                         .toList()
                     senseNum = kTargetSynsetIds.indexOf(it.synsetId) + 1
                 } else {
-                    senseNum = it.lexIndex + 1
+                    senseNum = it.indexInLex + 1
                 }
 
                 // tag count

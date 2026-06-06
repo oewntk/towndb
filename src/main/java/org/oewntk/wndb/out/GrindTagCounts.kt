@@ -23,7 +23,7 @@ class GrindTagCounts {
             .filter { sense -> sense.tagCount != null }
             .sortedBy(Sense::senseKey)
             .onEach { sense ->
-                val line = "${sense.senseKey} ${sense.lexIndex + 1} ${sense.tagCount!!.count}"
+                val line = "${sense.senseKey} ${sense.indexInLex + 1} ${sense.tagCount!!.count}"
                 ps.println(line)
             }
             .count()
@@ -40,7 +40,7 @@ class GrindTagCounts {
         return senses
             .asSequence()
             .filter { sense -> sense.tagCount != null }
-            .map { sense -> "${sense.tagCount!!.count} ${sense.senseKey} ${sense.lexIndex + 1}" }
+            .map { sense -> "${sense.tagCount!!.count} ${sense.senseKey} ${sense.indexInLex + 1}" }
             .sortedWith { l1: String, l2: String ->
                 val fields1 = l1.split("\\s".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
                 val fields2 = l2.split("\\s".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
