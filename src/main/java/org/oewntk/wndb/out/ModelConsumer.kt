@@ -24,7 +24,7 @@ class ModelConsumer(
 ) : Consumer<Model> {
 
     override fun accept(model: Model) {
-        Tracing.psInfo.println("[Model] ${model.sources.contentToString()}")
+        Tracing.psInfo.println("[Model] $model")
         if (!outDir.exists()) {
             outDir.mkdirs()
         }
