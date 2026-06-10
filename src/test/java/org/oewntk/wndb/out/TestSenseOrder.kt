@@ -76,7 +76,7 @@ class TestSenseOrder {
 
     private val lexPythonCapitalized = Lex("Python", "n")
     private val lexPython = Lex("python", "n")
-    private val senseBoa = Sense("python%1:05:00::", lexPython.key, "01746246-n", indexInLex = 0).apply { tagCount = TagCount(1, 3) }
+    private val senseBoa = Sense("python%1:05:00::", lexPython.key, "01746246-n", indexInLex = 0).apply { tagCount = 3 }
     private val senseSoothsayer = Sense("python%1:18:01::", lexPython.key, "10516512-n",  indexInLex = 1)
     private val senseDragon = Sense("python%1:18:00::", lexPythonCapitalized.key, "09524330-n",  indexInLex = 0)
     private val senseLanguage = Sense("python%1:10:01::", lexPythonCapitalized.key, "83541804-n", indexInLex = 1)

@@ -126,7 +126,7 @@ class WordIndexer(
      */
     private fun collectTagCounts(senses: List<Sense>, indexEntry: IndexEntry) {
         senses
-            .filter { it.tagCount != null && it.tagCount!!.count > 0 }
+            .filter { it.tagCount != null && it.tagCount!! > 0 }
             .forEach { _ ->
                 indexEntry.incTaggedCount()
             }
