@@ -61,6 +61,7 @@ class ModelConsumer(
         templates(outDir, model.verbTemplatesById!!)
         indexTemplates(outDir, model.senses)
         verbFrames(outDir, model.verbFrames)
+        verbTemplates(outDir, model.verbTemplates)
         tagcounts(outDir, model.senses)
         domains(outDir)
     }
@@ -189,7 +190,7 @@ class ModelConsumer(
      */
     @Throws(FileNotFoundException::class)
     private fun verbFrames(dir: File, verbFrames: Collection<VerbFrame>) {
-        PrintStream(FileOutputStream(File(dir, "verb.Framestext")), true, StandardCharsets.UTF_8).use { ps ->
+        PrintStream(FileOutputStream(File(dir, "verbFrames.txt")), true, StandardCharsets.UTF_8).use { ps ->
             verbFrames
                 .withIndex()
                 .map { (i, vf) -> getVerbFrameNID(vf, i + 1) to vf }
@@ -197,6 +198,25 @@ class ModelConsumer(
                 .forEach { ps.println("${it.first} ${it.second.frame}") }
         }
         Tracing.psInfo.println("Verb frames: ${verbFrames.size}")
+    }
+
+    /**
+     * Grind verb frames
+     *
+     * @param dir        output directory
+     * @param verbTemplates verb templates
+     * 1: The children %s to the playground
+     * 10: The cars %s down the avenue
+     *
+     */
+    @Throws(FileNotFoundException::class)
+    private fun verbTemplates(dir: File, verbTemplates: Collection<VerbTemplate>) {
+        PrintStream(FileOutputStream(File(dir, "verbTemplates.txt")), true, StandardCharsets.UTF_8).use { ps ->
+            verbTemplates
+                .sortedBy { it.id }
+                .forEach { ps.println("${it.id} ${it.template}") }
+        }
+        Tracing.psInfo.println("Verb templates: ${verbTemplates.size}")
     }
 
     companion object {
