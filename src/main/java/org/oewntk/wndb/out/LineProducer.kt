@@ -20,7 +20,7 @@ class LineProducer(
 
         // Compute synset offsets
         val sortedSynsets = model.synsets.sortedWith(comparator = SynsetProcessor.comparator)
-        val offsets = GrindOffsets(sortedSynsets, model.lexResolver, model.synsetResolver, model.senseResolver, flags,).compute()
+        val offsets = GrindOffsets(sortedSynsets, model.lexResolver, model.synsetResolver, model.senseResolver, flags).compute()
 
         // Get synset
         val synset = model.synsetResolver(synsetId)
@@ -54,7 +54,7 @@ class LineProducer(
             senseResolver: (SenseKey) -> Sense,
             offsets: Map<String, Long>, flags: Int,
         ): String {
-            val factory = GrindSynsets(synsets, lexResolver, synsetResolver, senseResolver, offsets, flags,)
+            val factory = GrindSynsets(synsets, lexResolver, synsetResolver, senseResolver, offsets, flags)
             return factory.getData(synset, offset)
         }
     }

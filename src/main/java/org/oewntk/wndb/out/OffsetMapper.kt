@@ -50,7 +50,7 @@ class OffsetMapper(
     fun grind(model: CoreModel) {
 
         // Compute synset offsets
-        val offsets = GrindOffsets(model.synsets, model.lexResolver, model.synsetResolver, model.senseResolver, flags,).compute()
+        val offsets = GrindOffsets(model.synsets, model.lexResolver, model.synsetResolver, model.senseResolver, flags).compute()
 
         // Serialize offsets
         writeOffsets(offsets, File(outDir, FILE_OFFSET_MAP))
@@ -88,9 +88,7 @@ class OffsetMapper(
         fun readOffsets(file: File): Map<String, Long> {
             return file.useLines { lines ->
                 lines
-                    .map { it.split("\\s".toRegex()).dropLastWhile { it2 -> it2.isEmpty() }.toTypedArray() }
-                    .map { it[0] to it[1].toLong() }
-                    .toMap()
+                    .map { it.split("\\s".toRegex()).dropLastWhile { it2 -> it2.isEmpty() }.toTypedArray() }.associate { it[0] to it[1].toLong() }
             }
         }
     }
