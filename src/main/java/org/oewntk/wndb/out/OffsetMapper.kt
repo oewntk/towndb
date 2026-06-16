@@ -29,7 +29,7 @@ class OffsetMapper(
 ) : Consumer<Model> {
 
     override fun accept(model: Model) {
-        Tracing.psInfo.println("[Model] $model")
+        if (verbose) Tracing.psInfo.println("[Model] $model")
         if (!outDir.exists()) {
             outDir.mkdirs()
         }
