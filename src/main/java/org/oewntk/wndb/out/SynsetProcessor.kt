@@ -39,6 +39,8 @@ abstract class SynsetProcessor protected constructor(
     protected val senseResolver: (SenseKey) -> Sense,
     protected val offsetFunction: (String) -> Long,
     protected val flags: Int,
+    protected val logDiscarded: Boolean = false,
+    protected val logDuplicateRelation: Boolean = false,
     protected val verbose: Boolean = false,
 ) {
     /**
@@ -191,7 +193,7 @@ abstract class SynsetProcessor protected constructor(
                         .map { targetSenseId -> RelationData(false, relationType, targetSenseId) }
                 }
                 .toSetWarnDuplicates { duplicate ->
-                    if (LOG_DUPLICATE_RELATION && log()) {
+                    if (logDuplicateRelation && log()) {
                         Tracing.psErr.println("[W] Synset ${synset.synsetId} has duplicate ${duplicate.relation}")
                     }
                 }.mapNotNull { relationData ->
@@ -207,7 +209,7 @@ abstract class SynsetProcessor protected constructor(
                         incompats[cause] = count
                         null
                     } catch (e: IllegalArgumentException) {
-                        if (LOG_DISCARDED && log()) {
+                        if (logDiscarded && log()) {
                             Tracing.psErr.println("[W] Discarded relation '${relationData.relation}' synset=${synset.synsetId} offset=$offset")
                         }
                         throw e
@@ -236,7 +238,7 @@ abstract class SynsetProcessor protected constructor(
                     .map { targetSenseId: SenseKey -> sense to RelationData(true, relation, targetSenseId) }
             }
             .toSetWarnDuplicates { (sense: Sense, duplicate: RelationData) ->
-                if (LOG_DUPLICATE_RELATION && log()) {
+                if (logDuplicateRelation && log()) {
                     Tracing.psErr.println("[W] Sense ${sense.senseKey} has duplicate ${duplicate.relation}")
                 }
             }
@@ -256,7 +258,7 @@ abstract class SynsetProcessor protected constructor(
                     incompats[cause] = count
                     null
                 } catch (_: IllegalArgumentException) {
-                    if (LOG_DISCARDED && log()) {
+                    if (logDiscarded && log()) {
                         Tracing.psErr.println("[W] Discarded relation '${relationData.relation}' synset=${synset.synsetId} offset=$offset")
                     }
                     null
@@ -343,10 +345,6 @@ abstract class SynsetProcessor protected constructor(
     }
 
     companion object {
-
-        private const val LOG_DISCARDED = false
-
-        private const val LOG_DUPLICATE_RELATION = false
 
         val comparator = compareBy<Synset> { it.domain }
             .thenBy { it.synsetId }
