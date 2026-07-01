@@ -25,7 +25,7 @@ class TestFormat {
     private val seq = listOf("a", 'b', "c", "d")
 
     private fun intFormat4(int: Int): String {
-        return String.format("%04d", int)
+        return "%04d".format(int)
     }
 
     @Test

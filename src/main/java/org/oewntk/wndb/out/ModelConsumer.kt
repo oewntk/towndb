@@ -176,7 +176,7 @@ class ModelConsumer(
                 .sortedBy { it.value }
                 .forEach {
                     val posId = posNameToInt(it.key.split("\\.".toRegex()).dropLastWhile { it2 -> it2.isEmpty() }.toTypedArray()[0])
-                    ps.println("${String.format("%02d", it.value)}\t${it.key}\t$posId")
+                    ps.println("${"%02d".format(it.value)}\t${it.key}\t$posId")
                 }
         }
         Tracing.psInfo.println("Lexfiles: ${Coder.LEXFILE_TO_NUM.size}")

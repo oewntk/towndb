@@ -13,27 +13,27 @@ import java.time.LocalDate
 object Formatter {
 
     fun offsetFormat(offset: Long): String {
-        return String.format("%08d", offset)
+        return "%08d".format(offset)
     }
 
     fun lexidFormat(lexId: Int, lexIdCompat: Boolean = false): String {
-        return String.format(if (lexIdCompat) "%1X" else "%X", lexId)
+        return (if (lexIdCompat) "%1X" else "%X").format(lexId)
     }
 
     fun intFormat2(int: Int): String {
-        return String.format("%02d", int)
+        return "%02d".format(int)
     }
 
     fun intFormat3(int: Int): String {
-        return String.format("%03d", int)
+        return "%03d".format(int)
     }
 
     fun intFormatHex2x(int: Int): String {
-        return String.format("%02x", int)
+        return "%02x".format(int)
     }
 
     fun intFormatHex2X(int: Int): String {
-        return String.format("%02X", int)
+        return "%02X".format(int)
     }
 
     /**

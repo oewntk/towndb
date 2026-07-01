@@ -121,7 +121,7 @@ class TestCoder {
             }
         }
         allPointers.forEach { pointer ->
-            Tracing.psInfo.println("${String.format("%-2s", pointer)}\t")
+            Tracing.psInfo.println("${"%-2s".format(pointer)}\t")
             PartOfSpeech.entries.forEach { pos ->
                 val relation = toRelations[pos]!![pointer]
                 if (relation != null) {
