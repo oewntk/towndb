@@ -28,13 +28,14 @@ class GrindMorphs {
             .asSequence()
             .filter { lex -> lex.partOfSpeech == posFilter }
             .filter { lex -> lex.forms != null }
-            .onEach { lex ->
+            .flatMap { lex ->
                 lex.forms!!
                     .asSequence()
                     .map { form -> "$form ${lex.lemma}" }
                     .sorted()
-                    .forEach { ps.println(it) }
             }
+            .sorted()
+            .onEach { ps.println(it) }
             .count()
     }
 }
