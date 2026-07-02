@@ -195,7 +195,7 @@ class ModelConsumer(
                 .withIndex()
                 .map { (i, vf) -> getVerbFrameNID(vf, i + 1) to vf }
                 .sortedBy { it.first }
-                .forEach { ps.println("${it.first} ${it.second.frame}") }
+                .forEach { ps.println("${it.second.id} ${it.first} ${it.second.frame}") }
         }
         Tracing.psInfo.println("Verb frames: ${verbFrames.size}")
     }
