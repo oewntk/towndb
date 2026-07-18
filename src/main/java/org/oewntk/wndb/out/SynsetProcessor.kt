@@ -175,7 +175,7 @@ abstract class SynsetProcessor protected constructor(
             verbframesData = " $verbframesData"
         }
         val definitionsData = definitions.joinToString("; ")
-        val examplesData = if (examples.isNullOrEmpty()) "" else "; " + examples.map { it.first }.joinToString(separator = " ") { example -> "\"$example\"" }
+        val examplesData = if (examples.isNullOrEmpty()) "" else "; " + examples.map { it.text }.joinToString(separator = " ") { example -> "\"$example\"" }
         return "${offsetFormat(offset)} ${intFormat2(lexfileNum)} ${type.value} $membersData $relatedData$verbframesData | $definitionsData$examplesData  \n"
     }
 
