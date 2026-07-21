@@ -61,7 +61,7 @@ class GrindMorphs {
             .asSequence()
             .sortedBy { it.key }
             .distinct()
-            .onEach { ps.println("${it.key.replace(' ', '_')} ${it.value.joinToString(separator = " ") { it.replace(' ', '_') }}") }
+            .onEach { ps.println("${it.key.replace(' ', '_')} ${it.value.joinToString(separator = " ") { it2 -> it2.replace(' ', '_') }}") }
             .count()
     }
 }
