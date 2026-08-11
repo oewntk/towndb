@@ -22,8 +22,8 @@ object SenseComparator {
         }
 
         // type a before s
-        if (s1.type != s2.type) {
-            return@Comparator s1.type.compareTo(s2.type)
+        if (s1.partOfSpeech != s2.partOfSpeech) {
+            return@Comparator s1.partOfSpeech.compareTo(s2.partOfSpeech)
         }
 
         // index in lex
@@ -68,9 +68,9 @@ object SenseComparator {
             return@Comparator 0
         }
 
-        // type a before s
-        if (s1.type != s2.type) {
-            return@Comparator s1.type.compareTo(s2.type)
+        // partOfSpeech a before s
+        if (s1.partOfSpeech != s2.partOfSpeech) {
+            return@Comparator s1.partOfSpeech.compareTo(s2.partOfSpeech)
         }
 
         // index in lex
