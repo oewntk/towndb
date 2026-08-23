@@ -187,10 +187,10 @@ abstract class SynsetProcessor protected constructor(
                 .asSequence()
                 .filter { relationOrder.containsKey(it.key) }
                 .sortedWith(compareBy(relationComparator) { it.key })
-                .flatMap { (relationType, targetSynsets) ->
-                    targetSynsets
+                .flatMap { (relationType, targets) ->
+                    targets
                         .asSequence()
-                        .map { targetSenseId -> RelationData(false, relationType, targetSenseId) }
+                        .map { targets -> RelationData(false, relationType, targets) }
                 }
                 .toSetWarnDuplicates { duplicate ->
                     if (logDuplicateRelation && log()) {
@@ -232,10 +232,10 @@ abstract class SynsetProcessor protected constructor(
             }
             .flatMap { (sense, relationEntry) ->
                 val relation = relationEntry.key
-                val targetSynsets: Set<SenseKey> = relationEntry.value
-                targetSynsets
+                val targets: Set<RelationTarget> = relationEntry.value
+                targets
                     .asSequence()
-                    .map { targetSenseId: SenseKey -> sense to RelationData(true, relation, targetSenseId) }
+                    .map { target: RelationTarget -> sense to RelationData(true, relation, target) }
             }
             .toSetWarnDuplicates { (sense: Sense, duplicate: RelationData) ->
                 if (logDuplicateRelation && log()) {
