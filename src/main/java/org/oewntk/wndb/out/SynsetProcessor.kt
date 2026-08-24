@@ -187,10 +187,10 @@ abstract class SynsetProcessor protected constructor(
                 .asSequence()
                 .filter { relationOrder.containsKey(it.key) }
                 .sortedWith(compareBy(relationComparator) { it.key })
-                .flatMap { (relationType, targetSynsets) ->
-                    targetSynsets
+                .flatMap { (relationType, targetIds) ->
+                    targetIds
                         .asSequence()
-                        .map { targetSenseId -> RelationData(false, relationType, targetSenseId) }
+                        .map { targetIds -> RelationData(false, relationType, targetIds) }
                 }
                 .toSetWarnDuplicates { duplicate ->
                     if (logDuplicateRelation && log()) {
