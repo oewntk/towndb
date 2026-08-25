@@ -232,10 +232,10 @@ abstract class SynsetProcessor protected constructor(
             }
             .flatMap { (sense, relationEntry) ->
                 val relation = relationEntry.key
-                val targetSynsets: Set<SenseKey> = relationEntry.value
-                targetSynsets
+                val targetIds: Set<SynsetId> = relationEntry.value
+                targetIds
                     .asSequence()
-                    .map { targetSenseId: SenseKey -> sense to RelationData(true, relation, targetSenseId) }
+                    .map { targetId: SenseKey -> sense to RelationData(true, relation, targetId) }
             }
             .toSetWarnDuplicates { (sense: Sense, duplicate: RelationData) ->
                 if (logDuplicateRelation && log()) {
