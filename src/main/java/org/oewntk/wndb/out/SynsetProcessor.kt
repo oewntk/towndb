@@ -196,7 +196,9 @@ abstract class SynsetProcessor protected constructor(
                     if (logDuplicateRelation && log()) {
                         Tracing.psErr.println("[W] Synset ${synset.synsetId} has duplicate ${duplicate.relation}")
                     }
-                }.mapNotNull { relationData ->
+                }
+                .filter { relationData: RelationData -> relationData.target.isSynsetId() }
+                .mapNotNull { relationData ->
                     val targetSynset = synsetResolver(relationData.target)
                     val targetOffset = offsetFunction.invoke(relationData.target)
                     val targetType = targetSynset.type
@@ -242,6 +244,7 @@ abstract class SynsetProcessor protected constructor(
                     Tracing.psErr.println("[W] Sense ${sense.senseKey} has duplicate ${duplicate.relation}")
                 }
             }
+            .filter { (_, relationData: RelationData) -> relationData.target.isSenseKey() }
             .mapNotNull { (sense: Sense, relationData: RelationData) ->
                 val targetSense = senseResolver(relationData.target)
                 val targetSynsetId = targetSense.synsetId
