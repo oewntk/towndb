@@ -8,6 +8,8 @@ import org.oewntk.model.Sense
 import org.oewntk.model.SenseGroupings.sensesByLCLemmaAndPos
 import org.oewntk.model.Synset
 import org.oewntk.model.SynsetId
+import org.oewntk.model.isSenseKey
+import org.oewntk.model.isSynsetId
 import org.oewntk.wndb.out.Formatter.joinToStringWithCount
 import org.oewntk.wndb.out.Formatter.offsetFormat
 import java.io.PrintStream
@@ -160,58 +162,65 @@ class WordIndexer(
      * Collect sense relations
      *
      * @param synset        synset
-     * @param partOfSpeech  pos
+     * @param pos           pos
      * @param pointers      set of pointers to collect to
      * @param pointerCompat pointer compatibility flag
      * @param incompats     incompatibility log
      */
-    private fun collectSynsetRelations(synset: Synset, partOfSpeech: PartOfSpeech, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
-        if (!synset.relations.isNullOrEmpty()) {
-            synset.relations!!.keys.forEach { relation ->
-                try {
-                    val pointer: String = Coder.codeRelation(relation, partOfSpeech, pointerCompat)
-                    pointers.add(pointer)
 
-                } catch (e: CompatException) {
-                    val cause = e.cause!!.message!!
-                    val count = incompats.computeIfAbsent(cause) { 0 } + 1
-                    incompats[cause] = count
-                } catch (e: IllegalArgumentException) {
-                    if (LOG) {
-                        Tracing.psErr.println("[W] Discarded relation '$relation'")
+    private fun collectSynsetRelations(synset: Synset, pos: PartOfSpeech, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
+        if (!synset.relations.isNullOrEmpty()) {
+            synset.flatRelations
+                ?.filter { (_, targetId) -> targetId.isSynsetId() }
+                ?.forEach { (relation, _) ->
+                    try {
+                        val pointer: String = Coder.codeRelation(relation, pos, pointerCompat)
+                        pointers.add(pointer)
+
+                    } catch (e: CompatException) {
+                        val cause = e.cause!!.message!!
+                        val count = incompats.computeIfAbsent(cause) { 0 } + 1
+                        incompats[cause] = count
+                    } catch (e: IllegalArgumentException) {
+                        if (LOG) {
+                            Tracing.psErr.println("[W] Discarded relation '$relation'")
+                        }
+                        throw e
                     }
-                    throw e
                 }
-            }
         }
     }
+
 
     /**
      * Collect sense relations
      *
      * @param senses        senses
-     * @param category      pos
+     * @param pos           part-of-speech
      * @param pointers      set of pointers to collect to
      * @param pointerCompat pointer compatibility flag
      * @param incompats     incompatibility log
      */
-    private fun collectSenseRelations(senses: List<Sense>, category: PartOfSpeech, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
+    private fun collectSenseRelations(senses: List<Sense>, pos: PartOfSpeech, pointers: MutableSet<String>, pointerCompat: Boolean, incompats: MutableMap<String, Int>) {
         senses
-            .filter { !it.relations.isNullOrEmpty() }
-            .flatMap { it.relations!!.keys }
-            .forEach { relation ->
-                try {
-                    val pointer: String = Coder.codeRelation(relation, category, pointerCompat)
-                    pointers.add(pointer)
-                } catch (e: CompatException) {
-                    val cause = e.cause!!.message!!
-                    val count = incompats.computeIfAbsent(cause) { 0 } + 1
-                    incompats[cause] = count
-                } catch (_: IllegalArgumentException) {
-                    if (LOG) {
-                        Tracing.psErr.println("[W] Discarded relation '$relation'")
+            .filterNot { sense -> sense.relations.isNullOrEmpty() }
+            .forEach { sense ->
+                sense.flatRelations
+                    ?.filter { (_, targetId) -> targetId.isSenseKey() }
+                    ?.forEach { (relation, _) ->
+                        try {
+                            val pointer: String = Coder.codeRelation(relation, pos, pointerCompat)
+                            pointers.add(pointer)
+                        } catch (e: CompatException) {
+                            val cause = e.cause!!.message!!
+                            val count = incompats.computeIfAbsent(cause) { 0 } + 1
+                            incompats[cause] = count
+                        } catch (_: IllegalArgumentException) {
+                            if (LOG) {
+                                Tracing.psErr.println("[W] Discarded relation '$relation'")
+                            }
+                        }
                     }
-                }
             }
     }
 
