@@ -16,14 +16,14 @@ class LineProducer(
     private val flags: Int,
 ) : (CoreModel, String) -> String {
 
-    override fun invoke(model: CoreModel, synsetId: SynsetId): String {
+    override fun invoke(model: CoreModel, synsetId: String): String {
 
         // Compute synset offsets
         val sortedSynsets = model.synsets.sortedWith(comparator = SynsetProcessor.comparator)
         val offsets = GrindOffsets(sortedSynsets, model.lexResolver, model.synsetResolver, model.senseResolver, flags).compute()
 
         // Get synset
-        val synset = model.synsetResolver(synsetId)
+        val synset = model.synsetResolver(SynsetId(synsetId))
         val offset = offsets[synsetId]!!
         require(offsets.containsValue(offset)) { "$offset is not a valid offset" }
 

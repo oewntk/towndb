@@ -16,10 +16,10 @@ class TestFormat {
 
     private val lexPythonCapitalized = Lex("Python", "n")
     private val lexPython = Lex("python", "n")
-    private val senseBoa = Sense("python%1:05:00::", lexPython.key, "01746246-n", indexInLex = 0).apply { tagCount = 3 }
-    private val senseSoothsayer = Sense("python%1:18:01::", lexPython.key, "10516512-n", indexInLex = 1)
-    private val senseDragon = Sense("python%1:18:00::", lexPythonCapitalized.key, "09524330-n", indexInLex = 0)
-    private val senseLanguage = Sense("python%1:10:01::", lexPythonCapitalized.key, "83541804-n", indexInLex = 1)
+    private val senseBoa = Sense(SenseKey("python%1:05:00::"), lexPython.key, SynsetId("01746246-n"), indexInLex = 0).apply { tagCount = 3 }
+    private val senseSoothsayer = Sense(SenseKey("python%1:18:01::"), lexPython.key, SynsetId("10516512-n"), indexInLex = 1)
+    private val senseDragon = Sense(SenseKey("python%1:18:00::"), lexPythonCapitalized.key, SynsetId("09524330-n"), indexInLex = 0)
+    private val senseLanguage = Sense(SenseKey("python%1:10:01::"), lexPythonCapitalized.key, SynsetId("83541804-n"), indexInLex = 1)
     private val senses = listOf(senseBoa, senseSoothsayer, senseDragon, senseLanguage)
 
     private val seq = listOf("a", 'b', "c", "d")
@@ -65,7 +65,7 @@ class TestFormat {
 
     @Test
     fun testJoinSensesWithCountAEmpty() {
-        val r = senses.joinToStringWithCount(countFormat = ::intFormat4, countSeparator = " ") { it.synsetId.trimEnd('-', 'n', 'v', 'a', 'r', 's') }
+        val r = senses.joinToStringWithCount(countFormat = ::intFormat4, countSeparator = " ") { it.synsetId.id.trimEnd('-', 'n', 'v', 'a', 'r', 's') }
         ps.println(r)
         assertEquals("0004 01746246 10516512 09524330 83541804", r)
     }

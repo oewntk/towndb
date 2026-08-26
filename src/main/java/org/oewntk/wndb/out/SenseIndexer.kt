@@ -42,7 +42,7 @@ class SenseIndexer(
 
                 // offset
                 val synsetId = it.synsetId
-                val offset = offsets[synsetId]!!
+                val offset = offsets[synsetId.id]!!
 
                 // sense num
                 val senseNum: Int
@@ -66,7 +66,7 @@ class SenseIndexer(
                 val tagCount = it.intTagCount
 
                 // print
-                printSenseEntry(sensekey, offset, senseNum, tagCount, ps)
+                printSenseEntry(sensekey.id, offset, senseNum, tagCount, ps)
             }
 
         // log

@@ -65,10 +65,10 @@ class TestSenseOrder {
     // "python%1:05:00::": {num: 1, cnt: 3}
 
     private val defs = mapOf(
-        "01746246-n" to "boa",
-        "10516512-n" to "soothsayer",
-        "09524330-n" to "Dragon",
-        "83541804-n" to "Language",
+        SynsetId("01746246-n") to "boa",
+        SynsetId("10516512-n") to "soothsayer",
+        SynsetId("09524330-n") to "Dragon",
+        SynsetId("83541804-n") to "Language",
     )
 
     private val Sense.short
@@ -76,10 +76,10 @@ class TestSenseOrder {
 
     private val lexPythonCapitalized = Lex("Python", "n")
     private val lexPython = Lex("python", "n")
-    private val senseBoa = Sense("python%1:05:00::", lexPython.key, "01746246-n", indexInLex = 0).apply { tagCount = 3 }
-    private val senseSoothsayer = Sense("python%1:18:01::", lexPython.key, "10516512-n",  indexInLex = 1)
-    private val senseDragon = Sense("python%1:18:00::", lexPythonCapitalized.key, "09524330-n",  indexInLex = 0)
-    private val senseLanguage = Sense("python%1:10:01::", lexPythonCapitalized.key, "83541804-n", indexInLex = 1)
+    private val senseBoa = Sense(SenseKey("python%1:05:00::"), lexPython.key, SynsetId("01746246-n"), indexInLex = 0).apply { tagCount = 3 }
+    private val senseSoothsayer = Sense(SenseKey("python%1:18:01::"), lexPython.key, SynsetId("10516512-n"), indexInLex = 1)
+    private val senseDragon = Sense(SenseKey("python%1:18:00::"), lexPythonCapitalized.key, SynsetId("09524330-n"), indexInLex = 0)
+    private val senseLanguage = Sense(SenseKey("python%1:10:01::"), lexPythonCapitalized.key, SynsetId("83541804-n"), indexInLex = 1)
     private val senses = listOf(senseBoa, senseSoothsayer, senseDragon, senseLanguage)
 
     private fun testSortWith(comparator: Comparator<Sense>): List<Sense> {

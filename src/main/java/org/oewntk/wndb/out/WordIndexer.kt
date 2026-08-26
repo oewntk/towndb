@@ -114,7 +114,7 @@ class WordIndexer(
      */
     private fun collectSynsetIds(senses: List<Sense>, synsetIds: MutableSet<String>) {
         senses.forEach {
-            synsetIds.add(it.synsetId)
+            synsetIds.add(it.synsetId.id)
         }
     }
 

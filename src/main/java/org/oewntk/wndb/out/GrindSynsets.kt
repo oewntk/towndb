@@ -50,7 +50,7 @@ class GrindSynsets(
      * @return number of synsets
      */
     fun makeData(ps: PrintStream, synsetResolver: (SynsetId) -> Synset, posFilter: PartOfSpeech): Int {
-         if (verbose)
+        if (verbose)
             Tracing.psInfo.println("-generating data for ${posFilter.fullName}")
 
         ps.print(Formatter.OEWN_HEADER)
@@ -61,7 +61,7 @@ class GrindSynsets(
         return synsets.asSequence()
             .filter { it.partOfSpeech == posFilter }
             .onEach { synset ->
-                val offset0: Long = offsetFunction.invoke(synset.synsetId)
+                val offset0: Long = offsetFunction.invoke(synset.synsetId.id)
                 if (offset0 != offset) {
                     val synset = checkNotNull(previous)
                     val line = getData(synset, 0)

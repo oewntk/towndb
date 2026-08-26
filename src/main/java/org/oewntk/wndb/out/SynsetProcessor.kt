@@ -190,14 +190,14 @@ abstract class SynsetProcessor protected constructor(
                 .flatMap { (relationType, targetIds) ->
                     targetIds
                         .asSequence()
-                        .map { targetIds -> RelationData(false, relationType, targetIds) }
+                        .map { targetId -> RelationData(false, relationType, targetId.id) }
                 }
                 .toSetWarnDuplicates { duplicate ->
                     if (logDuplicateRelation && log()) {
                         Tracing.psErr.println("[W] Synset ${synset.synsetId} has duplicate ${duplicate.relation}")
                     }
                 }.mapNotNull { relationData ->
-                    val targetSynset = synsetResolver(relationData.target)
+                    val targetSynset = synsetResolver(SynsetId(relationData.target))
                     val targetOffset = offsetFunction.invoke(relationData.target)
                     val targetType = targetSynset.type
                     try {
@@ -235,7 +235,7 @@ abstract class SynsetProcessor protected constructor(
                 val targetIds: Set<SenseKey> = relationEntry.value
                 targetIds
                     .asSequence()
-                    .map { targetId: SenseKey -> sense to RelationData(true, relation, targetId) }
+                    .map { targetId: SenseKey -> sense to RelationData(true, relation, targetId.id) }
             }
             .toSetWarnDuplicates { (sense: Sense, duplicate: RelationData) ->
                 if (logDuplicateRelation && log()) {
@@ -243,14 +243,14 @@ abstract class SynsetProcessor protected constructor(
                 }
             }
             .mapNotNull { (sense: Sense, relationData: RelationData) ->
-                val targetSense = senseResolver(relationData.target)
+                val targetSense = senseResolver(SenseKey(relationData.target))
                 val targetSynsetId = targetSense.synsetId
                 val targetSynset = synsetResolver(targetSynsetId)
 
                 val memberNum = synset.findIndexOfMember(sense.lemma) + 1
 
                 try {
-                    buildSenseRelation(relationData.relation, synset.type, memberNum, targetSense, targetSynset, targetSynsetId)
+                    buildSenseRelation(relationData.relation, synset.type, memberNum, targetSense, targetSynset, targetSynsetId.id)
 
                 } catch (e: CompatException) {
                     val cause = e.cause!!.message!!

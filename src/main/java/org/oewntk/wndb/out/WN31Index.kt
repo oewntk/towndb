@@ -30,14 +30,14 @@ object WN31Index {
      * Sense comparator based on the sensekey-to-index map
      */
     @Suppress("unused")
-    private val WN31_SENSE_ORDER: Comparator<Sense> = Comparator.comparing(Sense::senseKey, WN31_SK_COMPARATOR)
+    private val WN31_SENSE_ORDER: Comparator<Sense> = Comparator.comparing({ it.senseKey.id }, WN31_SK_COMPARATOR)
 
     /**
      * Sense comparator based on the 3.1 sensekey-to-index map. This comparator does not define a total order. It returns 0 when the sensekeys are not defined in 3.1
      */
     val SENSE_ORDER: Comparator<Sense> = Comparator { s1: Sense, s2: Sense ->
-        val i1 = SK2INDEX[s1.senseKey]
-        val i2 = SK2INDEX[s2.senseKey]
+        val i1 = SK2INDEX[s1.senseKey.id]
+        val i2 = SK2INDEX[s2.senseKey.id]
         if (i1 == null && i2 == null) {
             return@Comparator 0 // fail, to be chained with thenCompare
         }
@@ -58,8 +58,8 @@ object WN31Index {
      */
     @Suppress("unused")
     val SENSE_ORDER1: Comparator<Sense> = Comparator { s1: Sense, s2: Sense ->
-        val i1 = SK2INDEX[s1.senseKey]
-        val i2 = SK2INDEX[s2.senseKey]
+        val i1 = SK2INDEX[s1.senseKey.id]
+        val i2 = SK2INDEX[s2.senseKey.id]
         if (i1 == null || i2 == null) {
             return@Comparator 0 // fail, to be chained with thenCompare
         }
@@ -107,6 +107,6 @@ object WN31Index {
     }
 
     fun getWN31SenseIndex(sense: Sense): Int? {
-        return SK2INDEX[sense.senseKey]
+        return SK2INDEX[sense.senseKey.id]
     }
 }

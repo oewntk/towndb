@@ -57,7 +57,7 @@ class GrindOffsets(
             .filter { it.partOfSpeech == posFilter }
             .forEach { synset ->
                 val data = getData(synset, dummyOfs)
-                offsets[synset.synsetId] = offset
+                offsets[synset.synsetId.id] = offset
                 offset += data.toByteArray(StandardCharsets.UTF_8).size.toLong()
             }
     }
