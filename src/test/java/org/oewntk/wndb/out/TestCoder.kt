@@ -6,6 +6,7 @@ package org.oewntk.wndb.out
 import org.junit.Test
 import org.oewntk.model.PartOfSpeech
 import org.oewntk.model.PartOfSpeechImpl
+import org.oewntk.model.Relation as ModelRelation
 import org.oewntk.wndb.out.Coder.codeRelation
 import java.util.*
 
@@ -109,7 +110,7 @@ class TestCoder {
         PartOfSpeech.entries.forEach { pos ->
             allRelations[pos]!!.forEach {
                 try {
-                    val pointer: String = codeRelation(it, pos, pointerCompat)
+                    val pointer: String = codeRelation(ModelRelation(it), pos, pointerCompat)
                     allPointers.add(pointer)
                     val pointerToRelation = toRelations.computeIfAbsent(pos) { HashMap() }
                     pointerToRelation[pointer] = it

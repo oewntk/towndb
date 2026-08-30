@@ -90,7 +90,7 @@ object Coder {
     @Throws(CompatException::class)
     fun codeRelation(rel: Relation, pos: PartOfSpeech, pointerCompat: Boolean): String {
         when (pos) {
-            PartOfSpeech.N -> when (rel) {
+            PartOfSpeech.N -> when (rel.id) {
                 ANTONYM -> return "!"
                 HYPERNYM -> return "@"
                 INSTANCE_HYPERNYM -> return "@i"
@@ -114,7 +114,7 @@ object Coder {
                 HAS_DOMAIN_USAGE -> return "-u"
                 COLLOCATION -> {
                     if (pointerCompat) {
-                        throw CompatException(IllegalArgumentException(rel)) // NOT DEFINED IN PWN
+                        throw CompatException(IllegalArgumentException(rel.id)) // NOT DEFINED IN PWN
                     }
                     return COLLOCATION_PTR
                 }
@@ -122,7 +122,7 @@ object Coder {
                 else -> {}
             }
 
-            PartOfSpeech.V -> when (rel) {
+            PartOfSpeech.V -> when (rel.id) {
                 ANTONYM -> return "!"
                 HYPERNYM -> return "@"
                 HYPONYM -> return "~"
@@ -136,21 +136,21 @@ object Coder {
                 DOMAIN_USAGE -> return ";u"
                 IS_ENTAILED -> {
                     if (pointerCompat) {
-                        throw CompatException(IllegalArgumentException(rel)) // NOT DEFINED IN PWN
+                        throw CompatException(IllegalArgumentException(rel.id)) // NOT DEFINED IN PWN
                     }
                     return IS_ENTAILED_PTR
                 }
 
                 IS_CAUSED -> {
                     if (pointerCompat) {
-                        throw CompatException(IllegalArgumentException(rel)) // NOT DEFINED IN PWN
+                        throw CompatException(IllegalArgumentException(rel.id)) // NOT DEFINED IN PWN
                     }
                     return IS_CAUSED_PTR
                 }
 
                 COLLOCATION -> {
                     if (pointerCompat) {
-                        throw CompatException(IllegalArgumentException(rel)) // NOT DEFINED IN PWN
+                        throw CompatException(IllegalArgumentException(rel.id)) // NOT DEFINED IN PWN
                     }
                     return COLLOCATION_PTR
                 }
@@ -158,7 +158,7 @@ object Coder {
                 else -> {}
             }
 
-            PartOfSpeech.A -> when (rel) {
+            PartOfSpeech.A -> when (rel.id) {
                 ANTONYM -> return "!"
                 SIMILAR -> return "&"
                 PARTICIPLE -> return "<"
@@ -174,7 +174,7 @@ object Coder {
                 HAS_DOMAIN_USAGE -> return "-u" // NS
                 COLLOCATION -> {
                     if (pointerCompat) {
-                        throw CompatException(IllegalArgumentException(rel)) // NOT DEFINED IN PWN
+                        throw CompatException(IllegalArgumentException(rel.id)) // NOT DEFINED IN PWN
                     }
                     return COLLOCATION_PTR
                 }
@@ -182,7 +182,7 @@ object Coder {
                 else -> {}
             }
 
-            PartOfSpeech.R -> when (rel) {
+            PartOfSpeech.R -> when (rel.id) {
                 ANTONYM -> return "!"
                 PERTAINYM -> return "\\" // NS
                 ALSO -> return "^"
@@ -195,7 +195,7 @@ object Coder {
                 HAS_DOMAIN_USAGE -> return "-u" // NS
                 COLLOCATION -> {
                     if (pointerCompat) {
-                        throw CompatException(IllegalArgumentException(rel)) // NOT DEFINED IN PWN
+                        throw CompatException(IllegalArgumentException(rel.id)) // NOT DEFINED IN PWN
                     }
                     return COLLOCATION_PTR
                 }
@@ -256,7 +256,7 @@ object Coder {
         COLLOCATION to 200,
     )
 
-    val relationComparator: Comparator<Relation> = Comparator.comparingInt { relation -> relationOrder[relation]!! }
+    val relationComparator: Comparator<Relation> = Comparator.comparingInt { relation -> relationOrder[relation.id]!! }
 
     // V E R B F R A M E
 

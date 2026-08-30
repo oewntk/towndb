@@ -185,12 +185,12 @@ abstract class SynsetProcessor protected constructor(
             val pointerCompat = (flags and Flags.POINTER_COMPAT) != 0
             synset.relations!!
                 .asSequence()
-                .filter { relationOrder.containsKey(it.key) }
+                .filter { relationOrder.containsKey(it.key.id) }
                 .sortedWith(compareBy(relationComparator) { it.key })
-                .flatMap { (relationType, targetIds) ->
+                .flatMap { (relation, targetIds) ->
                     targetIds
                         .asSequence()
-                        .map { targetId -> RelationData(false, relationType, targetId.id) }
+                        .map { targetId -> RelationData(false, relation.id, targetId.id) }
                 }
                 .toSetWarnDuplicates { duplicate ->
                     if (logDuplicateRelation && log()) {
@@ -226,7 +226,7 @@ abstract class SynsetProcessor protected constructor(
             .flatMap { sense ->
                 sense.relations!!
                     .asSequence()
-                    .filter { relationOrder.containsKey(it.key) }
+                    .filter { relationOrder.containsKey(it.key.id) }
                     .sortedWith(compareBy(relationComparator) { it.key })
                     .map { entry -> sense to entry }
             }
@@ -235,7 +235,7 @@ abstract class SynsetProcessor protected constructor(
                 val targetIds: Set<SenseKey> = relationEntry.value
                 targetIds
                     .asSequence()
-                    .map { targetId: SenseKey -> sense to RelationData(true, relation, targetId.id) }
+                    .map { targetId: SenseKey -> sense to RelationData(true, relation.id, targetId.id) }
             }
             .toSetWarnDuplicates { (sense: Sense, duplicate: RelationData) ->
                 if (logDuplicateRelation && log()) {

@@ -5,6 +5,7 @@ package org.oewntk.wndb.out
 
 import org.oewntk.model.PartOfSpeech
 import org.oewntk.model.SynsetType
+import org.oewntk.model.Relation as ModelRelation
 import org.oewntk.wndb.out.Coder.codeRelation
 import org.oewntk.wndb.out.Formatter.intFormat2
 import org.oewntk.wndb.out.Formatter.intFormatHex2x
@@ -112,7 +113,7 @@ object Data {
             sourceWordNum: Int,
             targetWordNum: Int,
             pointerCompat: Boolean,
-        ) : this(codeRelation(rel, pos.toPartOfSpeech(), pointerCompat), targetPos, targetOffset, sourceWordNum, targetWordNum)
+        ) : this(codeRelation(ModelRelation(rel), pos.toPartOfSpeech(), pointerCompat), targetPos, targetOffset, sourceWordNum, targetWordNum)
 
         fun toWndbString(): String {
             return "$ptrSymbol ${offsetFormat(targetOffset)} ${targetPos.value} ${intFormatHex2x(sourceWordNum)}${intFormatHex2x(targetWordNum)}"
