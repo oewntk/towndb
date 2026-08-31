@@ -35,7 +35,7 @@ class GrindMorphs {
             }
             .sortedBy { it.first }
             .distinct()
-            .onEach { ps.println("${it.first.replace(' ', '_')} ${it.second.replace(' ', '_')}") } // form lemma
+            .onEach { ps.println("${it.first.replace(' ', '_')} ${it.second.form.replace(' ', '_')}") } // form lemma
             .count()
     }
 
@@ -61,7 +61,7 @@ class GrindMorphs {
             .asSequence()
             .sortedBy { it.key }
             .distinct()
-            .onEach { ps.println("${it.key.replace(' ', '_')} ${it.value.joinToString(separator = " ") { it2 -> it2.replace(' ', '_') }}") }
+            .onEach { ps.println("${it.key.replace(' ', '_')} ${it.value.joinToString(separator = " ") { it2 -> it2.form.replace(' ', '_') }}") }
             .count()
     }
 }

@@ -14,8 +14,8 @@ import kotlin.test.assertEquals
 
 class TestFormat {
 
-    private val lexPythonCapitalized = Lex("Python", "n")
-    private val lexPython = Lex("python", "n")
+    private val lexPythonCapitalized = Lex(Lemma("Python"), "n")
+    private val lexPython = Lex(Lemma("python"), "n")
     private val senseBoa = Sense(SenseKey("python%1:05:00::"), lexPython.key, SynsetId("01746246-n"), indexInLex = 0).apply { tagCount = 3 }
     private val senseSoothsayer = Sense(SenseKey("python%1:18:01::"), lexPython.key, SynsetId("10516512-n"), indexInLex = 1)
     private val senseDragon = Sense(SenseKey("python%1:18:00::"), lexPythonCapitalized.key, SynsetId("09524330-n"), indexInLex = 0)
