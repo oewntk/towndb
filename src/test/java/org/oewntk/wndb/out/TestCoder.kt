@@ -5,7 +5,6 @@ package org.oewntk.wndb.out
 
 import org.junit.Test
 import org.oewntk.model.PartOfSpeech
-import org.oewntk.model.PartOfSpeechImpl
 import org.oewntk.model.Relation as ModelRelation
 import org.oewntk.wndb.out.Coder.codeRelation
 import java.util.*
@@ -24,7 +23,7 @@ class TestCoder {
 
     @Suppress("SameParameterValue")
     private fun testCoder(pointerCompat: Boolean) {
-        val allRelations: MutableMap<PartOfSpeech, MutableSet<String>> = EnumMap(PartOfSpeechImpl::class.java)
+        val allRelations: MutableMap<PartOfSpeech, MutableSet<String>> = EnumMap(PartOfSpeech::class.java)
         val nSet = allRelations.computeIfAbsent(PartOfSpeech.N) { HashSet() }
         nSet.addAll(
             listOf(
@@ -106,7 +105,7 @@ class TestCoder {
         )
 
         val allPointers: MutableSet<String> = TreeSet()
-        val toRelations: MutableMap<PartOfSpeech, MutableMap<String, String>> = EnumMap(PartOfSpeechImpl::class.java)
+        val toRelations: MutableMap<PartOfSpeech, MutableMap<String, String>> = EnumMap(PartOfSpeech::class.java)
         PartOfSpeech.entries.forEach { pos ->
             allRelations[pos]!!.forEach {
                 try {
