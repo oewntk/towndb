@@ -4,6 +4,7 @@
 package org.oewntk.wndb.out
 
 import org.oewntk.model.*
+import org.oewntk.model.SenseKey.Companion.isSenseKey
 import org.oewntk.wndb.out.Coder.codeFrameId
 import org.oewntk.wndb.out.Coder.codeLexFile
 import org.oewntk.wndb.out.Coder.relationComparator
@@ -242,6 +243,7 @@ abstract class SynsetProcessor protected constructor(
                     Tracing.psErr.println("[W] Sense ${sense.senseKey} has duplicate ${duplicate.relation}")
                 }
             }
+            .filter { (_, relationData: RelationData) -> relationData.target.isSenseKey() }
             .mapNotNull { (sense: Sense, relationData: RelationData) ->
                 val targetSense = senseResolver(SenseKey(relationData.target))
                 val targetSynsetId = targetSense.synsetId
