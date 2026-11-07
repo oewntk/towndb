@@ -122,7 +122,7 @@ object Coder {
                 else -> {}
             }
 
-            PartOfSpeech.V -> when (rel.id) {
+            PartOfSpeech.V, PartOfSpeech.E -> when (rel.id) {
                 ANTONYM -> return "!"
                 HYPERNYM -> return "@"
                 HYPONYM -> return "~"
