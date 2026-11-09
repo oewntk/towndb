@@ -73,6 +73,7 @@ class GrindOffsets(
         compute(PartOfSpeech.V, offsets)
         compute(PartOfSpeech.A, offsets)
         compute(PartOfSpeech.R, offsets)
+        compute(PartOfSpeech.E, offsets)
         return offsets
     }
 
