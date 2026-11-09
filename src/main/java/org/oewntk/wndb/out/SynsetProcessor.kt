@@ -198,12 +198,17 @@ abstract class SynsetProcessor protected constructor(
                         Tracing.psErr.println("[W] Synset ${synset.synsetId} has duplicate ${duplicate.relation}")
                     }
                 }.mapNotNull { relationData ->
-                    val targetSynset = synsetResolver(SynsetId(relationData.target))
-                    val targetOffset = offsetFunction.invoke(relationData.target)
+                    val target = RelationTarget(relationData.target)
+                    val targetSynset = if (target.isSynsetId) {
+                        synsetResolver(SynsetId(relationData.target))
+                    } else if (target.isSenseKey) {
+                        val sense = senseResolver(SenseKey(relationData.target))
+                        synsetResolver(sense.synsetId)
+                    } else throw IllegalArgumentException("Target $target")
+                    val targetOffset = offsetFunction.invoke(targetSynset.synsetId.id)
                     val targetType = targetSynset.type
                     try {
-                        Relation(relationData.relation, synset.type, targetType, targetOffset, 0, 0, pointerCompat)
-
+                        Relation(relationData.relation, if (synset.type == SynsetType.E) SynsetType.N else synset.type, targetType, targetOffset, 0, 0, pointerCompat)
                     } catch (e: CompatException) {
                         val cause = e.cause!!.message!!
                         val count = incompats.computeIfAbsent(cause) { 0 } + 1
@@ -245,14 +250,21 @@ abstract class SynsetProcessor protected constructor(
             }
             .filter { (_, relationData: RelationData) -> relationData.target.isSenseKey() }
             .mapNotNull { (sense: Sense, relationData: RelationData) ->
-                val targetSense = senseResolver(SenseKey(relationData.target))
-                val targetSynsetId = targetSense.synsetId
-                val targetSynset = synsetResolver(targetSynsetId)
+                val target = RelationTarget(relationData.target)
+                val (targetSense, targetSynset) = if (target.isSynsetId) {
+                    val synset = synsetResolver(SynsetId(relationData.target))
+                    val sense = synset.findSenses(lexResolver, senseResolver).first() // take first sense
+                    sense to synset
+                } else if (target.isSenseKey) {
+                    val sense = senseResolver(SenseKey(relationData.target))
+                    val synset = synsetResolver(sense.synsetId)
+                    sense to synset
+                } else throw IllegalArgumentException("Target $target")
 
                 val memberNum = synset.findIndexOfMember(sense.lemma) + 1
 
                 try {
-                    buildSenseRelation(relationData.relation, synset.type, memberNum, targetSense, targetSynset, targetSynsetId.id)
+                    buildSenseRelation(relationData.relation, synset.type, memberNum, targetSense, targetSynset, targetSynset.synsetId.id)
 
                 } catch (e: CompatException) {
                     val cause = e.cause!!.message!!
